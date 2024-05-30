@@ -1,0 +1,23 @@
+.spinner {
+    --d: 38.7px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    color: rgba(47, 130, 162, 0.859);
+    box-shadow: calc(1*var(--d))      calc(0*var(--d))     0 0,
+           calc(0.707*var(--d))  calc(0.707*var(--d)) 0 1.8px,
+           calc(0*var(--d))      calc(1*var(--d))     0 3.5px,
+           calc(-0.707*var(--d)) calc(0.707*var(--d)) 0 5.3px,
+           calc(-1*var(--d))     calc(0*var(--d))     0 7px,
+           calc(-0.707*var(--d)) calc(-0.707*var(--d))0 8.8px,
+           calc(0*var(--d))      calc(-1*var(--d))    0 10.6px;
+    animation: spinner-a90wxe 1s infinite steps(8);
+ }
+ 
+ @keyframes spinner-a90wxe {
+    100% {
+       transform: rotate(1turn);
+    }
+ }
+
+ 

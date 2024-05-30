@@ -1,0 +1,43 @@
+.stepper{
+  margin:2rem 5rem;
+}
+ 
+.steps-container {
+  position: relative;
+  max-width: 990px;
+}
+
+.progress-line {
+  position: absolute;
+  height: 2px;
+  background:  rgba(47,130,162,.859);
+  width: 0;
+  top: 50%;
+  left: 0;
+  //z-index: -1;
+  transition: all 0.25s ease;
+}
+
+.steps-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.steps {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  background-color: rgba(137, 190, 211, 0.973);
+  color:black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.steps.active {
+  background-color: rgba(47,130,162,.859);
+  z-index:10;
+}

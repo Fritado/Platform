@@ -1,0 +1,7 @@
+{
+  "DEPLOYPATH" : "/home/fritado/public_html/portal",
+   "task" :  [
+    "index.html",
+    "images"
+     ]
+}

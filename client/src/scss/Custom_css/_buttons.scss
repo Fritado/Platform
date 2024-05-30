@@ -1,0 +1,258 @@
+button{
+  background-color: rgba(47, 130, 162, 0.859);
+  color: white;
+}
+button:hover{
+  background:  rgba(49, 152, 192, 0.859);
+}
+.profile-btn{
+  width:25%;
+  padding: 15px 0;
+}
+
+.btn.btn-primary, .custom-file .btn.custom-file-label:after {
+  background-color: rgba(47, 130, 162, 0.859);
+  padding: .8rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+}
+.btn-db{
+  margin-top: 1.2rem;
+  //width: 10%;
+  border-radius: 0.25rem;
+  padding: 0.65rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  border: none;
+  color: white;
+  background-color: rgba(47, 130, 162, 0.859);
+}
+.btn {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+  margin-right: 3px;
+  width:100%;
+  color :white;
+  border: none;
+  i {
+    font-size: 12px;
+  }
+  &.btn-rounded {
+    @include border-radius(50px);
+  }
+  &.btn-fw {
+    //min-width: $button-fixed-width;
+  }
+  &.btn-sm {
+   // font-size: $btn-font-size-sm;
+  }
+  &.btn-lg {
+    font-size: 1rem;
+  }
+  &.btn-xs {
+    // padding: $btn-padding-y-xs $btn-padding-x-xs;
+    // font-size: $btn-font-size-xs;
+  }
+  /* Buttons with only icons */
+  &.btn-icon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+  /* Buttons with icon and text */
+  &.btn-icon-text {
+    .btn-icon-prepend {
+      margin-right: .5rem;
+    }
+    .btn-icon-append {
+      margin-left: .5rem;
+    }
+  }
+  &.btn-social-icon {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+  }
+  &.btn-primary {
+    background-color: rgba(47,130,162,.859);
+    &.dropdown-toggle {
+      &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+}
+@media (min-width: 576px) {
+  .btn-group {
+    .btn {
+      margin-right: 0;
+      + .btn {
+        border-left: 0;
+      }
+    }
+  }
+}
+@media (max-width: 575px) {
+  .btn-group {
+    flex-direction: row;
+
+    > .btn {
+      border-radius: 0;
+      margin-right: 0;
+      margin-left: 0;
+
+      &:first-child {
+        border-top-left-radius: 0.1875rem;
+        border-top-right-radius: 0.1875rem;
+      }
+      &:not(:first-child) {
+        margin-left: 0;
+      }
+
+      &:last-child {
+        border-bottom-left-radius: 0.1875rem;
+        border-bottom-right-radius: 0.1875rem;
+      }
+
+      + .btn {
+        border-top: 0;
+      }
+    }
+  }
+}
+
+  .btn , button{
+    &:hover,
+    &:focus,
+    &:active {
+     background:  rgba(47,130,162,.859);
+      color: $white;
+    }
+  }
+
+/* Add these styles to your CSS file */
+.selected {
+  background-color: #f3f4f7;
+  font-weight: 500;
+  cursor: pointer;
+
+}
+.border:hover {
+  //background-color:  #f3f4f7;
+  font-weight: 500;
+}
+.btn-disabled {
+  background-color:  #f3f4f7;
+  //opacity: 0.1; 
+}
+/////////////////////approved / pending ////////////////
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 120px;
+  height: 34px;
+ }
+ 
+ .switch input {
+  display: none;
+ }
+ 
+ .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #DC3535;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+ }
+ 
+ .slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+ }
+ 
+ input:checked + .slider {
+  background-color: #379237;
+ }
+ 
+ input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+ }
+ 
+ input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(85px);
+ }
+ 
+ /*------ ADDED CSS ---------*/
+ .slider:after {
+  content: 'Pending';
+  color: white;
+  display: block;
+  position: absolute;
+  transform: translate(-50%,-50%);
+  top: 50%;
+  left: 50%;
+  font-size: 12px;
+  
+  
+ }
+ 
+ input:checked + .slider:after {
+  content: 'Approved';
+   padding-right:px;
+ }
+ 
+ /*--------- END --------*/
+
+ .icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.icon-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.icon-container:hover .tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}

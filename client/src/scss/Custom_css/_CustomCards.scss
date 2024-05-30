@@ -1,0 +1,117 @@
+/* Cards */
+.form-group label {
+  font-size: 0.875rem;
+  line-height: 1;
+  vertical-align: top;
+  margin-bottom: 1rem;
+  margin-top:2rem;
+}
+h2{
+  font-size: 1.5rem;
+}
+.card {
+  border: 0;
+  border-radius: 0;
+  margin-left: 2rem;
+  margin-right: 1.4rem;
+  margin-bottom: 2rem;
+  .card-body {
+    // padding: $card-padding-y $card-padding-x;
+    padding:2rem 2rem;
+    @media(max-width: 767px) {
+      padding: 2rem 2rem;
+    }
+    + .card-body {
+      padding-top: 2rem;
+    }
+    
+  }
+  
+  .card-title {
+    color: $black;
+    margin-bottom: 1.625rem;
+    text-transform: capitalize;
+    font-family:     'Nunito', sans-serif;;
+    font-weight: 00;
+    font-size: 1.125rem;
+  }
+  // .card-subtitle {
+  //   @extend .text-gray;
+    
+  //   font-weight: 400;
+  //   margin-top: 0.625rem;
+  //   margin-bottom: 0.625rem;
+  
+  
+  .card-description {
+    margin-bottom: 1.5rem;
+    // font-family: $type1;
+    font-weight: 400;
+    color: #2c2f33;
+  }
+  &.card-outline-success {
+		border: 1px solid theme-color("success");
+	}
+	&.card-outline-primary {
+		border: 1px solid theme-color("primary");
+	}
+	&.card-outline-warning {
+		border: 1px solid theme-color("warning");
+	}
+	&.card-outline-danger {
+		border: 1px solid theme-color("danger");
+	}
+	&.card-rounded {
+		@include border-radius(5px);
+	}
+
+  &.card-faded {
+    background: #b5b0b2;
+    border-color: #b5b0b2;
+  }
+  &.card-circle-progress {
+    color: $white;
+    text-align: center;
+  }
+  &.card-img-holder {
+    position: relative;
+    .card-img-absolute {
+      position: absolute;
+      top:0;
+      right: 0;
+      height: 100%;
+    }
+  }
+}
+
+// @each $color, $value in $theme-colors {
+//   .card-inverse-#{$color} {
+//     @include card-inverse-variant(rgba(theme-color($color), .2), theme-color-level($color, 1), theme-color-level($color, 3));
+//   }
+// }
+.nav-link-custom {
+  padding: 2rem;
+  text-decoration: none; /* Removes the underline */
+}
+
+.blog-overview-container {
+  width: 100%;
+  max-width: 1200px;
+  margin:  auto;
+}
+
+@media (max-width: 768px) {
+  .blog-overview-container {
+    padding: 0 20px;
+  }
+}
+
+.blog-card {
+  width: 468px; /* Adjust width as needed */
+}
+
+@media (max-width: 768px) {
+  .blog-card {
+    width: 100%;
+  }
+}

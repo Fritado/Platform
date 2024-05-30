@@ -1,0 +1,81 @@
+.pagespeed{
+    margin:0.8rem 5rem;
+    max-height: 100vh;
+    overflow-y: hidden;
+  }
+  .download-Icon{
+    margin-right:5.5rem;
+    color: rgba(47, 130, 162, 0.86);
+  }
+.btn-wd{
+  width: auto;
+}
+  .progress-bar{
+    position: relative;
+    height:130px;
+     width:130px;
+     border-radius: 50%;
+     border:5px solid rgb(221, 172, 172);
+     background: none;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+  }
+  .progress-bar::before{
+    content:"";
+    position: absolute;
+    height:102px;
+    width:102px;
+    border-radius: 50%;
+  }
+  .progress-value{
+    position: absolute;
+    font-size: 24px;
+    color:black;
+  }
+  .progress-box{
+    display: flex;
+   flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 54px;
+    min-height: 288px;
+  }
+  .page-img{
+width: 205px;
+height:350px;
+  }
+.box-style{
+    padding:1rem 2.5rem;
+    width:50%;
+}
+.icon{
+    position: relative;
+    bottom: 3px;
+    //color: ;
+    margin-right: 15px;
+}
+.icon-sm{
+    margin-right:5px
+}
+
+////pricing css
+.pricing{
+  padding: 1.75rem 1.5rem;
+}  
+.price {
+  font-size: 22px;
+}
+.border-top-design {
+  border-top: 2px solid rgba(47, 130, 162, 0.859);
+  border-radius: 12px;
+  padding: 20px;
+}
+.price-btn {
+  padding: 10px;
+  padding-right: 3rem;
+  padding-left: 1.5rem;
+  border: 1px solid rgba(47, 130, 162, 0.859);
+  border-radius: 4px;
+  color: #fff;
+}

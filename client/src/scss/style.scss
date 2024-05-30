@@ -1,0 +1,30 @@
+// If you want to override variables do it here
+@import "variables";
+
+// Import styles
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "@coreui/coreui/scss/coreui";
+@import "@coreui/chartjs/scss/coreui-chartjs";
+
+
+// Vendors
+@import "vendors/simplebar";
+
+// Custom styles for this theme
+@import "theme";
+
+// If you want to add custom CSS you can put it here
+@import "custom";
+
+
+@import "./Custom_css/auth";
+@import "./Custom_css/forms";
+@import "./Custom_css/buttons";
+@import "./Custom_css/pagespeed";
+@import "./Custom_css/_CustomCards";
+@import "./Custom_css/container-lg";
+@import "./Custom_css/reset";
+@import "./Custom_css/lists";
+@import "./Custom_css/tables";
+@import "./Custom_css/stepper";
+@import "./Custom_css/spinner";
