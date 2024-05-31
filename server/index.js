@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:30001",
+    origin: "https://platform.fritado.com" || "http://localhost:30001",
     credentials: true,
   })
 );
