@@ -1,8 +1,6 @@
-import React, { Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
-import { CContainer, CSpinner } from '@coreui/react'
-
-// routes config
+import React from 'react'
+import {  Route, Routes } from 'react-router-dom'
+import { CContainer } from '@coreui/react'
 import routes from '../../routes'
 
 const AppContent = () => {

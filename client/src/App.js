@@ -1,5 +1,4 @@
-import React, { Suspense, useEffect } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useColorModes } from '@coreui/react'
 import './scss/style.scss'
@@ -25,11 +24,10 @@ const App = () => {
   }, [])
 
   return (
-    <div>
-      <AppRoutes />
-   
-    </div>
+    
+    <AppRoutes />
+ 
   )
 }
 
-export default App
+export default React.memo(App)

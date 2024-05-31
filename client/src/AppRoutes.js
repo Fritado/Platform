@@ -1,33 +1,31 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { lazy } from 'react'
-import ProtectedRoute from './AuthRoute/ProtectedRoute'
-import Login from './components/views/pages/Login'
-import Register from './components/views/pages/Register'
 import Spinner from './components/views/common/Spinner'
+const Login = lazy(() => import('./components/views/pages/Login'))
+const Register = lazy(() => import('./components/views/pages/Register'))
 const ForgotPassword = lazy(() => import('./components/views/pages/ForgotPassword'))
 const NewPassword = lazy(() => import('./components/views/pages/NewPassword'))
 const BlogDetails = lazy(
   () => import('./components/views/ContentMarketing/BlogDetails/BlogDetails'),
 )
-import BusinessInfo from './components/views/on-boarding-menu/BusinessInfo'
-import Prompts from './components/views/superAdmin/Prompts/Prompts'
-import SALayout from './components/views/superAdmin/SALayout'
+const BusinessInfo = lazy(() => import('./components/views/on-boarding-menu/BusinessInfo'))
+const Prompts = lazy(() => import('./components/views/superAdmin/Prompts/Prompts'))
+const SALayout = lazy(() => import('./components/views/superAdmin/SALayout'))
 const HelpCenterPage = lazy(() => import('./components/views/HelpCenter/HelpCenterPage'))
 const ConnectWebsite = lazy(() => import('./components/views/on-boarding/ConnectWebsite'))
 const AdminDashboard = lazy(() => import('./components/views/superAdmin/SADasboard/AdminDashboard'))
 const DomainPage = lazy(() => import('./components/views/on-boarding/DomainPage'))
-const Pricing = lazy(() => import('./components/views/on-boarding/Pricing'))
-const SelectPlan = lazy(() => import('./components/views/on-boarding/SelectPlan'))
 const PortalWalkThrough = lazy(() => import('./components/views/PortalWalkThrough'))
 const PageSpeedInsights = lazy(() => import('./components/views/on-boarding/PageSpeedInsights'))
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'))
 
+// const Pricing = lazy(() => import('./components/views/on-boarding/Pricing'))
+// const SelectPlan = lazy(() => import('./components/views/on-boarding/SelectPlan'))
+
 const AppRoutes = () => {
   const userDataString = localStorage.getItem('user')
-  const userData = userDataString ? JSON.parse(userDataString) : null;
-  const userRole = userData ? userData.role : 'user';
-  //  console.log(userRole , "role")
+  const userData = userDataString ? JSON.parse(userDataString) : null
+  const userRole = userData ? userData.role : 'user'
 
   return (
     <Suspense
@@ -65,4 +63,4 @@ const AppRoutes = () => {
   )
 }
 
-export default AppRoutes
+export default React.memo(AppRoutes)

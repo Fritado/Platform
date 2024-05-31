@@ -40,7 +40,7 @@ const Register = () => {
       const url = `${AUTH_API_ROUTES.SIGNUP}`
       const res = await axios.post(url, formData)
       toast.success('Signup Successfull')
-      console.log('res', res)
+     // console.log('res', res)
 
       const signupData = res.data.newUser
       navigate('/login')
