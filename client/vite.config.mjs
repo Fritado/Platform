@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
       port:30001,
       proxy: {
         '/api': {
-          target: 'http://localhost:4000',
+          target: 'http://localhost:30002',
           changeOrigin: true,
         },
       },
