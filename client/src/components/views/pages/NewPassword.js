@@ -96,20 +96,17 @@ const NewPassword = () => {
               </form>
             </div>
           </div>
-          <div>
-            <div style={{ marginLeft: '10rem', marginRight: '10rem' }} className="mt-5">
+          <div className="col-12 col-md-10 col-lg-8 mx-auto">
+            <div className="mt-5">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-              
-              <div>
-                <p className="fs-6 text-justify">
+              <p className="fs-6 text-justify">
                 Step into Fritado AI's secure systems, reserved for authorized users. We
-                  prioritize safeguarding sensitive data and detecting any unauthorized activity.
-                  By using our systems, you agree to monitoring and potential sharing of evidence
-                  with law enforcement in case of criminal activity. Your continued use implies
-                  acceptance of our Privacy Policy and Terms and Conditions. If you don't agree,
-                  please close your browser window.
-                </p>
-              </div>
+                prioritize safeguarding sensitive data and detecting any unauthorized activity.
+                By using our systems, you agree to monitoring and potential sharing of evidence
+                with law enforcement in case of criminal activity. Your continued use implies
+                acceptance of our Privacy Policy and Terms and Conditions. If you don't agree,
+                please close your browser window.
+              </p>
             </div>
           </div>
           <AuthFooter />

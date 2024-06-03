@@ -256,3 +256,28 @@ button:hover{
   border-style: solid;
   border-color: black transparent transparent transparent;
 }
+
+
+.tooltip-content {
+	position: absolute;
+	background-color: #f9f9f9;
+	color: #333;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding: 5px 10px;
+	z-index: 1;
+	top: calc(100% + 5px); /* Position the tooltip below the input */
+	left: 0; /* Position the tooltip at the left side of the input */
+	display: none; /* Initially hide the tooltip */
+  }
+  
+  .tooltip-content::before {
+	content: '';
+	position: absolute;
+	border-width: 6px;
+	border-style: solid;
+	border-color: #ccc transparent transparent transparent;
+	top: -12px;
+	left: 10px; /* Position the arrow in the middle of the tooltip */
+  }
+  

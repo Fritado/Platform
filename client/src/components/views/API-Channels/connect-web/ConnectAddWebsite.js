@@ -1,7 +1,6 @@
 import React from 'react'
 import { RiProfileLine } from "react-icons/ri";
-import SocialMediaAddApp from '../SocialMediaComponents/SocialMediaAddApp'
-
+import WebsiteIntegrationForm from './WebsiteIntegrationForm';
 const ConnectAddWebsite = () => {
     const title1 = {
         icon: <RiProfileLine size={34} color="rgb(97 116 221)" />,
@@ -35,7 +34,7 @@ const ConnectAddWebsite = () => {
   return (
     
       <div>
-      <SocialMediaAddApp
+      <WebsiteIntegrationForm
         title={title1}
         appDetails={appDetails1}
         oauthRedirectUris={oauthRedirectUris1}

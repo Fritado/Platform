@@ -51,7 +51,7 @@ const ConnectwebTable = ({ data, headers, appSettingRoute, icon, heading }) => {
                   {headers.map((header, index) => (
                     <th key={index}>{header}</th>
                   ))}
-                  <th></th>
+                  {/* <th></th> */}
                 </tr>
               </thead>
               <tbody>

@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast'
 import { loginUser, userToken } from '../../../slice/authSlice'
 import Logo from '../../../assets/images/logo2.png'
 import { AUTH_API_ROUTES } from '../../services/APIURL/Apis'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -72,9 +73,7 @@ const Login = () => {
                     type="email"
                     name="email"
                     id="validationServer01"
-                    // feedback="Looks good!"
-                    defaultValue="name@surname.com"
-                    // valid
+                    
                     value={email}
                     placeholder="Username"
                     onChange={handleOnChange}
@@ -83,6 +82,7 @@ const Login = () => {
                   />
                 </Form.Group>
                 <Form.Group className="d-flex search-field">
+                  
                   <Form.Control
                     required
                     type={showPassword ? 'text' : 'password'}
@@ -91,8 +91,10 @@ const Login = () => {
                     placeholder="Password"
                     onChange={handleOnChange}
                     size="lg"
-                    className="h-auto"
+                    className="h-auto position-relative"
+                    
                   />
+                  
                 </Form.Group>
                 <button
                   type="submit"
@@ -128,20 +130,17 @@ const Login = () => {
               </Form>
             </div>
           </div>
-          <div>
-            <div style={{ marginLeft: '10rem', marginRight: '10rem' }} className="mt-5">
+          <div className="col-12 col-md-10 col-lg-8 mx-auto">
+            <div className="mt-5">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-              
-              <div>
-                <p className="fs-6 text-justify">
+              <p className="fs-6 text-justify">
                 Step into Fritado AI's secure systems, reserved for authorized users. We
-                  prioritize safeguarding sensitive data and detecting any unauthorized activity.
-                  By using our systems, you agree to monitoring and potential sharing of evidence
-                  with law enforcement in case of criminal activity. Your continued use implies
-                  acceptance of our Privacy Policy and Terms and Conditions. If you don't agree,
-                  please close your browser window.
-                </p>
-              </div>
+                prioritize safeguarding sensitive data and detecting any unauthorized activity.
+                By using our systems, you agree to monitoring and potential sharing of evidence
+                with law enforcement in case of criminal activity. Your continued use implies
+                acceptance of our Privacy Policy and Terms and Conditions. If you don't agree,
+                please close your browser window.
+              </p>
             </div>
           </div>
           <AuthFooter />

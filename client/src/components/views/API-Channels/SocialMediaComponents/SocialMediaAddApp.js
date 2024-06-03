@@ -49,19 +49,19 @@ const SocialMediaAddApp = ({
               <span>
                 <VscDebugBreakpointUnsupported size={30} />
               </span>{' '}
-              Website details
+              App details
             </div>
             <form className="p-3">
               <div className="mb-3">
                 <label htmlFor="appName" className="form-label">
-                  <MdEditDocument /> Website Name
+                  <MdEditDocument /> App Name
                 </label>
                 <input type="text" className="form-control" id="appName" />
               </div>
               <div className="row mb-3">
                 <div className="col">
                   <label htmlFor="appId" className="form-label">
-                    <FaRegIdCard /> Website Type
+                    <FaRegIdCard /> App id
                   </label>
                   <input type="text" className="form-control" id="appId" />
                 </div>
@@ -70,7 +70,7 @@ const SocialMediaAddApp = ({
                     <span className="pe-1">
                       <FaKey />{' '}
                     </span>
-                  Website Technology
+                  App secret
                   </label>
                   <input type="text" className="form-control" id="appSecret" />
                 </div>
@@ -78,7 +78,7 @@ const SocialMediaAddApp = ({
               <div className="d-grid gap-2 d-md-flex justify-content-end">
                 <button className="border-0 rounded px-4 py-3" onClick={onSave}>
                   <AiFillSave size={20} />
-                Connect
+               Save
                 </button>
                 <button className="border-0 rounded px-4 py-3" onClick={onCancel}>
                   <RxCross2 size={20} />
