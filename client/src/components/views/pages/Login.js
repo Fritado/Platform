@@ -30,7 +30,6 @@ const Login = () => {
     e.preventDefault()
     try {
       const url = `${AUTH_API_ROUTES.LOGIN}`
-      //console.log(url)
       const response = await axios.post(url, formData)
       toast.success('Login Successfull')
       // console.log('response', response)

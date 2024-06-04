@@ -1,8 +1,9 @@
-export const API_BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:30002'
+export const API_BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:4000'
 
 export const AUTH_API_ROUTES = {
   LOGIN: API_BASE_URL + '/api/auth/login',
   SIGNUP: API_BASE_URL + '/api/auth/signup',
+  SEND_OTP: API_BASE_URL + '/api/auth/send-otp',
   FORGOT_PASSWORD: API_BASE_URL + '/api/auth/reset-password-token-link',
   FORGOT_PASSWORD: API_BASE_URL + '/api/auth/reset-password-token-link',
   NEW_PASSWORD: API_BASE_URL + '/api/auth/reset-password',

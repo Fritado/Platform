@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
       port:30001,
       proxy: {
         '/api': {
-          target: 'https://platform.fritado.com',
+          target: 'https://server.fritado.com', //https://platform.fritado.com //http://localhost:4000
           changeOrigin: true,
         },
       },

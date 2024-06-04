@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import Spinner from './components/views/common/Spinner'
 const Login = lazy(() => import('./components/views/pages/Login'))
 const Register = lazy(() => import('./components/views/pages/Register'))
+const VerifyOtp = lazy(()=> import ('./components/views/pages/VerifyOtp'));
 const ForgotPassword = lazy(() => import('./components/views/pages/ForgotPassword'))
 const NewPassword = lazy(() => import('./components/views/pages/NewPassword'))
 const BlogDetails = lazy(
@@ -23,8 +24,16 @@ const DefaultLayout = lazy(() => import('./layout/DefaultLayout'))
 // const SelectPlan = lazy(() => import('./components/views/on-boarding/SelectPlan'))
 
 const AppRoutes = () => {
+  let userData = null
   const userDataString = localStorage.getItem('user')
-  const userData = userDataString ? JSON.parse(userDataString) : null
+  // userData = userDataString ? JSON.parse(userDataString) : null
+   if (userDataString) {
+    try {
+      userData = JSON.parse(userDataString);
+    } catch (e) {
+      console.error('Error parsing user data from localStorage:', e);
+    }
+  }
   const userRole = userData ? userData.role : 'user'
 
   return (
@@ -45,6 +54,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<NewPassword />} />
         <Route path="/blog-details/:topic" element={<BlogDetails />} />

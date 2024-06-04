@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, {useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { loginUser, signUpdata } from '../../../slice/authSlice'
@@ -16,8 +16,11 @@ const Register = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [showModal, setShowModal] = useState(false)
-  const [isFormValid, setIsFormValid] = useState(false)
+  //const [isFormValid, setIsFormValid] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [focusedField, setFocusedField] = useState('')
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
@@ -27,14 +30,12 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   })
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   const { firstname, lastname, email, country_Code, contactNumber, password, confirmPassword } =
     formData
-  const [focusedField, setFocusedField] = useState('')
 
   const handleOnChange = (event) => {
-    console.log(event.target.value)
+    // console.log(event.target.value)
     const { name, value } = event.target
     setFormData((prevData) => ({
       ...prevData,
@@ -45,17 +46,18 @@ const Register = () => {
   const handleOnSubmit = async (e) => {
     e.preventDefault()
     try {
-      const fullContactNumber = `${country_Code} ${contactNumber}`.trim();
-      const signupData = { ...formData, contactNumber: fullContactNumber ,  country_Code: undefined }
-      const url = `${AUTH_API_ROUTES.SIGNUP}`
-      const res = await axios.post(url, signupData)
-      toast.success('Signup Successfull')
-      console.log('res', res)
-      navigate('/login')
-      //setting signup data to store to be used after otp verification
-      dispatch(signUpdata(res.data.newUser))
+      const fullContactNumber = `${country_Code} ${contactNumber}`.trim()
+      const signupData = { ...formData, contactNumber: fullContactNumber, country_Code: undefined }
+      dispatch(signUpdata(signupData))
 
-      //Reset form data
+      const url = `${AUTH_API_ROUTES.SEND_OTP}`
+      const res = await axios.post(url, { email: signupData.email })
+      if (res.data.success) {
+        toast.success('OTP sent successfully.')
+        navigate('/verify-otp')
+      } else {
+        toast.error(res.data.message || 'Failed to send OTP. Please try again.')
+      }
       setFormData({
         firstname: '',
         lastname: '',
@@ -65,7 +67,6 @@ const Register = () => {
         password: '',
         confirmPassword: '',
       })
-      // setTermsAccepted(false);
     } catch (error) {
       toast.error('Failed to sign up. Please try again.')
       console.log(error)
@@ -77,24 +78,41 @@ const Register = () => {
   const handleAccept = () => {
     setTermsAccepted(true)
     setShowModal(false)
-    const isFormValid = !!(
-      firstname &&
-      lastname &&
-      email &&
-      country_Code &&
-      contactNumber &&
-      password &&
-      confirmPassword
-      
-    )
-    setIsFormValid(isFormValid)
   }
   const handleDecline = () => {
     setTermsAccepted(false)
     setShowModal(false)
   }
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    const handleOutsideClick = (event) => {
+      if (showModal && event.target.closest('.modal-content') === null) {
+        setShowModal(false);
+      }
+    };
 
+    document.addEventListener('mousedown', handleOutsideClick);
 
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [showModal]);
+
+  const isFormValid = () => {
+    const isFilled =
+      formData.firstname &&
+      formData.lastname &&
+      formData.email &&
+      formData.country_Code &&
+      formData.contactNumber &&
+      formData.password &&
+      formData.confirmPassword;
+    return isFilled && termsAccepted;
+  };
   return (
     <div>
       <div className="d-flex align-items-center auth px-0">
@@ -188,12 +206,12 @@ const Register = () => {
                   {focusedField === 'password' && (
                     <div className="password-tooltip">
                       <p>Your password must have:</p>
-                      <ul  className='text-danger password-list' >
+                      <ul className="text-danger password-list">
                         <li>More than 8 characters</li>
                         <li>Uppercase characters (A-Z)</li>
                         <li>Lowercase characters (a-z)</li>
                         <li>Numbers (0-9)</li>
-                        <li>Special characters (~*!@$#%_+.?:,{ })</li>
+                        <li>Special characters (~*!@$#%_+.?:,{})</li>
                       </ul>
                     </div>
                   )}
@@ -231,7 +249,7 @@ const Register = () => {
                 </div>
                 <button
                   type="submit"
-                  // disabled={!isFormValid}
+                  //disabled={!isFormValid()}
                   className="mt-3 btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                 >
                   SIGN UP
@@ -263,6 +281,7 @@ const Register = () => {
       </div>
       <TermsConditionModal
         show={showModal}
+      //  onClose={() => setShowModal(false)}
         onClose={handleModalClose}
         onAccept={handleAccept}
         onDecline={handleDecline}
