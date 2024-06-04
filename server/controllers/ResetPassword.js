@@ -27,7 +27,7 @@ exports.resetPasswordToken = async (req, res) => {
     );
     // console.log("DETAILS", updatedDetails);
 
-    const url = `http://localhost:3000/reset-password/${token}`;
+    const url = `'https://server.fritado.com/reset-password/${token}`;
 
     console.log("email url ", url);
     await mailSender(

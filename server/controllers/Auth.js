@@ -29,12 +29,11 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    var otp = otpGenerator.generate(6, {
+    let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     });
-    console.log("OTP generated:", otp);
 
     //check for unique otp in db
     const result = await Otp.findOne({ otp: otp });
@@ -48,10 +47,20 @@ exports.sendOtp = async (req, res) => {
       });
       result = await Otp.findOne({ otp: otp });
     }
+    let otpEntry = await Otp.findOne({ email });
+    if (otpEntry) {
+      // Update the existing OTP entry
+      otpEntry.otp = otp;
+      await otpEntry.save();
+    } else {
+      // Create a new OTP entry
+      const otpPayload = { email, otp };
+      otpEntry = await Otp.create(otpPayload);
+    }
 
-    const otpPayload = { email, otp };
-    const otpBody = Otp.create(otpPayload);
-    console.log("OTP Body", otpBody);
+    // const otpPayload = { email, otp };
+    // const otpBody = await Otp.create(otpPayload);
+    console.log("OTP Body", otpEntry);
 
     return res.status(200).json({
       success: true,
@@ -73,11 +82,10 @@ exports.signup = async (req, res) => {
       lastname,
       email,
       password,
-      confirmPassword,    
+      confirmPassword,
       contactNumber,
+      otp,
     } = req.body;
-
-    //const fullContactNumber = `${country_code} ${contactNumber}`; 
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -96,12 +104,10 @@ exports.signup = async (req, res) => {
       });
     }
     if (!passwordRegex.test(password)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Password should be at least 6 characters and contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.",
-        });
+      return res.status(400).json({
+        message:
+          "Password should be at least 6 characters and contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.",
+      });
     }
     // Check if password and confirm password match
     if (password != confirmPassword) {
@@ -120,6 +126,22 @@ exports.signup = async (req, res) => {
         message: "User already exists. Please sign in to continue.",
       });
     }
+    //Find the most recent OTP for the email
+    const response = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1);
+    console.log("opt res", response);
+    if (response.length === 0) {
+			// OTP not found for the email
+			return res.status(400).json({
+				success: false,
+				message: "The OTP is not valid",
+			});
+		} else if (otp !== response[0].otp) {
+			// Invalid OTP
+			return res.status(400).json({
+				success: false,
+				message: "Invalid OTP",
+			});
+		}
 
     //hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -138,7 +160,7 @@ exports.signup = async (req, res) => {
       contactNumber,
     });
 
-    console.log(newUser, "user details");
+    //console.log(newUser, "user details");
     return res.status(200).json({
       success: true,
       newUser,
