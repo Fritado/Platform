@@ -46,6 +46,7 @@ exports.sendOtp = async (req, res) => {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
       });
+      result = await Otp.findOne({ otp: otp });
     }
 
     const otpPayload = { email, otp };
@@ -72,15 +73,14 @@ exports.signup = async (req, res) => {
       lastname,
       email,
       password,
-      confirmPassword,
-      
+      confirmPassword,    
       contactNumber,
     } = req.body;
 
     //const fullContactNumber = `${country_code} ${contactNumber}`; 
 
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (
       !firstname ||

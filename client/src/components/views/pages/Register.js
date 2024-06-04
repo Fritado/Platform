@@ -31,7 +31,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { firstname, lastname, email, country_Code, contactNumber, password, confirmPassword } =
     formData
-  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const [focusedField, setFocusedField] = useState('')
 
   const handleOnChange = (event) => {
     console.log(event.target.value)
@@ -45,8 +45,8 @@ const Register = () => {
   const handleOnSubmit = async (e) => {
     e.preventDefault()
     try {
-      const fullContactNumber = `${country_Code} ${contactNumber}`
-      const signupData = { ...formData, contactNumber: fullContactNumber }
+      const fullContactNumber = `${country_Code} ${contactNumber}`.trim();
+      const signupData = { ...formData, contactNumber: fullContactNumber ,  country_Code: undefined }
       const url = `${AUTH_API_ROUTES.SIGNUP}`
       const res = await axios.post(url, signupData)
       toast.success('Signup Successfull')
@@ -84,8 +84,8 @@ const Register = () => {
       country_Code &&
       contactNumber &&
       password &&
-      confirmPassword &&
-      termsAccepted
+      confirmPassword
+      
     )
     setIsFormValid(isFormValid)
   }
@@ -93,10 +93,6 @@ const Register = () => {
     setTermsAccepted(false)
     setShowModal(false)
   }
-  const handleTooltip = (show) => {
-    setTooltipVisible(show)
-  }
-  
 
 
   return (
@@ -138,14 +134,14 @@ const Register = () => {
                     name="email"
                     value={email}
                     onChange={handleOnChange}
-                    onFocus={() => handleTooltip(true)}
-                    onBlur={() => handleTooltip(false)}
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField()}
                     className="form-control form-control-lg"
                     placeholder="Email"
                   />
-                   {tooltipVisible && (
+                  {focusedField === 'email' && (
                     <div className="password-tooltip">
-                     <p>Please enter valid email address</p>
+                      <p>Please enter valid email address</p>
                     </div>
                   )}
                 </div>
@@ -185,19 +181,19 @@ const Register = () => {
                     placeholder="Password"
                     value={password}
                     onChange={handleOnChange}
-                    onFocus={() => handleTooltip(true)}
-                    onBlur={() => handleTooltip(false)}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => setFocusedField('')}
                     className="form-control form-control-lg"
                   />
-                  {tooltipVisible && (
+                  {focusedField === 'password' && (
                     <div className="password-tooltip">
-                      
-                      <ul>
-                        <li>At least 8 characters</li>
-                        <li>Contains at least one uppercase letter</li>
-                        <li>Contains at least one lowercase letter</li>
-                        <li>Contains at least one number</li>
-                        <li>Contains at least one special character</li>
+                      <p>Your password must have:</p>
+                      <ul  className='text-danger password-list' >
+                        <li>More than 8 characters</li>
+                        <li>Uppercase characters (A-Z)</li>
+                        <li>Lowercase characters (a-z)</li>
+                        <li>Numbers (0-9)</li>
+                        <li>Special characters (~*!@$#%_+.?:,{ })</li>
                       </ul>
                     </div>
                   )}
@@ -235,7 +231,7 @@ const Register = () => {
                 </div>
                 <button
                   type="submit"
-                  disabled={!isFormValid}
+                  // disabled={!isFormValid}
                   className="mt-3 btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                 >
                   SIGN UP

@@ -20,7 +20,7 @@ const {
 //Auth
 router.post("/login", login);
 router.post("/signup", signup);
-router.post("/sendotp", sendOtp);
+router.post("/send-otp", sendOtp);
 router.post("/changepassword", auth, changePassword);
 router.post("/reset-password-token-link", resetPasswordToken);
 router.post("/reset-password", resetPassword);
