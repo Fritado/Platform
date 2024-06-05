@@ -37,9 +37,9 @@ exports.sendOtp = async (req, res) => {
 
     //check for unique otp in db
     const result = await Otp.findOne({ otp: otp });
-    console.log("Result is Generate OTP Func");
-    console.log("OTP", otp);
-    console.log("Result", result);
+    // console.log("Result is Generate OTP Func");
+    // console.log("OTP", otp);
+    // console.log("Result", result);
 
     while (result) {
       otp = otpGenerator.generate(6, {
@@ -60,7 +60,7 @@ exports.sendOtp = async (req, res) => {
 
     // const otpPayload = { email, otp };
     // const otpBody = await Otp.create(otpPayload);
-    console.log("OTP Body", otpEntry);
+    //console.log("OTP Body", otpEntry);
 
     return res.status(200).json({
       success: true,
@@ -128,7 +128,7 @@ exports.signup = async (req, res) => {
     }
     //Find the most recent OTP for the email
     const response = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1);
-    console.log("opt res", response);
+   // console.log("opt res", response);
     if (response.length === 0) {
 			// OTP not found for the email
 			return res.status(400).json({

@@ -76,7 +76,7 @@ const Login = () => {
                     className="h-auto my-2"
                   />
                 </Form.Group>
-                <Form.Group className="d-flex search-field">
+                <Form.Group className="d-flex search-field position-relative">
                   <Form.Control
                     required
                     type={showPassword ? 'text' : 'password'}
@@ -85,14 +85,14 @@ const Login = () => {
                     placeholder="Password"
                     onChange={handleOnChange}
                     size="lg"
-                    className="h-auto position-relative"
+                    className="h-auto"
                   />
                   <span
                     onClick={togglePasswordVisibility}
                     className="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
                     style={{ cursor: 'pointer' }}
                   >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    {!showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </Form.Group>
                 <button
@@ -106,7 +106,7 @@ const Login = () => {
                   <div className="form-check">
                     <label className="form-check-label text-secondary">
                       <input type="checkbox" className="check-input" />
-                      <i className="input-helper"></i>
+                      <i className="input-helper pe-1"></i>
                       Remember me
                     </label>
                   </div>
@@ -129,10 +129,10 @@ const Login = () => {
               </Form>
             </div>
           </div>
-          <div className="col-12 col-md-10 col-lg-8 mx-auto">
-            <div className="mt-5">
+          <div className="d-flex mx-auto">
+            <div className="mt-5 custom-margin">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-              <p className="fs-6 text-justify">
+              <p className="text-justify">
                 Step into Fritado AI's secure systems, reserved for authorized users. We prioritize
                 safeguarding sensitive data and detecting any unauthorized activity. By using our
                 systems, you agree to monitoring and potential sharing of evidence with law

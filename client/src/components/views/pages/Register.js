@@ -1,7 +1,7 @@
-import React, {useEffect, useState } from 'react'
+import React, {useEffect, useState,Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { loginUser, signUpdata } from '../../../slice/authSlice'
+import { signUpdata } from '../../../slice/authSlice'
 import AuthFooter from '../../views/common/AuthFooter'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -10,13 +10,12 @@ import { useNavigate } from 'react-router-dom'
 import { AUTH_API_ROUTES } from '../../services/APIURL/Apis'
 import CountryCode from '../data/CountryCode.json'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
-import TermsConditionModal from './TermsConditionModal'
+const TermsConditionModal = lazy(() => import('./TermsConditionModal'));
 
 const Register = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [showModal, setShowModal] = useState(false)
-  //const [isFormValid, setIsFormValid] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [focusedField, setFocusedField] = useState('')
@@ -263,10 +262,10 @@ const Register = () => {
               </form>
             </div>
           </div>
-          <div className="col-12 col-md-10 col-lg-8 mx-auto">
-            <div className="mt-5">
+          <div className="d-flex mx-auto">
+            <div className="mt-5 custom-margin">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-              <p className="fs-6 text-justify">
+              <p className="text-justify">
                 Step into Fritado AI's secure systems, reserved for authorized users. We prioritize
                 safeguarding sensitive data and detecting any unauthorized activity. By using our
                 systems, you agree to monitoring and potential sharing of evidence with law
@@ -279,13 +278,14 @@ const Register = () => {
           <AuthFooter />
         </div>
       </div>
-      <TermsConditionModal
-        show={showModal}
-      //  onClose={() => setShowModal(false)}
-        onClose={handleModalClose}
-        onAccept={handleAccept}
-        onDecline={handleDecline}
-      ></TermsConditionModal>
+      <Suspense fallback={<div>Loading...</div>}>
+        <TermsConditionModal
+          show={showModal}
+          onClose={handleModalClose}
+          onAccept={handleAccept}
+          onDecline={handleDecline}
+        />
+      </Suspense>
     </div>
   )
 }

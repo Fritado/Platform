@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
 import Logo from '../../../assets/images/logo2.png'
 import { AUTH_API_ROUTES } from '../../services/APIURL/Apis'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 const NewPassword = () => {
   const dispatch = useDispatch()
@@ -15,9 +16,9 @@ const NewPassword = () => {
   //console.log("token value coming from reset-pasword", token);
   const [formData, setFormData] = useState({
     password: '',
-    confirmPassword: '',
   })
-  const { password, confirmPassword } = formData
+  const [showPassword, setShowPassword] = useState(false)
+  const { password } = formData
   const handleOnChange = ({ currentTarget: input }) => {
     console.log('input typing value', input.value)
     setFormData({ ...formData, [input.name]: input.value })
@@ -45,6 +46,9 @@ const NewPassword = () => {
     }
   }
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
   return (
     <div>
       <div className="d-flex align-items-center auth px-0">
@@ -60,7 +64,7 @@ const NewPassword = () => {
                 <div className="form-group">
                   <input
                     required
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     value={password}
                     placeholder="Password"
@@ -68,19 +72,13 @@ const NewPassword = () => {
                     id="exampleInputPassword1"
                     onChange={handleOnChange}
                   />
+                  <span
+                    onClick={togglePasswordVisibility}
+                    className="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
+                  >
+                    {!showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
                 </div>
-                {/* <div className="form-group">
-                  <input
-                    required
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    name="confirmPassword"
-                    className="form-control form-control-lg"
-                    id="exampleInputPassword1"
-                    placeholder="Re-type Password"
-                    onChange={handleOnChange}
-                  />
-                </div> */}
 
                 <button
                   onClick={handlePasswordReset}
@@ -96,16 +94,16 @@ const NewPassword = () => {
               </form>
             </div>
           </div>
-          <div className="col-12 col-md-10 col-lg-8 mx-auto">
-            <div className="mt-5">
+          <div className="d-flex mx-auto">
+            <div className="mt-5 custom-margin">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-              <p className="fs-6 text-justify">
-                Step into Fritado AI's secure systems, reserved for authorized users. We
-                prioritize safeguarding sensitive data and detecting any unauthorized activity.
-                By using our systems, you agree to monitoring and potential sharing of evidence
-                with law enforcement in case of criminal activity. Your continued use implies
-                acceptance of our Privacy Policy and Terms and Conditions. If you don't agree,
-                please close your browser window.
+              <p className="text-justify">
+                Step into Fritado AI's secure systems, reserved for authorized users. We prioritize
+                safeguarding sensitive data and detecting any unauthorized activity. By using our
+                systems, you agree to monitoring and potential sharing of evidence with law
+                enforcement in case of criminal activity. Your continued use implies acceptance of
+                our Privacy Policy and Terms and Conditions. If you don't agree, please close your
+                browser window.
               </p>
             </div>
           </div>

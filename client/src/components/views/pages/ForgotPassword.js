@@ -20,7 +20,7 @@ const ForgotPassword = () => {
     try {
       const url = `${AUTH_API_ROUTES.FORGOT_PASSWORD}`
       const res = await axios.post(url, { email })
-      console.log(res)
+     // console.log(res)
       //dispatch(setToken(res.data.data.token));
       setEmailSent(true)
       toast.success('Email sent  Successfull')
@@ -75,10 +75,10 @@ const ForgotPassword = () => {
               </form>
             </div>
           </div>
-          <div className="col-12 col-md-10 col-lg-8 mx-auto">
-            <div className="mt-5">
+          <div className="d-flex mx-auto">
+            <div className="mt-5 custom-margin">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-              <p className="fs-6 text-justify">
+              <p className=" text-justify">
                 Step into Fritado AI's secure systems, reserved for authorized users. We
                 prioritize safeguarding sensitive data and detecting any unauthorized activity.
                 By using our systems, you agree to monitoring and potential sharing of evidence

@@ -2,6 +2,7 @@ const User = require("../models/User");
 const mailSender = require("../utils/mailSender");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const {getPasswordResetEmailTemplate} = require("../mail/templates/resetPasswordTemplate");
 
 exports.resetPasswordToken = async (req, res) => {
   try {
@@ -16,25 +17,25 @@ exports.resetPasswordToken = async (req, res) => {
     }
 
     const token = crypto.randomBytes(20).toString("hex");
+    const expirationTime = Date.now() + 3600000; // 1 hour
 
     const updatedDetails = await User.findOneAndUpdate(
       { email: email },
       {
         token: token,
-        resetPasswordExpires: Date.now() + 3600000,
+        resetPasswordExpires: expirationTime,
       },
       { new: true }
     );
-    // console.log("DETAILS", updatedDetails);
+   //  console.log("DETAILS", updatedDetails);
+    //http://localhost:30001/reset-password/${token}
 
-    const url = `'https://server.fritado.com/reset-password/${token}`;
+    const url = ` https://platform.fritado.com/reset-password/${token}`;
 
-    console.log("email url ", url);
-    await mailSender(
-      email,
-      "Password Reset Link",
-      `Your Link for email verification is ${url}. Please click this url to reset your password.`
-    );
+    const emailTemplate = getPasswordResetEmailTemplate(user.firstname, url);
+
+    //console.log("email url ", url);
+    await mailSender(email, "Password Reset Link", emailTemplate);
 
     return res.json({
       success: true,
@@ -52,7 +53,7 @@ exports.resetPasswordToken = async (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
-  console.log("reset password body", req.body);
+ // console.log("reset password body", req.body);
   try {
     const { password, token } = req.body;
 
