@@ -53,8 +53,8 @@ const NewPassword = () => {
     <div>
       <div className="d-flex align-items-center auth px-0">
         <div className="row w-100 mx-0 d-flex flex-column mx-auto">
-          <div className="col-lg-4 mx-auto pt-5">
-            <div className="auth-form-light text-left py-5 px-4 px-sm-5 mt-4">
+          <div className="col-lg-4 mx-auto pt-4">
+            <div className="auth-form-light text-left py-4 px-4 px-sm-5 mt-5">
               <div className="brand-logo">
                 <img src={Logo} alt="logo" className="d-flex mx-auto" />
               </div>

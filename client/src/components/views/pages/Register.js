@@ -116,14 +116,14 @@ const Register = () => {
     <div>
       <div className="d-flex align-items-center auth px-0">
         <div className="row w-100 mx-0 d-flex flex-column mx-auto">
-          <div className="col-lg-4 mx-auto pt-5">
-            <div className="auth-form-light text-left py-5 px-4 px-sm-5 mt-4">
+          <div className="col-lg-4 mx-auto pt-4">
+            <div className="auth-form-light text-left py-4 px-4 px-sm-5 mt-5">
               <div className="brand-logo">
                 <img src={Logo} alt="logo" className="d-flex mx-auto" />
               </div>
               <h5>New here?</h5>
               <h6 className="fw-normal">Signing up is easy. It only takes a few steps</h6>
-              <form onSubmit={handleOnSubmit} className="pt-3">
+              <form onSubmit={handleOnSubmit} className="">
                 <div className="form-group d-flex gap-3">
                   <input
                     required
