@@ -34,7 +34,7 @@ const Login = () => {
       toast.success('Login Successfull')
       // console.log('response', response)
 
-      const { token ,redirectTo } = response.data
+      const { token, redirectTo } = response.data
 
       localStorage.setItem('token', token)
       // localStorage.setItem("lastVisitedPage", redirectTo);
@@ -42,17 +42,14 @@ const Login = () => {
       dispatch(loginUser(response))
       dispatch(userToken(token))
 
-      // Check user role and redirect accordingly
-      // if (response.data.user.role === 'user') {
-      //   navigate('/business-info')
-      // } else if (response.data.user.role === 'superadmin') {
-      //   navigate('/super-admin-dashboard')
-      // }
-      window.location.href = redirectTo;
+      window.location.href = redirectTo
     } catch (error) {
       toast.error('This is an error!')
       console.log(error)
     }
+  }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
   }
   return (
     <div>
@@ -72,7 +69,6 @@ const Login = () => {
                     type="email"
                     name="email"
                     id="validationServer01"
-                    
                     value={email}
                     placeholder="Username"
                     onChange={handleOnChange}
@@ -81,7 +77,6 @@ const Login = () => {
                   />
                 </Form.Group>
                 <Form.Group className="d-flex search-field">
-                  
                   <Form.Control
                     required
                     type={showPassword ? 'text' : 'password'}
@@ -91,9 +86,14 @@ const Login = () => {
                     onChange={handleOnChange}
                     size="lg"
                     className="h-auto position-relative"
-                    
                   />
-                  
+                  <span
+                    onClick={togglePasswordVisibility}
+                    className="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
                 </Form.Group>
                 <button
                   type="submit"
@@ -133,12 +133,12 @@ const Login = () => {
             <div className="mt-5">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
               <p className="fs-6 text-justify">
-                Step into Fritado AI's secure systems, reserved for authorized users. We
-                prioritize safeguarding sensitive data and detecting any unauthorized activity.
-                By using our systems, you agree to monitoring and potential sharing of evidence
-                with law enforcement in case of criminal activity. Your continued use implies
-                acceptance of our Privacy Policy and Terms and Conditions. If you don't agree,
-                please close your browser window.
+                Step into Fritado AI's secure systems, reserved for authorized users. We prioritize
+                safeguarding sensitive data and detecting any unauthorized activity. By using our
+                systems, you agree to monitoring and potential sharing of evidence with law
+                enforcement in case of criminal activity. Your continued use implies acceptance of
+                our Privacy Policy and Terms and Conditions. If you don't agree, please close your
+                browser window.
               </p>
             </div>
           </div>

@@ -13,7 +13,7 @@ const HelpCenterPage = () => {
       {/* Search bar */}
       <div
         className="px-4 mt-4"
-        style={{ marginRight: "4rem", marginLeft: "4rem" }}
+        style={{ marginRight: "2.5rem", marginLeft: "2.5rem" }}
       >
         <div className="mt-3 d-flex flex-column justify-content-center">
           <h1>Advice and answers from the StyleAI Team</h1>
