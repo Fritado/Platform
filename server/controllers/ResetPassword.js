@@ -28,20 +28,20 @@ exports.resetPasswordToken = async (req, res) => {
       { new: true }
     );
    //  console.log("DETAILS", updatedDetails);
-    //http://localhost:30001/reset-password/${token}
+    //http://localhost:30001/reset-password/${token}  
 
-    const url = ` https://platform.fritado.com/reset-password/${token}`;
+    const url = `https://platform.fritado.com/reset-password/${token}`;
 
     const emailTemplate = getPasswordResetEmailTemplate(user.firstname, url);
 
-    //console.log("email url ", url);
+    console.log("email url ", url);
     await mailSender(email, "Password Reset Link", emailTemplate);
 
     return res.json({
       success: true,
       message:
         "Email Sent Successfully, Please Check Your Email to Continue Further",
-      data: updatedDetails,
+      
     });
   } catch (error) {
     return res.json({

@@ -44,7 +44,7 @@ const ForgotPassword = () => {
                   ? 'Signing up is easy. It only takes a few steps'
                   : `We have sent the reset password email to ${email}`}
               </h6>
-              <form onSubmit={handelOnSubmit} className="">
+              <form onSubmit={handelOnSubmit} className="pt-2">
                 {!emailSent && (
                   <div className="form-group">
                     <input

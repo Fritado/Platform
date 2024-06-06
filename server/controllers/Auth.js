@@ -25,7 +25,8 @@ exports.sendOtp = async (req, res) => {
     if (checkUserPresent) {
       return res.status(401).json({
         success: false,
-        message: "User is already registered",
+        message:
+          "This email ID is already in use. Please create a new account or retrieve your password.",
       });
     }
 
@@ -76,7 +77,6 @@ exports.sendOtp = async (req, res) => {
 //SignUp controller for registering users
 exports.signup = async (req, res) => {
   try {
-    //Destructure fields from  request body
     const {
       firstname,
       lastname,
@@ -104,7 +104,8 @@ exports.signup = async (req, res) => {
       });
     }
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({
+      return res.status(401).json({
+        success:false,
         message:
           "Password should be at least 6 characters and contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.",
       });
@@ -128,20 +129,20 @@ exports.signup = async (req, res) => {
     }
     //Find the most recent OTP for the email
     const response = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1);
-   // console.log("opt res", response);
+    // console.log("opt res", response);
     if (response.length === 0) {
-			// OTP not found for the email
-			return res.status(400).json({
-				success: false,
-				message: "The OTP is not valid",
-			});
-		} else if (otp !== response[0].otp) {
-			// Invalid OTP
-			return res.status(400).json({
-				success: false,
-				message: "Invalid OTP",
-			});
-		}
+      // OTP not found for the email
+      return res.status(400).json({
+        success: false,
+        message: "The OTP is not valid",
+      });
+    } else if (otp !== response[0].otp) {
+      // Invalid OTP
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
 
     //hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -158,6 +159,7 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
       role: defaultRole,
       contactNumber,
+      termsAccepted: true,
     });
 
     //console.log(newUser, "user details");
@@ -193,7 +195,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: `User is not Registered with Us Please SignUp to Continue`,
+        message: `User is not Registered with Us Please Sign Up to Continue`,
       });
     }
 
@@ -234,7 +236,6 @@ exports.login = async (req, res) => {
       };
 
       res.cookie("token", token, options);
-      // res.cookie('lastVisitedPage', redirectTo, options)
 
       return res.status(200).json({
         success: true,
@@ -246,9 +247,10 @@ exports.login = async (req, res) => {
         redirectTo,
       });
     } else {
+      //incorrect passowrd
       return res.status(401).json({
         success: false,
-        message: `Password is incorrect`,
+        message: `Invalid username or password. Please try again.`,
       });
     }
   } catch (error) {

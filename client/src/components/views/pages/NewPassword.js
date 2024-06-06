@@ -60,7 +60,7 @@ const NewPassword = () => {
               </div>
               <h5>New here?</h5>
               <h6 className="fw-normal">Signing up is easy. It only takes a few steps</h6>
-              <form className="pt-3">
+              <form className="pt-2">
                 <div className="form-group">
                   <input
                     required
@@ -69,7 +69,7 @@ const NewPassword = () => {
                     value={password}
                     placeholder="Password"
                     className="form-control form-control-lg"
-                    id="exampleInputPassword1"
+        
                     onChange={handleOnChange}
                   />
                   <span

@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast'
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState('')
+  const [loading, setLoading] = useState(false)
   const { user: signUpdata } = useSelector((state) => state.auth)
   const navigate = useNavigate()
   const userEmail = signUpdata.email
@@ -21,6 +22,7 @@ const VerifyOtp = () => {
   }, [signUpdata])
   const handleVerifyAndSignup = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
       const { firstname, lastname, email, password, contactNumber } = signUpdata
       const signupRes = await axios.post(AUTH_API_ROUTES.SIGNUP, {
@@ -43,12 +45,14 @@ const VerifyOtp = () => {
     } catch (error) {
       toast.error('An error occurred. Please try again.')
       console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleResendOtp = async (e) => {
     e.preventDefault()
-    const resendOtpUrl = `${AUTH_API_ROUTES.SEND_OTP}`;
+    const resendOtpUrl = `${AUTH_API_ROUTES.SEND_OTP}`
     try {
       const resendOtpRes = await axios.post(resendOtpUrl, { email: userEmail })
       //  console.log(resendOtpRes)
@@ -74,7 +78,7 @@ const VerifyOtp = () => {
               <p>Change email id</p>
             </Link>
           </div>
-          <form className="px-" onSubmit={handleVerifyAndSignup}>
+          <form className="pt-2" onSubmit={handleVerifyAndSignup}>
             <OtpInput
               value={otp}
               onChange={setOtp}
@@ -101,7 +105,7 @@ const VerifyOtp = () => {
                 disabled={!otp}
                 className="mt-2 btn btn-primary btn-lg font-weight-medium auth-form-btn"
               >
-                Verify account
+                {!loading ? 'Verify Otp' : 'Verifing...'}
               </button>
             </div>
           </form>

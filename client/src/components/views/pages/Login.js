@@ -18,7 +18,7 @@ const Login = () => {
     email: '',
     password: '',
   })
-
+  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { email, password } = formData
 
@@ -27,25 +27,29 @@ const Login = () => {
   }
 
   const handelOnSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
     try {
       const url = `${AUTH_API_ROUTES.LOGIN}`
       const response = await axios.post(url, formData)
       toast.success('Login Successfull')
       // console.log('response', response)
-
       const { token, redirectTo } = response.data
-
-      localStorage.setItem('token', token)
-      // localStorage.setItem("lastVisitedPage", redirectTo);
+      localStorage.setItem('token', token);
 
       dispatch(loginUser(response))
-      dispatch(userToken(token))
-
+      dispatch(userToken(token));
       window.location.href = redirectTo
     } catch (error) {
-      toast.error('This is an error!')
-      console.log(error)
+      if(error.response && error.response.data && error.response.data.message){
+        toast.error(error.response.data.message)
+      }else{
+      toast.error("We're experiencing some technical difficulties. Please try again later.");
+      }
+     // console.log(error)
+    }
+    finally{
+      setLoading(false)
     }
   }
   const togglePasswordVisibility = () => {
@@ -100,7 +104,7 @@ const Login = () => {
                   disabled={!email || !password}
                   className="mt-3 btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                 >
-                  SIGN IN
+                  {!loading ? 'SIGN IN' : 'PROCESSING...'}
                 </button>
                 <div className="my-2 d-flex justify-content-between align-items-center">
                   <div className="form-check">

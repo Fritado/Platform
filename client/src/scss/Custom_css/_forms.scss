@@ -47,6 +47,7 @@
       color: $input-placeholder-color;
       &:focus {
         outline: 1px solid $border-color;
+       
       }
       @each $color,
       $value in $theme-colors {
@@ -171,10 +172,12 @@
   
 .modal-title {
   margin: 0;
+  
 }
 
 .modal-body {
   padding: 20px 0;
+ 
 }
 .modal-footer {
   display: flex;

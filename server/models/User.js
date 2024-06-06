@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,13 +17,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
     email: {
       type: String,
       required: true,
       trim: true,
     },
-
     password: {
       type: String,
       required: true,
@@ -33,15 +31,19 @@ const userSchema = new mongoose.Schema(
     },
     contactNumber: {
       type: String,
-      required:true,
+      required: true,
+    },
+    termsAccepted:{
+      type: Boolean,
+      default: false,   
     },
     token: {
       type: String,
     },
     accountStatus: {
       type: String,
-      enum: ['Active', 'Inactive'],
-      default: 'Active',
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
     hasLoggedInBefore: {
       type: Boolean,
@@ -51,23 +53,24 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  { timestamps: true },
-)
-
+  { timestamps: true }
+);
 
 // Middleware to update account status based on payment status
-userSchema.pre('save', async function(next) {
+userSchema.pre("save", async function (next) {
   try {
-    const Payment = require('./BillingsPlans/payment')
-    const payments = await Payment.find({ user: this._id }).sort('-createdAt').limit(1)
-    if (payments.length > 0 && payments[0].paymentStatus === 'Paid') {
-      this.accountStatus = 'Active'
+    const Payment = require("./BillingsPlans/payment");
+    const payments = await Payment.find({ user: this._id })
+      .sort("-createdAt")
+      .limit(1);
+    if (payments.length > 0 && payments[0].paymentStatus === "Paid") {
+      this.accountStatus = "Active";
     } else {
-      this.accountStatus = 'Inactive'
+      this.accountStatus = "Inactive";
     }
-    next()
+    next();
   } catch (error) {
-    next(error)
+    next(error);
   }
-})
-module.exports = mongoose.model('User', userSchema)
+});
+module.exports = mongoose.model("User", userSchema);
