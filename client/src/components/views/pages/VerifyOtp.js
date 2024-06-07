@@ -76,7 +76,7 @@ const VerifyOtp = () => {
    
     <div>
       <div className="d-flex flex-column mx-auto ">
-        <div className="otp d-flex flex-column mx-auto my-5 pt-5 auth px-0 "
+        <div className="otp d-flex flex-column mx-auto my-5 pt-5 auth px-0 bg-white"
        >
           <div className="">
             <div className="brand-logo text-center">
