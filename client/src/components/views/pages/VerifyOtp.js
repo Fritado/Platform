@@ -74,7 +74,8 @@ const VerifyOtp = () => {
   }
   return (
    
-      <div className="d-flex flex-column mx-auto ">
+    <div>
+      <div className="d-flex flex-column mx-auto "style={{ width: '33%' }}>
         <div className="d-flex flex-column mx-auto align-items-center my-5 justify-content-center px-4 py-5 auth px-0 bg-white"
        >
           <div className="">
@@ -111,7 +112,7 @@ const VerifyOtp = () => {
             />
             <div className="mt-4 font-weight-light">
               <p className="pt-4 cursor-pointer" style={{ fontSize: '16px' }}>
-                Issue with the code ? <strong onClick={handleResendOtp} style={{cursor:"pointer"}}>Resend code </strong>
+                Issue with the code ? <strong onClick={handleResendOtp}>Resend code </strong>
               </p>
               <button
                 type="submit"
@@ -138,6 +139,7 @@ const VerifyOtp = () => {
         </div>
         <AuthFooter />
       </div>
+    </div>
     
   )
 }
