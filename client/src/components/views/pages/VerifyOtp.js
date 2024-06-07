@@ -111,7 +111,7 @@ const VerifyOtp = () => {
             />
             <div className="mt-4 font-weight-light">
               <p className="pt-4 cursor-pointer" style={{ fontSize: '16px' }}>
-                Issue with the code ? <strong onClick={handleResendOtp}>Resend code </strong>
+                Issue with the code ? <strong onClick={handleResendOtp} style={{cursor:"pointer"}}>Resend code </strong>
               </p>
               <button
                 type="submit"
