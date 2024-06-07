@@ -73,7 +73,7 @@ const VerifyOtp = () => {
     }
   }
   return (
-    <div className=''>
+   
       <div className="d-flex flex-column mx-auto ">
         <div className="d-flex flex-column mx-auto align-items-center my-5 justify-content-center px-4 py-5 auth px-0 bg-white"
        style={{ width: '33%' }}>
@@ -138,7 +138,7 @@ const VerifyOtp = () => {
         </div>
         <AuthFooter />
       </div>
-    </div>
+    
   )
 }
 
