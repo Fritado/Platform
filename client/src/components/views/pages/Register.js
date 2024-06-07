@@ -287,7 +287,7 @@ const Register = () => {
                               : 'white',
                         }}
                       >
-                        {element.code}
+                        {element.code}{element.country}
                       </option>
                     ))}
                   </select>
