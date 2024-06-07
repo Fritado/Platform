@@ -270,7 +270,7 @@ const Register = () => {
                     //value={selectedCountryOption}
                     onChange={(e) => handleCountryCodeChange({ value: e.target.value })}
                     className="form-control form-control-lg"
-                    style={{ width: '3rem' }}
+                    style={{ width: '3.5rem' }}
                     size={filteredCountryCodes.length > 5 ? 1 : filteredCountryCodes.length}
                   >
                     {filteredCountryCodes.map((element, index) => (
@@ -287,7 +287,7 @@ const Register = () => {
                               : 'white',
                         }}
                       >
-                        {element.code}{element.country}
+                        {element.code}   {element.country}
                       </option>
                     ))}
                   </select>
