@@ -5,6 +5,9 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const crypto = require("crypto");
+const emailContent = require("../mail/emailContent");
+const mailSender = require("../utils/mailSender");
+const emailTemplate = require("../mail/templates/emailTemplate");
 
 async function generateUniqueUserId() {
   let userId;
@@ -105,13 +108,13 @@ exports.signup = async (req, res) => {
     }
     if (!passwordRegex.test(password)) {
       return res.status(401).json({
-        success:false,
+        success: false,
         message:
           "Password should be at least 6 characters and contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.",
       });
     }
     // Check if password and confirm password match
-    if (password != confirmPassword) {
+    if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
         message:
@@ -163,6 +166,21 @@ exports.signup = async (req, res) => {
     });
 
     //console.log(newUser, "user details");
+
+    const welcomeEmail = emailContent.welcomeEmail;
+    const emailBodyContent = welcomeEmail.body(
+      firstname,
+      lastname,
+      uniqueUserId
+    );
+    const emailBody = emailTemplate(welcomeEmail.title, emailBodyContent);
+    try {
+      await mailSender(email, welcomeEmail.title, emailBody);
+      //console.log("Welcome email sent successfully to:", email);
+    } catch (emailError) {
+      console.log("Failed to send welcome email:", emailError.message);
+    }
+
     return res.status(200).json({
       success: true,
       newUser,

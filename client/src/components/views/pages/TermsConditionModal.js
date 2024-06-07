@@ -84,9 +84,7 @@ const TermsConditionModal = ({ show, onClose, onAccept, onDecline, children }) =
           <button className="btn-db btn-primary" onClick={onAccept}>
             Accept
           </button>
-          <button className="btn-db btn-secondary" onClick={onDecline}>
-            Decline
-          </button>
+         
         </div>
       </div>
     </div>

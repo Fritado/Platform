@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:30002'
+export const API_BASE_URL = process.env.REACT_APP_BASE_URL || 'https://server.fritado.com'
 
 export const AUTH_API_ROUTES = {
   LOGIN: API_BASE_URL + '/api/auth/login',

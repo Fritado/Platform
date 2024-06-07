@@ -25,8 +25,12 @@ const ForgotPassword = () => {
       setEmailSent(true)
       toast.success('Email sent  Successfull')
     } catch (error) {
-      toast.error('This is an error!')
-      console.log(error)
+      if(error.response && error.response.data && error.response.data.message){
+        toast.error(error.response.data.message)
+      }else{
+      toast.error("We're experiencing some technical difficulties. Please try again later.");
+      }
+      //console.log(error)
     }
   }
   return (

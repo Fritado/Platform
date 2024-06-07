@@ -27,10 +27,11 @@ import { IoMdAdd } from 'react-icons/io'
 import { AppHeaderDropdown } from './header/index'
 import { getDomianName } from '../services/BusinessDomain/domain'
 
-const AppHeader = ({ sidebarShow, setSidebarShow }) => {
-  const headerRef = useRef();
-  const [domainName, setDomainName] = useState(null);
+const AppHeader = () => {
+  const headerRef = useRef()
+  const [domainName, setDomainName] = useState(null)
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
+  const [sidebarShow, setSidebarShow] = useState(true)
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -47,8 +48,8 @@ const AppHeader = ({ sidebarShow, setSidebarShow }) => {
         throw new Error('Token not found')
       }
 
-      const domain = await getDomianName(token) 
-      setDomainName(domain) 
+      const domain = await getDomianName(token)
+      setDomainName(domain)
     } catch (error) {
       console.error('Error while fetching domain name', error)
     }

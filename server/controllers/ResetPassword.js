@@ -2,7 +2,12 @@ const User = require("../models/User");
 const mailSender = require("../utils/mailSender");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const {getPasswordResetEmailTemplate} = require("../mail/templates/resetPasswordTemplate");
+const {
+  getPasswordResetEmailTemplate,
+} = require("../mail/templates/resetPasswordTemplate");
+
+const emailContent = require("../mail/emailContent");
+const emailTemplate = require("../mail/templates/emailTemplate");
 
 exports.resetPasswordToken = async (req, res) => {
   try {
@@ -10,7 +15,7 @@ exports.resetPasswordToken = async (req, res) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      return res.json({
+      return res.status(404).json({
         success: false,
         message: `This Email: ${email} is not Registered With Us Enter a Valid Email `,
       });
@@ -27,24 +32,36 @@ exports.resetPasswordToken = async (req, res) => {
       },
       { new: true }
     );
-   //  console.log("DETAILS", updatedDetails);
-    //http://localhost:30001/reset-password/${token}  
 
-    const url = `https://platform.fritado.com/reset-password/${token}`;
+    //https://platform.fritado.com/reset-password/${token}
+    //http://localhost:30001/reset-password/${token}
 
-    const emailTemplate = getPasswordResetEmailTemplate(user.firstname, url);
+    const resetLink = `https://platform.fritado.com/reset-password/${token}`;
 
-    console.log("email url ", url);
-    await mailSender(email, "Password Reset Link", emailTemplate);
-
-    return res.json({
-      success: true,
-      message:
-        "Email Sent Successfully, Please Check Your Email to Continue Further",
-      
-    });
+    const emailBody = emailTemplate(
+      emailContent.resetPassword.title,
+      emailContent.resetPassword.body(resetLink)
+    );
+   
+   
+    try {
+      await mailSender(email, emailContent.resetPassword.title, emailBody);
+    //  console.log("Password reset email sent successfully to:", email);
+      return res.status(200).json({
+        success: true,
+        message:
+          "Email Sent Successfully, Please Check Your Email to Continue Further",
+      });
+    } catch (emailError) {
+      console.log("Failed to send password reset email:", emailError.message);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send password reset email",
+      });
+    }
   } catch (error) {
-    return res.json({
+    console.log("Error in resetPasswordToken:", error);
+    return res.status(500).json({
       error: error.message,
       success: false,
       message: `Some Error in Sending the Reset Message`,
@@ -53,7 +70,7 @@ exports.resetPasswordToken = async (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
- // console.log("reset password body", req.body);
+  // console.log("reset password body", req.body);
   try {
     const { password, token } = req.body;
 
@@ -61,7 +78,7 @@ exports.resetPassword = async (req, res) => {
     if (!userDetails) {
       return res.json({
         success: false,
-        message: "Token is invalid , user not find",
+        message: "Token is invalid or user not found",
       });
     }
 
@@ -78,6 +95,26 @@ exports.resetPassword = async (req, res) => {
       { password: encryptedPassword },
       { new: true }
     );
+    const emailBody = emailTemplate(
+      emailContent.resetPasswordConfirmation.title,
+      emailContent.resetPasswordConfirmation.body()
+    );
+    try {
+      await mailSender(
+        userDetails.email,
+        emailContent.resetPasswordConfirmation.title,
+        emailBody
+      );
+      console.log(
+        "Password reset confirmation email sent successfully to:",
+        userDetails.email
+      );
+    } catch (emailError) {
+      console.log(
+        "Failed to send password reset confirmation email:",
+        emailError.message
+      );
+    }
 
     return res.json({
       success: true,

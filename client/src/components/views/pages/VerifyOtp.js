@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { AUTH_API_ROUTES } from '../../services/APIURL/Apis'
 import { toast } from 'react-hot-toast'
+import Logo from '../../../assets/images/logo2.png'
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState('')
@@ -43,7 +44,11 @@ const VerifyOtp = () => {
         toast.error(signupRes.data.message || 'Signup failed. Please try again.')
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.')
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message)
+      } else {
+        toast.error("We're experiencing some technical difficulties. Please try again later.")
+      }
       console.error(error)
     } finally {
       setLoading(false)
@@ -68,11 +73,19 @@ const VerifyOtp = () => {
     }
   }
   return (
-    <div>
-      <div className="d-flex flex-column mx-auto ">
-        <div className="otp  d-flex flex-column mx-auto align-items-start my-5 justify-content-center px-4 py-5 auth px-0 bg-white">
+    <div className='mx-2'>
+      <div className="d-flex flex-column mx-auto "style={{ width: '33%' }}>
+        <div className="d-flex flex-column mx-auto align-items-center my-5 justify-content-center px-4 py-5 auth px-0 bg-white"
+       >
           <div className="">
-            <h1 className=" text-color font-weight-bold ">Verify account creation code</h1>
+            <div className="brand-logo text-center">
+              <img
+                src={Logo}
+                alt="logo"
+                className="d-flex mx-auto align-items-center justify-content-center"
+              />
+            </div>
+            <h4 className="">Verify account creation code</h4>
             <p>{`A verification code has been sent to your ${userEmail}`}</p>
             <Link to="/register" className="text-color">
               <p>Change email id</p>

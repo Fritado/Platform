@@ -107,6 +107,18 @@ const Register = () => {
       }
       const fullContactNumber = `${country_Code} ${contactNumber}`.trim()
 
+      const passwordCriteriaMet = Object.values(criteriaMet).every((criterion) => criterion)
+      if (!passwordCriteriaMet) {
+        toast.error('Please ensure that your password meets the criteria')
+        setLoading(false)
+        return
+      }
+      // Check if password and confirm password match
+      if (password !== confirmPassword) {
+        toast.error('Password and Confirm Password do not match. Please try again.')
+        setLoading(false)
+        return
+      }
       const signupData = { ...formData, contactNumber: fullContactNumber, termsAccepted }
       // console.log("Signup Data:", signupData);
       dispatch(signUpdata(signupData))
@@ -185,6 +197,7 @@ const Register = () => {
   useEffect(() => {
     setCriteriaMet(checkPasswordCriteria(password))
   }, [password])
+
   useEffect(() => {
     if (focusedField === 'email') {
       if (emailValid) {

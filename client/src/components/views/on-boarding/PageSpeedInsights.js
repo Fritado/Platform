@@ -40,7 +40,6 @@ const PageSpeedInsights = () => {
   return (
     <div className="d-flex flex-column">
       <Header />
-
       <div className="container mt-4 pt-2" style={{ maxWidth: '960px' }}>
         <div className="row justify-content-center">
           <div className="col-12 col-md-auto">
