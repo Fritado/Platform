@@ -41,6 +41,7 @@ app.use(
 );
 
 //routes https://platform.fritado.com
+//http://localhost:30001
 //http://localhost:4000/api/fritado
 app.use("/api/auth", userRoutes);
 app.use("/api/scrape" , scrapeRoute );
