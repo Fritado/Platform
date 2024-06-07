@@ -8,6 +8,7 @@ import { industryOptions } from '../data/industryTypeData'
 import { saveBusinessInfo } from '../../services/onBoarding/businessProfileApi'
 
 const BusinessInfo = () => {
+  const [loading, setLoading] = useState(false)
   const [industryType, setIndustryType] = useState('')
   const [companyName, setCompanyName] = useState('')
   const navigate = useNavigate()
@@ -22,6 +23,7 @@ const BusinessInfo = () => {
     } catch (error) {
       console.log('Error while saving business info:', error)
     } finally {
+      setLoading(false);
       // Reset loading state after API call is done
     }
   }
