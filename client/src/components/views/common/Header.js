@@ -31,18 +31,18 @@ const Header = () => {
             />
           </a>
           <div className="d-flex flex-row">
-            <div className="collapse navbar-collapse " id="navbarNav">
-              <ul className="navbar-nav ms-auto">
+            <div className="collapse navbar-collapse d-flex align-items-center " id="navbarNav">
+              <ul className="navbar-nav ms-auto d-flex align-items-center">
                 <li className="nav-item">
-                  <p className="nav-link text-dark pe-1 fs-5">
+                  <p className="nav-link text-dark">
                     <strong>Hello,</strong>
                   </p>
                 </li>
-                <li className="nav-item">
-                  <p className="nav-link text-dark fs-5">
+                
+                  <p className="nav-link text-dark ">
                     {FirstName} {LastName}
                   </p>
-                </li>
+             
               </ul>
             </div>
             <div className="d-flex align-items-center pb-3">

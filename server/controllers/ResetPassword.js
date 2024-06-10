@@ -13,7 +13,9 @@ exports.resetPasswordToken = async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.findOne({ email: email });
-
+    const {firstname , lastname , userId} = user;
+   // console.log(firstname + lastname + userId , "name")
+    
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -36,17 +38,17 @@ exports.resetPasswordToken = async (req, res) => {
     //https://platform.fritado.com/reset-password/${token}
     //http://localhost:30001/reset-password/${token}
 
-    const resetLink = `https://platform.fritado.com/reset-password/${token}`;
+    const resetLink = `http://localhost:30001/reset-password/${token}`;
 
     const emailBody = emailTemplate(
       emailContent.resetPassword.title,
-      emailContent.resetPassword.body(resetLink)
+      emailContent.resetPassword.body(firstname,
+        lastname,userId,resetLink)
     );
-   
-   
+
     try {
       await mailSender(email, emailContent.resetPassword.title, emailBody);
-    //  console.log("Password reset email sent successfully to:", email);
+      //  console.log("Password reset email sent successfully to:", email);
       return res.status(200).json({
         success: true,
         message:
@@ -75,6 +77,7 @@ exports.resetPassword = async (req, res) => {
     const { password, token } = req.body;
 
     const userDetails = await User.findOne({ token: token });
+    const {firstname , lastname,userId} = userDetails;
     if (!userDetails) {
       return res.json({
         success: false,
@@ -97,7 +100,7 @@ exports.resetPassword = async (req, res) => {
     );
     const emailBody = emailTemplate(
       emailContent.resetPasswordConfirmation.title,
-      emailContent.resetPasswordConfirmation.body()
+      emailContent.resetPasswordConfirmation.body(firstname , lastname ,userId)
     );
     try {
       await mailSender(

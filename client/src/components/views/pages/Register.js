@@ -48,7 +48,7 @@ const Register = () => {
     ),
   )
   const handleCountryCodeChange = (selectedOption) => {
-    console.log('Selected Country Code:', selectedOption.value)
+    // console.log('Selected Country Code:', selectedOption.value)
     setFormData((prevData) => ({
       ...prevData,
       country_Code: selectedOption.value,
@@ -287,7 +287,7 @@ const Register = () => {
                               : 'white',
                         }}
                       >
-                        {element.code}   {element.country}
+                        {element.code} {element.country}
                       </option>
                     ))}
                   </select>

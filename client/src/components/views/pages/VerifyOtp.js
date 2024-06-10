@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import OtpInput from 'react-otp-input'
 import AuthFooter from '../common/AuthFooter'
 import { useSelector } from 'react-redux'
@@ -9,12 +9,15 @@ import { toast } from 'react-hot-toast'
 import Logo from '../../../assets/images/logo2.png'
 
 const VerifyOtp = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const { user: signUpdata } = useSelector((state) => state.auth)
-  const navigate = useNavigate()
   const userEmail = signUpdata.email
   //console.log('signUpdata email ', signUpdata.email)
+ 
+  
   useEffect(() => {
     // Only allow access of this route when user has filled the signup form
     if (!signUpdata) {
@@ -59,8 +62,8 @@ const VerifyOtp = () => {
     e.preventDefault()
     const resendOtpUrl = `${AUTH_API_ROUTES.SEND_OTP}`
     try {
-      const resendOtpRes = await axios.post(resendOtpUrl, { email: userEmail })
-      //  console.log(resendOtpRes)
+      const resendOtpRes = await axios.post(resendOtpUrl, { email:userEmail })
+      console.log(resendOtpRes)
       //  setEmail(resendOtpRes.data.email);
       if (resendOtpRes.data.success) {
         toast.success('OTP sent successfully.')
@@ -68,16 +71,14 @@ const VerifyOtp = () => {
         toast.error(res.data.message || 'Failed to send OTP. Please try again.')
       }
     } catch (error) {
-      toast.error('Failed to send otp. Please try again.')
+      toast.error("We're experiencing some technical difficulties. Please try again later.")
       console.log(error)
-    }
+    } 
   }
   return (
-   
     <div>
       <div className="d-flex flex-column mx-auto ">
-        <div className="otp d-flex flex-column mx-auto my-4 pt-5 auth px-3 bg-white"
-       >
+        <div className="otp d-flex flex-column mx-auto my-4 pt-5 auth px-3 bg-white">
           <div className="">
             <div className="brand-logo text-center">
               <img
@@ -112,7 +113,10 @@ const VerifyOtp = () => {
             />
             <div className="mt-4 font-weight-light">
               <p className="pt-4 cursor-pointer" style={{ fontSize: '16px' }}>
-                Issue with the code ? <strong onClick={handleResendOtp} style={{cursor:"pointer"}}>Resend code </strong>
+                Issue with the code ?{' '}
+                <strong onClick={handleResendOtp} style={{ cursor: 'pointer' }}>
+                  Resend code{' '}
+                </strong>
               </p>
               <button
                 type="submit"
@@ -140,7 +144,6 @@ const VerifyOtp = () => {
         <AuthFooter />
       </div>
     </div>
-    
   )
 }
 

@@ -7,6 +7,7 @@ const otpGenerator = require("otp-generator");
 const crypto = require("crypto");
 const emailContent = require("../mail/emailContent");
 const mailSender = require("../utils/mailSender");
+//console.log(mailSender);
 const emailTemplate = require("../mail/templates/emailTemplate");
 
 async function generateUniqueUserId() {
@@ -61,10 +62,14 @@ exports.sendOtp = async (req, res) => {
       const otpPayload = { email, otp };
       otpEntry = await Otp.create(otpPayload);
     }
+   // console.log("OTP Body", otpEntry);
 
-    // const otpPayload = { email, otp };
-    // const otpBody = await Otp.create(otpPayload);
-    //console.log("OTP Body", otpEntry);
+    const template = emailContent.sendOtp;
+    await mailSender(
+      email,
+      template.title,
+      emailTemplate(template.title, template.body(otp))
+    );
 
     return res.status(200).json({
       success: true,
