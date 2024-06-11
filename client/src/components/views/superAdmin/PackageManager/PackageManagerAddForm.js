@@ -163,7 +163,7 @@ const PackageManagerAddForm = () => {
               </div>
             </form>
           </div>
-          <div className="table-responsive">
+          {/* <div className="table-responsive">
             <table className="table border rounded table-bordered my-3 text-center">
               <thead>
                 <tr>
@@ -197,7 +197,7 @@ const PackageManagerAddForm = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+          </div> */}
         </div>
       </section>
     </div>
