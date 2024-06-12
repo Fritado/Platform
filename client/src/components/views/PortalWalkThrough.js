@@ -15,7 +15,7 @@ import {
   saveLocationContent,
 } from '../services/portal/portalWT'
 
-import {fetchPromptDetails} from "../services/PromptService/PromptService";
+import { fetchPromptDetails } from '../services/PromptService/PromptService'
 const PortalWalkThrough = () => {
   const [websiteName, setWebsiteName] = useState('')
   const [cleanContent, setCleanContent] = useState('')
@@ -71,12 +71,12 @@ const PortalWalkThrough = () => {
     }
   }
   const analyzeContent = async (e) => {
-    const promptDetailsResponse = await fetchPromptDetails();
-    const promptDetails = promptDetailsResponse[0];
-   // console.log("promptDetails" , promptDetails);
+    const promptDetailsResponse = await fetchPromptDetails()
+    const promptDetails = promptDetailsResponse[0]
+    // console.log("promptDetails" , promptDetails);
     const openAISecretKey = process.env.OPENAI_SECRET_KEY
     const prompt = `
-      I have copied this  ${cleanContent}  content from a service/business website. I want you to analyse this content and provide me below information.
+    You are a seasoned professional in web content creation and search engine optimization (SEO). The user will supply you with a content dump from a website. Your task is to analyze this content to identify the company name to which the website belongs. Based on the provided content, you will craft an "About Us" page. This page should comprehensively list and describe all the services and products offered by the company. I have copied this  ${cleanContent}  content from a service/business website.Also generate the following information.
       1.${promptDetails.BusinessDetails}
       2. ${promptDetails.Keyword}
       3.${promptDetails.ProductAndService}

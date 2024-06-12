@@ -6,31 +6,35 @@ exports.saveOrUpdatePrompt = async (req, res) => {
   try {
     const { BusinessDetails, Keyword, ProductAndService, Location, BlogTopic, BlogDescription } =
       req.body
-    const userId = req.user.id
-
-    const user = await User.findById(userId)
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' })
-    }
-
-    const savedPrompt = await Prompt.findOneAndUpdate(
-      { user: userId },
-      {
-        user: userId,
-        BusinessDetails,
-        Keyword,
-        ProductAndService,
-        Location,
-        BlogTopic,
-        BlogDescription,
-      },
-      { new: true, upsert: true }, // new: return the updated document, upsert: create if not exists
-    )
+      let sharedPrompt = await Prompt.findOne({}); 
+   
+      if (!sharedPrompt) {
+        // If prompt doesn't exist, create it
+        sharedPrompt = new Prompt({
+          BusinessDetails,
+          Keyword,
+          ProductAndService,
+          Location,
+          BlogTopic,
+          BlogDescription,
+        });
+       } else {
+          // If prompt exists, update it
+          sharedPrompt.BusinessDetails = BusinessDetails;
+          sharedPrompt.Keyword = Keyword;
+          sharedPrompt.ProductAndService = ProductAndService;
+          sharedPrompt.Location = Location;
+          sharedPrompt.BlogTopic = BlogTopic;
+          sharedPrompt.BlogDescription = BlogDescription;
+        }
+    
+        // Save the updated or created prompt object
+        await sharedPrompt.save();
 
     return res.status(200).json({
       success: true,
       message: 'Prompt saved or updated successfully',
-      data: savedPrompt,
+      data:sharedPrompt,
     })
   } catch (error) {
     console.error("Internal server error, can't save or update prompt", error)

@@ -115,7 +115,7 @@ exports.signup = async (req, res) => {
       return res.status(401).json({
         success: false,
         message:
-          "Password should be at least 6 characters and contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.",
+          "Password should be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.",
       });
     }
     // Check if password and confirm password match

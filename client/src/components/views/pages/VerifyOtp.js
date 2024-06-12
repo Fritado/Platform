@@ -88,9 +88,9 @@ const VerifyOtp = () => {
               />
             </div>
             <h4 className="">Verify account creation code</h4>
-            <p>{`A verification code has been sent to your ${userEmail}`}</p>
+            <p>{`A verification code has been sent to your`} <strong>${userEmail}</strong></p>
             <Link to="/register" className="text-color">
-              <p>Change email id</p>
+              <p className="">Change email id</p>
             </Link>
           </div>
           <form className="pt-2" onSubmit={handleVerifyAndSignup}>

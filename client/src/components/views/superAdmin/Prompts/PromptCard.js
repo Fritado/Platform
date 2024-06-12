@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form } from 'react-bootstrap'
 
-const PromptCard = ({ title, description, placeholder, value, onChange , onSave}) => {
+const PromptCard = ({ title, description, placeholder, value, onChange , onSave,alertMessage, alertType }) => {
   return (
     <div className="col-12 grid-margin stretch-card">
     <div className="card">
@@ -26,6 +26,11 @@ const PromptCard = ({ title, description, placeholder, value, onChange , onSave}
             Save
           </button>
         </form>
+        {alertMessage && (
+            <div className={`alert mt-3 ${alertType === 'success' ? 'alert-success' : 'alert-danger'}`}>
+              {alertMessage}
+            </div>
+          )}
       </div>
     </div>
   </div>

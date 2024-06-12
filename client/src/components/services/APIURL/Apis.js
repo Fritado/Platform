@@ -69,7 +69,8 @@ export const PROMPT_API = {
   GET_PROMPTS : API_BASE_URL + '/api/prompts/fetch-prompt-details',
 }
 export const USER_MANAGER = {
-FETCH_USER_INFO : API_BASE_URL + '/api/auth/fetch-all-users-details'
+FETCH_USER_INFO : API_BASE_URL + '/api/auth/fetch-all-users-details',
+DELETE_USER_DATA : API_BASE_URL + '/api/super-admin/user-package/delete-user'
 }
 
 export const ADMIN_PACKAGE_MANAGER = {

@@ -5,11 +5,25 @@ import PromptCard from './PromptCard'
 import { fetchPromptDetails, savePromptData } from '../../../services/PromptService/PromptService'
 
 const Prompts = () => {
-  const [promptCardsData, setPromptCardsData] = useState(null)
+  const [promptCardsData, setPromptCardsData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [saveStatus, setSaveStatus] = useState('')
   useEffect(() => {
     const fetchData = async () => {
       try {
         const promptDetailsResponse = await fetchPromptDetails()
+        if (!promptDetailsResponse || promptDetailsResponse.length === 0) {
+          // Set promptCardsData to empty values if no data is returned
+          setPromptCardsData(
+            promptData.map((prompt) => ({
+              ...prompt,
+              value: '', // Initialize with empty values
+            })),
+          )
+          return
+        }
         const fetchedPromptDetails = promptDetailsResponse[0]
         // console.log('promptDetails', fetchedPromptDetails);
         const titleToKeyMap = {
@@ -42,7 +56,9 @@ const Prompts = () => {
     updatedData[index].value = value
     setPromptCardsData(updatedData)
   }
-  const handleSave = async () => {
+  const handleSave = async (index) => {
+    setLoading(true)
+
     try {
       const requestBody = {
         BusinessDetails: promptCardsData[0].value,
@@ -54,31 +70,67 @@ const Prompts = () => {
       }
 
       await savePromptData(requestBody)
-      console.log('Prompt data saved successfully!')
+      const updatedData = [...promptCardsData]
+      updatedData[index].alertMessage = 'Prompt data saved successfully!'
+      updatedData[index].alertType = 'success'
+      setPromptCardsData(updatedData)
+      setTimeout(() => {
+        const resetData = [...promptCardsData]
+        resetData[index].alertMessage = ''
+        resetData[index].alertType = ''
+        setPromptCardsData(resetData)
+      }, 3000)
     } catch (error) {
+      const updatedData = [...promptCardsData]
+      updatedData[index].alertMessage = 'Error while saving prompt data. Please try again.'
+      updatedData[index].alertType = 'danger'
+      setPromptCardsData(updatedData)
+      setTimeout(() => {
+        const resetData = [...promptCardsData]
+        resetData[index].alertMessage = ''
+        resetData[index].alertType = ''
+        setPromptCardsData(resetData)
+      }, 3000)
+
       console.error('Error while saving prompt data:', error)
+    } finally {
+      setLoading(false)
     }
   }
-
-  if (!promptCardsData) return null
+  console.log('Render Success:', success)
+  //if (!promptCardsData) return null
   return (
     <div>
       <div className="page-header">
         <h2 className="text-dark fw-semibold mb-2"> Prompts </h2>
       </div>
+      {/* <div className="row">
+        {saveStatus && (
+          <div className="col-12">
+            <div className={`alert ${saveStatus.startsWith('Error') ? 'alert-danger' : 'alert-success'}`}>
+              {saveStatus}
+            </div>
+          </div>
+        )}
+      </div> */}
       <div className="row">
         {promptCardsData.map((card, index) => (
-          <PromptCard
-            key={index}
-            title={card.title}
-            description={card.description}
-            placeholder={card.placeholder}
-            value={card.value}
-            onChange={(event) => handleInputChange(index, event)}
-            onSave={handleSave}
-          />
+          <div key={index} className="col-12 mb-3">
+            <PromptCard
+              key={index}
+              title={card.title}
+              description={card.description}
+              placeholder={card.placeholder}
+              value={card.value}
+              alertMessage={card.alertMessage}
+              alertType={card.alertType}
+              onChange={(event) => handleInputChange(index, event)}
+              onSave={() => handleSave(index)}
+            />
+          </div>
         ))}
       </div>
+      {loading && <div className="alert alert-info">Saving prompt data...</div>}
     </div>
   )
 }

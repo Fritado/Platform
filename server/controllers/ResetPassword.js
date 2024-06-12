@@ -34,7 +34,7 @@ exports.resetPasswordToken = async (req, res) => {
     //https://platform.fritado.com/reset-password/${token}
     //http://localhost:30001/reset-password/${token}
 
-    const resetLink = `http://localhost:30001/reset-password/${token}`;
+    const resetLink = `https://platform.fritado.com/reset-password/${token}`;
 
     const emailBody = emailTemplate(
       emailContent.resetPassword.title,

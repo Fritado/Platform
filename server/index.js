@@ -11,7 +11,10 @@ const PaymentRoutes = require("./routes/PaymentRoutes");
 const PromptRoute = require("./routes/PromptRoute");
 const PackageManagerRoute = require("./routes/superAdminRoute/packageManagerRoute")
 const WebsiteRoute = require("./routes/connectWebsiteRoute");
+const UserManagerRouter = require("./routes/superAdminRoute/userManagerRoute")
+
 const articleRoutes = require("./routes/dummyRoute");
+
 
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -51,6 +54,7 @@ app.use("/api/businessProfile" , BusinessProfileRoute)
 app.use("/api/payment" ,PaymentRoutes);
 app.use("/api/prompts" ,PromptRoute);
 app.use('/api/super-admin/package', PackageManagerRoute)
+app.use('/api/super-admin/user-package' , UserManagerRouter)
 app.use('/api/article', articleRoutes);
 app.use('/api/connect' , WebsiteRoute);
 

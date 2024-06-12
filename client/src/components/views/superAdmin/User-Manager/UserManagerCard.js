@@ -10,7 +10,7 @@ import { IoKeySharp } from 'react-icons/io5'
 import { RiDeleteBin6Fill } from 'react-icons/ri'
 import { AiFillThunderbolt } from 'react-icons/ai'
 
-const UserManagerCard = ({ data, headers, icon, heading }) => {
+const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [perPage] = useState(5)
   const totalItems = data.length
@@ -26,7 +26,8 @@ const UserManagerCard = ({ data, headers, icon, heading }) => {
 
   const startIndex = (currentPage - 1) * perPage
   const endIndex = startIndex + perPage
-  const itemsToShow = data.slice(startIndex, endIndex)
+  const itemsToShow = data.slice(startIndex, endIndex);
+  console.log(itemsToShow  , "user")
 
   return (
     <div className="mx-4">
@@ -92,7 +93,9 @@ const UserManagerCard = ({ data, headers, icon, heading }) => {
                         <span className="border rounded-circle p-2 d-flex justify-content-center">
                           <IoKeySharp color="" size={20} />
                         </span>
-                        <span className="border rounded-circle p-2 d-flex justify-content-center">
+                        <span className="border rounded-circle p-2 d-flex justify-content-center"
+                        onClick={() => onDeleteUser(item._id)}
+                        >
                           {' '}
                           <RiDeleteBin6Fill color="red" size={20} />
                         </span>

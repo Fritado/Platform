@@ -1,10 +1,6 @@
 const mongoose = require('mongoose')
 
 const promptSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
   BusinessDetails: {
     type: String,
   },

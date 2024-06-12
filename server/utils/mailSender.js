@@ -15,8 +15,8 @@ const mailSender = async (email, title, body) => {
         rejectUnauthorized: false,
       },
       socketTimeout: 5000, // 20 seconds timeout
-      logger: true, // Enable logging
-      debug: true, // Enable debugging
+      logger:false, // Enable logging
+      debug: false, // Enable debugging
     });
 
     // Send emails to users
