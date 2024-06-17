@@ -35,7 +35,7 @@ router.get("/get-allblogs", auth, getAllBlogs);
 router.get("/check-blogs", auth, checkBlogsAvailability);
 router.get("/fetch-eachBlogs/:topic(*)", auth, getEachSingleBlogs);
 router.put("/update-each-blog-desc", auth, updateBlogDescription);
-router.put("/blogs/:blogId/approve", approveBlog);
+router.put("/blogs/:blogId/approve", approveBlog); //http://localhost:4000/openAi/blogs/66703062bfa280c54e2ddbfd/approve
 router.get("/blogs/status/:topic", getBlogStatusByTopic);
 router.get("/recent-blogs/publish", auth, getRecentBlogPost);
 

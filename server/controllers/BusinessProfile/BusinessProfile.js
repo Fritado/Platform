@@ -1,79 +1,60 @@
-const BusinessProfile = require('../../models/BusinessProfileModels/BusinessProfile')
-const User = require('../../models/User')
+const BusinessProfile = require("../../models/BusinessProfileModels/BusinessProfile");
+const User = require("../../models/User");
 
 // Function to extract user ID from localStorage value
 const getUserIdFromLocalStorage = (localStorageValue) => {
   try {
-    const userObject = JSON.parse(localStorageValue)
-    console.log(userObject._id)
-    return userObject._id
+    const userObject = JSON.parse(localStorageValue);
+    console.log(userObject._id);
+    return userObject._id;
   } catch (error) {
-    console.error('Error parsing localStorage value:', error)
-    return null
+    console.error("Error parsing localStorage value:", error);
+    return null;
   }
-}
+};
 
-//save Business Profile
 const saveBusinessProfile = async (req, res) => {
   try {
-    const { aboutBusiness } = req.body
+    const { aboutBusiness } = req.body;
+    const userId = req.user.id;
 
-    const userId = req.user.id
-
-    // Check if the user exists
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      })
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
+    const cleanedAboutBusiness = aboutBusiness.trim().replace(/\s+/g, ' ');
 
-    // Check if the user already has a business profile
-    const existingBusinessProfile = await BusinessProfile.findOne({
-      user: userId,
-    })
-    if (existingBusinessProfile) {
-      // Update the existing business profile
+    const existingBusinessProfile = await BusinessProfile.findOneAndUpdate(
+      { user: userId },
+      { aboutBusiness: cleanedAboutBusiness },
+      { new: true, upsert: true }
+    );
 
-      existingBusinessProfile.aboutBusiness = aboutBusiness
-
-      await existingBusinessProfile.save()
-
-      return res.status(200).json({
+    return res
+      .status(200)
+      .json({
         success: true,
-        message: 'Business Profile Data updated successfully',
+        message: "Business Profile Data saved successfully",
         data: existingBusinessProfile,
-      })
-    }
-    const newBusinessProfile = new BusinessProfile({
-      aboutBusiness,
-      user: userId,
-    })
-
-    await newBusinessProfile.save()
-
-    return res.status(200).json({
-      success: true,
-      message: 'Business Profile Data saved successfully',
-      data: newBusinessProfile,
-    })
+      });
   } catch (error) {
-    console.error('Error while saving Business Profile:', error)
-    res.status(500).json({ message: 'Failed to save Business Profile' })
+    console.error("Error while saving Business Profile:", error);
+    res.status(500).json({ message: "Failed to save Business Profile" });
   }
-}
+};
 
 // Update Business Profile
 const updateBusinessProfile = async (req, res) => {
   try {
-    const { companyName, aboutBusiness } = req.body
-    const userId = req.user.id
+    const { companyName, aboutBusiness } = req.body;
+    const userId = req.user.id;
 
     // Find the business profile for the user
     let existingBusinessProfile = await BusinessProfile.findOne({
       user: userId,
-    })
+    });
 
     if (!existingBusinessProfile) {
       // If the business profile doesn't exist, create a new one
@@ -81,146 +62,156 @@ const updateBusinessProfile = async (req, res) => {
         aboutBusiness,
         companyName,
         user: userId,
-      })
-      await newBusinessProfile.save()
+      });
+      await newBusinessProfile.save();
 
       return res.status(200).json({
         success: true,
-        message: 'Business Profile Data saved successfully',
+        message: "Business Profile Data saved successfully",
         data: newBusinessProfile,
-      })
+      });
     }
 
     // Update the existing business profile
 
     if (companyName) {
-      existingBusinessProfile.companyName = companyName
+      existingBusinessProfile.companyName = companyName;
     }
     if (aboutBusiness) {
-      existingBusinessProfile.aboutBusiness = aboutBusiness
+      existingBusinessProfile.aboutBusiness = aboutBusiness;
     }
 
     // Save the updated business profile
-    await existingBusinessProfile.save()
+    await existingBusinessProfile.save();
 
     return res.status(200).json({
       success: true,
-      message: 'Business Profile Data updated successfully',
+      message: "Business Profile Data updated successfully",
       data: existingBusinessProfile,
-    })
+    });
   } catch (error) {
-    console.error('Error while updating Business Profile:', error)
-    res.status(500).json({ message: 'Failed to update Business Profile' })
+    console.error("Error while updating Business Profile:", error);
+    res.status(500).json({ message: "Failed to update Business Profile" });
   }
-}
+};
 
 // Get Business Profile Data
 const getBusinessProfile = async (req, res) => {
   try {
-    const userId = req.user.id
+    const userId = req.user.id;
 
     // Find the business profile for the user
     const existingBusinessProfile = await BusinessProfile.findOne({
       user: userId,
-    })
+    });
 
     if (!existingBusinessProfile) {
       return res.status(404).json({
         success: false,
-        message: 'Business Profile not found. Please create a profile first.',
-      })
+        message: "Business Profile not found. Please create a profile first.",
+      });
     }
 
     // Extract the required data
-    const { aboutBusiness, companyName, industryType } = existingBusinessProfile
+    const { aboutBusiness, companyName, industryType } =
+      existingBusinessProfile;
 
     return res.status(200).json({
       success: true,
-      message: 'Business Profile Data retrieved successfully',
+      message: "Business Profile Data retrieved successfully",
       data: { aboutBusiness, companyName, industryType },
-    })
+    });
   } catch (error) {
-    console.error('Error while retrieving Business Profile:', error)
-    res.status(500).json({ message: 'Failed to retrieve Business Profile' })
+    console.error("Error while retrieving Business Profile:", error);
+    res.status(500).json({ message: "Failed to retrieve Business Profile" });
   }
-}
+};
 
 const saveCompanyAndIndustry = async (req, res) => {
   try {
-    const { companyName, industryType } = req.body
-    const userId = req.user.id
+    const { companyName, industryType } = req.body;
+    const userId = req.user.id;
 
-    let existingBusinessInfo = await BusinessProfile.findOne({ user: userId })
+    let existingBusinessInfo = await BusinessProfile.findOne({ user: userId });
     if (!existingBusinessInfo) {
       // If the business profile doesn't exist, create a new one with provided companyName and industryType
       const newBusinessProfile = new BusinessProfile({
         companyName,
         industryType,
         user: userId,
-      })
-      await newBusinessProfile.save()
+      });
+      await newBusinessProfile.save();
       return res.status(200).json({
         success: true,
-        message: 'Business Profile Data saved successfully',
+        message: "Business Profile Data saved successfully",
         data: newBusinessProfile,
-      })
+      });
     }
     // Check if companyName and industryType are not already present, then add them
     if (!existingBusinessInfo.companyName && companyName) {
-      existingBusinessInfo.companyName = companyName
+      existingBusinessInfo.companyName = companyName;
     }
     if (!existingBusinessInfo.industryType && industryType) {
-      existingBusinessInfo.industryType = industryType
+      existingBusinessInfo.industryType = industryType;
     }
 
-    await existingBusinessInfo.save()
+    await existingBusinessInfo.save();
 
     return res.status(200).json({
       success: true,
-      message: 'Company Name and Industry Type saved successfully',
+      message: "Company Name and Industry Type saved successfully",
       data: existingBusinessInfo,
-    })
+    });
   } catch (error) {
-    console.error('Error while saving Company Name and Industry Type:', error)
-    res.status(500).json({ message: 'Failed to save Company Name and Industry Type' })
+    console.error("Error while saving Company Name and Industry Type:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to save Company Name and Industry Type" });
   }
-}
+};
 
 // Update Company Name and Industry Type
 const updateCompanyAndIndustry = async (req, res) => {
   try {
-    const { industryType } = req.body
-    const userId = req.user.id
+    const { industryType } = req.body;
+    const userId = req.user.id;
 
     // Find the business profile for the user
-    let existingBusinessProfile = await BusinessProfile.findOne({ user: userId })
+    let existingBusinessProfile = await BusinessProfile.findOne({
+      user: userId,
+    });
 
     if (!existingBusinessProfile) {
       return res.status(404).json({
         success: false,
-        message: 'Business profile not found for this user',
-      })
+        message: "Business profile not found for this user",
+      });
     }
 
     // Update companyName and industryType if provided in the request body
 
     if (industryType !== undefined) {
-      existingBusinessProfile.industryType = industryType
+      existingBusinessProfile.industryType = industryType;
     }
 
     // Save the updated business profile
-    await existingBusinessProfile.save()
+    await existingBusinessProfile.save();
 
     return res.status(200).json({
       success: true,
-      message: ' Industry Type updated successfully',
+      message: " Industry Type updated successfully",
       data: existingBusinessProfile,
-    })
+    });
   } catch (error) {
-    console.error('Error while updating Company Name and Industry Type:', error)
-    res.status(500).json({ message: 'Failed to update Company Name and Industry Type' })
+    console.error(
+      "Error while updating Company Name and Industry Type:",
+      error
+    );
+    res
+      .status(500)
+      .json({ message: "Failed to update Company Name and Industry Type" });
   }
-}
+};
 
 module.exports = {
   saveBusinessProfile,
@@ -228,4 +219,4 @@ module.exports = {
   getBusinessProfile,
   saveCompanyAndIndustry,
   updateCompanyAndIndustry,
-}
+};

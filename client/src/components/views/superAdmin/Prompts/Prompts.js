@@ -97,22 +97,14 @@ const Prompts = () => {
       setLoading(false)
     }
   }
-  console.log('Render Success:', success)
+ // console.log('Render Success:', success)
   //if (!promptCardsData) return null
   return (
     <div>
       <div className="page-header">
         <h2 className="text-dark fw-semibold mb-2"> Prompts </h2>
       </div>
-      {/* <div className="row">
-        {saveStatus && (
-          <div className="col-12">
-            <div className={`alert ${saveStatus.startsWith('Error') ? 'alert-danger' : 'alert-success'}`}>
-              {saveStatus}
-            </div>
-          </div>
-        )}
-      </div> */}
+      
       <div className="row">
         {promptCardsData.map((card, index) => (
           <div key={index} className="col-12 mb-3">

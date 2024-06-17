@@ -21,7 +21,7 @@ const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 
 require('dotenv').config();
-const PORT = process.env.PORT ||30002
+const PORT = process.env.PORT || 30002
 
 //databse connect
 database.connect();

@@ -36,14 +36,31 @@ exports.saveBlogTopic = async (req, res) => {
     }
 
     // Check if a BlogTopic document already exists for the user
+    // let blogTopic = await BlogTopic.findOne({ user: userId });
+
+    // if (blogTopic) {
+    //   // Update the existing BlogTopic document
+    //   blogTopic.topics = apiResponse;
+    //   await blogTopic.save();
+    // } else {
+    //   // Create a new BlogTopic instance
+    //   blogTopic = new BlogTopic({
+    //     topics: apiResponse,
+    //     user: user._id,
+    //     PId: projectId,
+    //   });
+    //   await blogTopic.save();
+    // }
+
     let blogTopic = await BlogTopic.findOne({ user: userId });
 
     if (blogTopic) {
-      // Update the existing BlogTopic document
-      blogTopic.topics = apiResponse;
+      // If blogTopic exists, update the topics array with unique values
+      const uniqueTopics = new Set([...blogTopic.topics, ...apiResponse]);
+      blogTopic.topics = Array.from(uniqueTopics); // Convert Set back to array
       await blogTopic.save();
     } else {
-      // Create a new BlogTopic instance
+      // Create a new BlogTopic instance if it doesn't exist
       blogTopic = new BlogTopic({
         topics: apiResponse,
         user: user._id,

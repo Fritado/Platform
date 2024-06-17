@@ -1,18 +1,32 @@
-const User = require("../../models/User");
-const Keywords = require("../../models/BusinessProfileModels/Keywords");
-const ProductAndServices = require("../../models/BusinessProfileModels/ProductAndServices");
-const BusinessProfile = require("../../models/BusinessProfileModels/BusinessProfile");
-const { stripTags } = require("striptags");
 const axios = require("axios");
 const cheerio = require("cheerio");
-
-// Initialize an empty variable to store the cleanContent result
-let cleanContent = null;
 
 const exponentialBackoff = async (retryCount) => {
   const delay = Math.pow(2, retryCount) * 1000;
   console.log(`Retrying in ${delay / 1000} seconds...`);
   await new Promise((resolve) => setTimeout(resolve, delay));
+};
+
+const extractContent = ($) => {
+  // Remove unwanted tags and their content
+  $('script, style, noscript, iframe, link, meta').remove();
+
+  // Extract text content from the remaining body
+  let textContent = "";
+  $('body').each((_, element) => {
+    const text = $(element).text().trim();
+    if (text) {
+      textContent += text + " ";
+    }
+  });
+
+  return textContent;
+};
+
+const summarizeContent = (content) => {
+  const sentences = content.split('.').map(sentence => sentence.trim()).filter(Boolean);
+  const summary = sentences.slice(0, 5).join('. ') + '.';
+  return summary;
 };
 
 exports.BusinessProfileGenerator = async (req, res) => {
@@ -38,12 +52,10 @@ exports.BusinessProfileGenerator = async (req, res) => {
 
     const MAX_RETRIES = 2;
     let retryCount = 0;
-    //  let html;
+    let html = null;
 
     while (retryCount < MAX_RETRIES) {
       try {
-        // Fetch HTML content of the website
-        // const { data: html } = await axios.get(url);
         const response = await axios.get(url, { timeout: 5000 });
         html = response.data;
         break;
@@ -61,23 +73,20 @@ exports.BusinessProfileGenerator = async (req, res) => {
       throw new Error("Failed to fetch HTML after retries");
     }
 
-    // Load HTML into Cheerio for easy manipulation
     const $ = cheerio.load(html);
+    const mainContent = extractContent($);
 
-    // Extract body content
-    const bodyContent = $("body").text();
-
-    // Clean the content
-    cleanContent = bodyContent
-      .replace(/<[^>]*>/g, "") // Remove HTML tags
+    const cleanContent = mainContent
       .replace(/[^\w\s]/g, "") // Remove special characters
       .replace(/\s+/g, " ") // Remove extra whitespace
       .trim(); // Trim leading/trailing whitespace
 
-    res.json({ cleanContent });
+    const summary = summarizeContent(cleanContent);
+
+    res.json({ summary });
   } catch (error) {
     console.error("Error:", error.message);
-    res.status(500).json({ error: "Internal Server Error " });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -95,49 +104,3 @@ exports.PrintCleanContent = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-exports.analyzeContent = async (e) => {
-  const openAISecretKey = "";
-  const prompt = `
-    I have copied this  ${cleanContent}  content from a service/business website. I want you to analyse this content and provide me below information.
-    1. Write about my business in 500 words? Enclose the answer in the <business> tag.
-    2. What services or products it offers? Enclose the answer in the <service> tag.
-    3. Give me 100 short tail and  long tail local keywords based on my business location .separated by comma that will help me optimize the website for Search Engine to attract targeted business.
-    `;
-  const data = {
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-    temperature: 0.5,
-    max_tokens: 2500,
-    top_p: 1.0,
-    frequency_penalty: 0.52,
-    presence_penalty: 0.5,
-    stop: ["11."],
-  };
-
-  try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${openAISecretKey}`,
-        },
-      }
-    );
-
-    console.log("Analysis Result:", response);
-
-    const messageContent = response.data.choices[0].message.content;
-    console.log("Message Content:", messageContent);
-  } catch (Error) {
-    console.log(Error, "Error while calling openAI api ");
-  }
-};
-

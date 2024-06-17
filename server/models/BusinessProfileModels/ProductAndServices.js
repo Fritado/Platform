@@ -5,7 +5,6 @@ const ProductAndServiceSchema = new mongoose.Schema(
     productAndServices: [
       {
         type: String,
-        required: true,
       },
     ],
     user: {

@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { API_BASE_URL, BLOG_API_ROUTES } from '../services/APIURL/Apis'
+import {API_BASE_URL, BLOG_API_ROUTES } from '../services/APIURL/Apis'
 import { fetchPromptDetails } from '../services/PromptService/PromptService'
+
 
 export const fetchingAboutBusiness = async (e) => {
   const fetchingURL = `${BLOG_API_ROUTES.GET_BUSINESS_PROFILE}`
@@ -18,15 +19,21 @@ export const fetchingAboutBusiness = async (e) => {
 
     const response = await axios.get(fetchingURL, config)
     const { data } = response.data
-    return data.aboutBusiness
-    //console.log("About Business Response", data.aboutBusiness);
+    //console.log(response, 'resab')
+    return data
   } catch (error) {
     console.log('Error while fetching About Business content from database', error)
     throw error
   }
 }
 
-export const fetchOpenAITopics = async (industryInfo) => {
+export const fetchOpenAITopics = async (
+  aboutBusiness,
+  keywords,
+  industryType,
+  productsAndServices,
+  location,
+) => {
   const promptDetailsResponse = await fetchPromptDetails()
   const promptDetails = promptDetailsResponse[0]
   const openAISecretKey = process.env.OPENAI_SECRET_KEY
@@ -34,7 +41,15 @@ export const fetchOpenAITopics = async (industryInfo) => {
 
   const instruction = `${promptDetails.BlogTopic}`
 
-  const prompt = `${instruction} Company Information: ${industryInfo}`
+  // const prompt = `${instruction} Company Information: ${industryInfo}`
+  const prompt = `As an SEO and content expert, please provide me with a comprehensive list of blog topics based on the following information, without needing to include the rationale or conclusions.
+  1. About Business - ${aboutBusiness}
+  2. Industry type - ${industryType}
+  3. Keywords - ${keywords}
+  4. Product And Services - ${productsAndServices}
+  5. Location - ${location}
+
+  `
 
   const data = {
     model: 'gpt-3.5-turbo',
@@ -70,7 +85,6 @@ export const fetchOpenAITopics = async (industryInfo) => {
 
 export const saveBlogTopic = async (topics) => {
   const blogTopicUrl = `${BLOG_API_ROUTES.SAVE_BLOG_TOPIC}`
-  // console.log('blogTopicUrl', blogTopicUrl)
   try {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -85,7 +99,8 @@ export const saveBlogTopic = async (topics) => {
       apiResponse: topics,
     }
     const response = await axios.post(blogTopicUrl, requestBody, config)
-    //console.log('Saved', response)
+    console.log('Saved', response);
+    return response.data; 
   } catch (error) {
     console.log('Error while Saving Blog Topics content in database', error)
     throw error
@@ -121,8 +136,23 @@ export const BlogGenerate = async (topic) => {
   const openAISecretKey = process.env.OPENAI_SECRET_KEY
   // console.log("openAISecretKey", openAISecretKey)
 
-  const prompt = `${promptDetails.BlogDescription} - '${topic}'`
-  console.log(prompt, 'Prompt blog details')
+  //const prompt = `${promptDetails.BlogDescription} - '${topic}'`;
+  const prompt = `When writing a professional blog, follow this structured system to ensure quality and SEO optimization:
+      Title: Create a catchy and relevant title with primary keywords.
+      Introduction: Introduce the topic, explain its relevance, and state what readers will learn.
+      Main Content:
+      Section 1: Discuss the first main point, provide data, examples, or quotes.
+      Section 2: Elaborate on the second main point, use subheadings and bullet points for clarity.
+      Section 3: Cover the third main point, include visuals or infographics.
+      Conclusion: Summarize key points, offer actionable advice, and include a call-to-action.
+      SEO Elements:
+      Use primary and secondary keywords naturally.
+      Include internal and external links.
+      Optimize meta description and alt text for images.
+      Proofreading: Check for grammar, spelling, and readability.
+      Please generate article on this topic -${topic} based on the above instructions in 2000 words
+      Provide articles in HTML Format.
+      `
 
   const data = {
     model: 'gpt-3.5-turbo',
@@ -149,7 +179,7 @@ export const BlogGenerate = async (topic) => {
     })
     //console.log(response, "response");
     const blogData = response.data.choices[0].message.content
-    //console.log(response.data.choices[0].message.content , "content");
+    console.log(response.data.choices[0].message.content , "content");
     return blogData
   } catch (error) {
     console.error('Error:', error)
@@ -202,6 +232,7 @@ export const checkBlogAvailability = async () => {
 
     console.log('response', response)
     const missingTopics = response.data.missingTopics
+    //const missingTopics = "The Role of the White House in Shaping National Policies"
     console.log('misingTopics', missingTopics)
     return missingTopics
   } catch (error) {
@@ -259,24 +290,14 @@ export const updateBlogDescription = async (blogId, editedDescription) => {
 }
 
 export const approveBlog = async (blogId) => {
-  const approveBlogUrl = `${API_BASE_URL}/openAi/blogs/${blogId}/approve`
-  //console.log("approveBlogUrl" ,approveBlogUrl)
+  const approveBlogUrl = `${API_BASE_URL}/api/openAi/blogs/${blogId}/approve`;
+ // console.log("approveBlogUrl" ,approveBlogUrl)
   try {
-    // const token = localStorage.getItem('token')
-    // if (!token) {
-    //   throw new Error('Token not found')
-    // }
-
-    // const config = {
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // }
-
+  
     const statusResponse = await axios.put(approveBlogUrl, {})
 
     if (statusResponse.status === 200) {
-      //console.log('Blog approved successfully')
+     // console.log('Blog approved successfully')
       return statusResponse.data
     } else {
       console.error('Failed to approve blog:', statusResponse.statusText)
@@ -289,17 +310,8 @@ export const approveBlog = async (blogId) => {
 }
 
 export const getBlogStatusByTopic = async (topic) => {
-  const statusUrl = `${BLOG_API_ROUTES.GET_BLOG_STATUS}/${topic}`
+  const statusUrl = `${BLOG_API_ROUTES.GET_BLOG_STATUS}/${encodeURIComponent(topic)}`
   try {
-    // const token = localStorage.getItem('token')
-    // if (!token) {
-    //   throw new Error('Token not found')
-    // }
-    // const config = {
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // }
     const statusResponse = await axios.get(statusUrl)
     //console.log(statusResponse.data);
     return statusResponse.data
@@ -369,9 +381,9 @@ export const getPostScheduledTime = async () => {
         'Content-Type': 'application/json',
       },
     }
-    const scheduledData = await axios.get(getScheduledUrl, config);
-    console.log(scheduledData , "post schedule respose coming")
-    return scheduledData;
+    const scheduledData = await axios.get(getScheduledUrl, config)
+    console.log(scheduledData, 'post schedule respose coming')
+    return scheduledData
   } catch (Error) {
     console.log('Error while scheduling blog post time', error)
     throw error

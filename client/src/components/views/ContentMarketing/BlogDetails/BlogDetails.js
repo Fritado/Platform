@@ -101,10 +101,10 @@ const BlogDetails = () => {
     }
   }
   const handleToggle = async () => {
-    try {
+    try { 
       if (status === 'pending') {
         setStatus('approved')
-        const response = await approveBlog(blogId, 'approved')
+        const response = await approveBlog(blogId)
         if (!response.success) {
           console.error('Failed to approve blog:', response.message)
           setStatus('pending')

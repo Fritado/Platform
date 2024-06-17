@@ -16,49 +16,81 @@ import {
   fetchBlogsByTopic,
   getBlogStatusByTopic,
 } from '../../services/BlogTopicApi'
+import { getKeyWords } from '../../services/onBoarding/KeywordApi'
+import { getProductService, getLocation } from '../../services/onBoarding/businessProfileApi'
 
 const UpcomingBlogs = () => {
   const navigate = useNavigate()
   const [users, setUsers] = useState()
-  const [industryInfo, setIndustryInfo] = useState('')
   const [topics, setTopics] = useState([])
   const [generatedBlogs, setGeneratedBlogs] = useState([])
   //const [blogStatuses, setBlogStatuses] = useState({});
   const [statusMap, setStatusMap] = useState({})
+  const [businessData, setBusinessData] = useState({
+    aboutBusiness: '',
+    industryType: '',
+    keywords: '',
+    productsAndServices: '',
+    location: '',
+  })
 
   const getAboutBusiness = async (e) => {
     try {
-      const AboutBusinessData = await fetchingAboutBusiness()
-      console.log(' AboutBusinessData ', AboutBusinessData)
-      setIndustryInfo(AboutBusinessData)
-      await getOpenAITopics()
+      const { aboutBusiness, industryType } = await fetchingAboutBusiness()
+      const keywords = await getKeyWords()
+      const productsAndServices = await getProductService()
+      const location = await getLocation()
+
+      setBusinessData({
+        aboutBusiness,
+        industryType,
+        keywords,
+        productsAndServices,
+        location,
+      })
+      await getOpenAITopics(aboutBusiness, keywords, industryType, productsAndServices, location)
     } catch (error) {
       console.log('Error while fetching business data', error)
     }
   }
+  //generate blog topic auto
 
-  const getOpenAITopics = async () => {
-    if (topics.length === 0) {
-      try {
-        // console.log('calling')
-        const generatedTopics = await fetchOpenAITopics(industryInfo)
-        const cleanedTopics = generatedTopics
-          .map((topic) => {
-            // Remove inverted commas and numbers
-            return topic
-              .replace(/^[\d."]+/g, '')
-              .replace(/"/g, '')
-              .trim()
-          })
-          .filter((topic) => topic.trim() !== '')
+  const getOpenAITopics = async (
+    aboutBusiness,
+    keywords,
+    industryType,
+    productsAndServices,
+    location,
+  ) => {
+    //   if (topics.length === 0) {
+    try {
+   //   console.log('calling')
+      const generatedTopics = await fetchOpenAITopics(
+        aboutBusiness,
+        keywords,
+        industryType,
+        productsAndServices,
+        location,
+      )
+
+      const cleanedTopics = generatedTopics
+        .map((topic) => {
+          // Remove inverted commas and numbers
+          return topic
+            .replace(/^[\d."]+/g, '')
+            .replace(/"/g, '')
+            .trim()
+        })
+        .filter((topic) => topic.trim() !== '')
         setTopics(cleanedTopics)
         console.log('cleanedTopics', cleanedTopics)
-        await saveBlogTopic(cleanedTopics)
-      } catch (error) {
-        console.log('Error while fetching topics:', error)
-      }
+      await saveBlogTopic(cleanedTopics)
+    } catch (error) {
+      console.log('Error while fetching topics:', error)
     }
+    // }
   }
+
   const fetchBlogTopics = async () => {
     try {
       // console.log('calling get')
@@ -86,7 +118,7 @@ const UpcomingBlogs = () => {
       const StatusPromise = topics.map(async (topic) => {
         try {
           const response = await getBlogStatusByTopic(topic)
-          // console.log(`Fetched status for topic: ${topic}`, response.data)
+         //  console.log(`Fetched status for topic: ${topic}`, response.data)
           const { status, publishDate, approvedDate } = response.data
           return { topic, status, publishDate, approvedDate }
         } catch (error) {
@@ -123,7 +155,7 @@ const UpcomingBlogs = () => {
   const BlogsResponse = async () => {
     try {
       const missingTopics = await checkBlogAvailability()
-      // console.log('Missing topics:', missingTopics)
+      console.log('Missing topics from upcoming blog page:', missingTopics)
       const generatedBlogs = []
 
       for (const topic of topics) {
@@ -137,7 +169,7 @@ const UpcomingBlogs = () => {
           console.log(`Generating blog for topic: ${topic}`)
           // If the topic is missing, generate the blog
           const blog = await BlogGenerate(topic)
-          //console.log("blog" , blog)
+          console.log('blog', blog)
           generatedBlogs.push({ topic, blog })
           await saveAllBlogs(trimmedTopic, blog)
           console.log(`Blog generated for topic: ${topic}`)
@@ -163,6 +195,13 @@ const UpcomingBlogs = () => {
     } catch (error) {
       console.error('Error fetching blog details:', error)
     }
+  }
+
+  const truncateTopic = (topic, maxChars) => {
+    if (topic.length <= maxChars) {
+      return topic
+    }
+    return topic.slice(0, maxChars) + '......'
   }
 
   return (
@@ -193,7 +232,7 @@ const UpcomingBlogs = () => {
                     <th>Action</th>
                   </tr>
                 </thead>
-
+                {/* display blog topic in 70 words else show.... */}
                 <tbody className="text-capitalize">
                   {topics.map((topic, index) => {
                     const statusDetails = statusMap[topic]
@@ -207,7 +246,7 @@ const UpcomingBlogs = () => {
                     return (
                       <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{topic}</td>
+                        <td>{truncateTopic(topic, 70)}</td>
 
                         <td>{publishDate}</td>
                         <td>{approvedDate}</td>

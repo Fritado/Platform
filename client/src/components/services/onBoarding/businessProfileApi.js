@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { BUSINESS_PROFILE_ROUTES } from '../APIURL/Apis'
 
-export const saveAndUpdateBusinessProfile = async (companyName , aboutBusiness, token) => {
+export const saveAndUpdateBusinessProfile = async (companyName, aboutBusiness, token) => {
   const updateBusinessProfileUrl = `${BUSINESS_PROFILE_ROUTES.UPDATE_BP}`
 
   const createbusinessProfileUrl = `${BUSINESS_PROFILE_ROUTES.SAVE_BP}`
@@ -19,18 +19,9 @@ export const saveAndUpdateBusinessProfile = async (companyName , aboutBusiness, 
     if (!token) {
       throw new Error('Token not found')
     }
-
-    // if (aboutBusiness) {
-    //  const updateRes =  await axios.put(updateBusinessProfileUrl, requestBody, config);
-    //  console.log(updateRes , "updateRes");
-    // } else {
-    //   const saveRes = await axios.post(createbusinessProfileUrl, requestBody, config);
-    //   console.log(saveRes , "saveRes");
-    // }
-     const aboutBusinessSave = await axios.put(updateBusinessProfileUrl, requestBody, config);
-     console.log("aboutBusinessSave" , aboutBusinessSave);
-     return aboutBusinessSave;
-     
+    const aboutBusinessSave = await axios.put(updateBusinessProfileUrl, requestBody, config)
+    console.log('aboutBusinessSave', aboutBusinessSave)
+    return aboutBusinessSave
   } catch (error) {
     console.log('Error in Business Profile', error)
   }
@@ -54,7 +45,7 @@ export const saveBusinessInfo = async (companyName, industryType, token) => {
       throw new Error('Token not found')
     }
     const res = await axios.post(saveBusinessInfoUrl, requestBody, config)
-   // console.log('res', res)
+    // console.log('res', res)
   } catch (error) {
     console.log('Error in Business Info', error)
   }
@@ -148,13 +139,13 @@ export const getAboutBusinessProfile = async (token) => {
       Authorization: `Bearer ${token}`,
     },
   }
-
   try {
     if (!token) {
       throw new Error('Token not found')
     }
+
     const response = await axios.get(getAboutBusinessUrl, config)
-   console.log('response from bApi', response)
+    // console.log('response from bApi', response)
     return response.data.data
   } catch (error) {
     console.error('Error while fetching about Business data', error)
@@ -164,19 +155,44 @@ export const getAboutBusinessProfile = async (token) => {
 
 export const getProductService = async (token) => {
   const getServiceUrl = `${BUSINESS_PROFILE_ROUTES.GET_PRODUCT_AND_SERVICE}`
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
 
   try {
+    const token = localStorage.getItem('token')
     if (!token) {
       throw new Error('Token not found')
     }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
     const Pdresponse = await axios.get(getServiceUrl, config)
-    // console.log(' Pdresponse', Pdresponse)
-    return Pdresponse.data.data.productAndServices[0].split(',')
+    //console.log(' Pdresponse',Pdresponse.data.data.productAndServices)
+    return Pdresponse.data.data.productAndServices
+  } catch (error) {
+    console.error('Error while fetching Service data', error)
+    return []
+  }
+}
+
+export const getLocation = async (token) => {
+  const getLocationUrl = `${BUSINESS_PROFILE_ROUTES.GET_LOCATION}`
+
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
+    const Locationresponse = await axios.get(getLocationUrl, config)
+    // console.log('Locationresponse ',Locationresponse.data.data.location)
+    return Locationresponse.data.data.location
   } catch (error) {
     console.error('Error while fetching Service data', error)
     return []

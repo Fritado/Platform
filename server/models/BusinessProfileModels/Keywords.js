@@ -5,7 +5,6 @@ const KeywordsSchema = new mongoose.Schema(
     keywords: [
       {
         type: String,
-        required: true,
       },
     ],
 

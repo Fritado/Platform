@@ -14,45 +14,45 @@ const saveKeyword = async (req, res) => {
       });
     }
 
-    // Check if the keyword already exists for the user
-    const existingKeyword = await Keyword.findOne({
-      user: userId,
-      keywords: keywords,
-    });
-
-    if (existingKeyword) {
-      return res.status(400).json({
-        success: false,
-        message: "Keyword already exists for this user",
-      });
+    // Validate and prepare keywords
+    let keywordsArray = [];
+    if (typeof keywords === "string") {
+      keywordsArray = keywords.split("\n").map((keyword) => keyword.trim())
+      .filter(keyword => keyword !== "");
+    } else if (Array.isArray(keywords)) {
+      keywordsArray = keywords.map((keyword) => keyword.trim()).filter(keyword => keyword !== "");
+    } else {
+      throw new Error("Keywords must be a string or an array");
     }
 
-    // If the keyword doesn't exist, save it
+    // Find existing keyword document for the user
     let userKeyword = await Keyword.findOne({ user: userId });
 
     if (!userKeyword) {
       // If no existing document, create a new one
       userKeyword = new Keyword({
-        keywords: [keywords], // Create an array with the first keyword
+        keywords: keywordsArray,
         user: userId,
       });
     } else {
-      // If the document exists, append the new keyword to the existing array
-      if (!userKeyword.keywords.includes(keywords)) {
-        userKeyword.keywords.push(keywords);
-      }
+      // If the document exists, append the new keywords to the existing array
+      keywordsArray.forEach((newKeyword) => {
+        if (!userKeyword.keywords.includes(newKeyword)) {
+          userKeyword.keywords.push(newKeyword);
+        }
+      });
     }
 
     await userKeyword.save();
 
     return res.status(200).json({
       success: true,
-      message: "Keyword saved successfully",
+      message: "Keywords saved successfully",
       data: userKeyword,
     });
   } catch (error) {
-    console.error("Error while saving keyword:", error);
-    res.status(500).json({ message: "Failed to save keyword" });
+    console.error("Error while saving keywords:", error);
+    res.status(500).json({ message: "Failed to save keywords" });
   }
 };
 

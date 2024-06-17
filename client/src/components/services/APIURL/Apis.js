@@ -52,6 +52,8 @@ export const BUSINESS_PROFILE_ROUTES = {
   GET_PRODUCT_AND_SERVICE: API_BASE_URL + '/api/businessProfile/get-product-service',
   SAVE_BUSINESS_INFO: API_BASE_URL + '/api/businessProfile/save-businessinfo',
   UPDATE_BUSINESS_INFO: API_BASE_URL + '/api/businessProfile/update-businessinfo',
+  GET_LOCATION : API_BASE_URL + '/api/businessProfile/get-location',
+  GET_KEYWORD : API_BASE_URL + '/api/businessProfile/get-keywords',
 }
 
 export const BILLING_PLANS_PAYMENT = {

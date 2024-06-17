@@ -205,7 +205,7 @@ const Keywords = () => {
                             <span className="pe-3">
                               <CiEdit
                                 size={22}
-                                onClick={() => handleEdit(index, keyword)}
+                               // onClick={() => handleEdit(index, keyword)}
                                 // onClick={() => {
                                 //   const newKeyword = prompt(
                                 //     "Enter the new keyword:"
@@ -218,7 +218,7 @@ const Keywords = () => {
                             </span>
                             <span
                               className="ps-3"
-                              onClick={() => deleteEachKeyword(keyword)}
+                            //  onClick={() => deleteEachKeyword(keyword)}
                             >
                               <MdDeleteForever size={22} />
                             </span>

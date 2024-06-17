@@ -5,6 +5,7 @@ import { MdAdd } from 'react-icons/md'
 import axios from 'axios'
 import { CiEdit } from 'react-icons/ci'
 import { MdDeleteForever } from 'react-icons/md'
+import { RxCross2 } from 'react-icons/rx'
 import {
   saveAndUpdateBusinessProfile,
   createAndSaveLocation,
@@ -13,6 +14,7 @@ import {
   deleteProductService,
   getAboutBusinessProfile,
   getProductService,
+  getLocation,
 } from '../../services/onBoarding/businessProfileApi'
 
 const BusinessProfile = () => {
@@ -29,8 +31,6 @@ const BusinessProfile = () => {
       localStorage.setItem('companyName', companyName)
       localStorage.setItem('aboutBusiness', aboutBusiness)
       localStorage.setItem('industryType', industryType)
-      localStorage.setItem('location', location)
-      localStorage.setItem('productAndServices', productAndServices)
     } catch (err) {
       console.error('Error saving to local storage:', err)
     }
@@ -41,8 +41,6 @@ const BusinessProfile = () => {
       setIndustryType(localStorage.getItem('industryType') || '')
       setCompanyName(localStorage.getItem('companyName') || '')
       setAboutBusiness(localStorage.getItem('aboutBusiness') || '')
-      setLocation(localStorage.getItem('location') || '')
-      setproductAndServices(localStorage.getItem('productAndServices') || '')
     } catch (error) {
       console.error('Error loading from local storage:', error)
     }
@@ -109,10 +107,18 @@ const BusinessProfile = () => {
         setIndustryType(data.industryType)
       }
     })
-    getProductService(localStorage.getItem('token')).then((data) => {
-      setproductAndServices(data)
-    })
+    getService()
+    fetchLocation()
   }, [])
+  const getService = async () => {
+    const service = await getProductService()
+    setproductAndServices(service)
+  }
+  const fetchLocation = async () => {
+    const locationData = await getLocation()
+    console.log(locationData)
+    setLocation(locationData)
+  }
 
   return (
     <div>
@@ -199,24 +205,26 @@ const BusinessProfile = () => {
                 Fritado can autonomously generate content focused on your business's location,
                 enhancing the ability to reach more pertinent prospective customers.
               </p>
-              <form className="forms-sample">
-                <Form.Group>
-                  <label htmlFor="exampleInputName1">Location</label>
-                  <Form.Control
-                    type="text"
-                    name="location"
-                    value={location}
-                    onChange={handleInputChange(setLocation)}
-                    //onChange={(e) => setLocation(e.target.value)}
-                    className="form-control"
-                    id="exampleInputName1"
-                    placeholder="location"
-                  />
-                </Form.Group>
-                <button type="submit" className="btn-db me-2 px-4">
-                  Add
-                </button>
-              </form>
+
+              <div className="d-flex mx-auto mt-3 justify-content-center align-items-center">
+                <ul style={{ listStyle: 'none' }} className="py-3 d-flex flex-row gap-3">
+                  {Array.isArray(location) &&
+                    location.map((loc, index) => (
+                      <li key={index} className="border d-inline px-2 py-1 position-relative">
+                        <span className="location-text">{loc}</span>
+                        <span className="position-absolute top-0 end-0 ">
+                          <RxCross2
+                            size={20}
+                            className="delete-location-icon"
+                            // onClick={() => deleteLocation(loc)}
+                          />
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+
+              <button className="btn-db me-2">Add</button>
             </div>
           </div>
         </div>
@@ -230,66 +238,61 @@ const BusinessProfile = () => {
                 enhancing the ability to reach more pertinent prospective customers.
               </p>
 
-              <form className="forms-sample">
-                <div style={{ textAlign: 'right' }} className="mt-2">
-                  <Link to="/add-keyword">
-                    <button onClick={savingProductAndService} className="btn-db me-2">
-                      Add{' '}
-                      <span>
-                        <MdAdd size={26} />
-                      </span>
-                    </button>
-                  </Link>
-                </div>
-                <Form.Group>
-                  <label htmlFor="exampleInputName1">Product & Services</label>
-                  <Form.Control
-                    type="text"
-                    name="productAndServices"
-                    className="form-control"
-                    id="exampleInputName1"
-                    placeholder="Product & Services"
-                  />
-                </Form.Group>
-                <ul style={{ listStyle: 'none' }} className="py-3">
-                  {Array.isArray(productAndServices) &&
-                    productAndServices.map((service, index) => (
-                      <div
-                        key={index}
-                        className={`d-flex flex-row justify-content-between ${
-                          index % 2 === 0 ? 'border-bottom border-top' : ''
-                        }`}
-                        style={{
-                          backgroundColor: index % 2 === 0 ? '#f0f1f6' : '#ffffff',
-                        }}
-                      >
-                        {editableIndex === index ? (
-                          <li key={index} className="px-2 py-3">
-                            <input
-                              type="text"
-                              value={newServiceValue}
-                              onChange={(e) => setNewServiceValue(e.target.value)}
-                              onKeyPress={(e) => handleKeyPress(e, index)}
-                            />
-                          </li>
-                        ) : (
-                          <li key={index} className="px-2 py-3">
-                            {service.trim()}
-                          </li>
-                        )}
+              <div style={{ textAlign: 'right' }} className="mt-2">
+                <Link to="/add-keyword">
+                  <button onClick={savingProductAndService} className="btn-db me-2">
+                    Add{' '}
+                    <span>
+                      <MdAdd size={26} />
+                    </span>
+                  </button>
+                </Link>
+              </div>
 
-                        <div className="d-flex align-items-center px-3">
-                          <span className="pe-3" onClick={() => handleEdit(index)}>
-                            <CiEdit size={22} />
-                          </span>
-                          <span className="ps-3">
-                            <MdDeleteForever size={22} onClick={() => deletePD(service)} />
-                          </span>
-                        </div>
+              <ul style={{ listStyle: 'none' }} className="py-3">
+                {Array.isArray(productAndServices) &&
+                  productAndServices.map((service, index) => (
+                    <div
+                      key={index}
+                      className={`d-flex flex-row justify-content-between ${
+                        index % 2 === 0 ? 'border-bottom border-top' : ''
+                      }`}
+                      style={{
+                        backgroundColor: index % 2 === 0 ? '#f0f1f6' : '#ffffff',
+                      }}
+                    >
+                      {editableIndex === index ? (
+                        <li key={index} className="px-2 py-3">
+                          <input
+                            type="text"
+                            value={newServiceValue}
+                            onChange={(e) => setNewServiceValue(e.target.value)}
+                            // onKeyPress={(e) => handleKeyPress(e, index)}
+                          />
+                        </li>
+                      ) : (
+                        <li key={index} className="px-2 py-3">
+                          {service.trim()}
+                        </li>
+                      )}
+
+                      <div className="d-flex align-items-center px-3">
+                        <span
+                          className="pe-3"
+                          // onClick={() => handleEdit(index)}
+                        >
+                          <CiEdit size={22} />
+                        </span>
+                        <span className="ps-3">
+                          <MdDeleteForever
+                            size={22}
+                            //onClick={() => deletePD(service)}
+                          />
+                        </span>
                       </div>
-                    ))}
-                </ul>
-              </form>
+                    </div>
+                  ))}
+              </ul>
             </div>
           </div>
         </div>

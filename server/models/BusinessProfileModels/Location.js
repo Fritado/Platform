@@ -5,7 +5,6 @@ const locationSchema = new mongoose.Schema(
     location: [
       {
         type: String,
-        required: true,
       },
     ],
 

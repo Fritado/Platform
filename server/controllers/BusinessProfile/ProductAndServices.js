@@ -8,63 +8,56 @@ const saveProductsAndServices = async (req, res) => {
 
     // Check if the user exists
     const userId = await User.findById(req.user.id);
-    //console.log("userId", userId);
-
     if (!userId) {
-      return res.status({
+      return res.status(400).json({
         success: false,
         message: "Sorry! User not found",
       });
     }
 
-    //const lowercaseProductAndServices = productAndServices.toLowerCase();
-
-    // Check if the product and service already exists for the user
-    const existingProductAndService = await ProductAndService.findOne({
-      user: userId,
-      productAndServices: productAndServices,
-    });
-
-    if (existingProductAndService) {
-      return res.status(400).json({
-        success: false,
-        message: "Product or Service already exists for this user",
-      });
+    // Validate and prepare product and services
+    let productsAndServicesArray = [];
+    if (typeof productAndServices === "string") {
+      productsAndServicesArray = productAndServices.split("\n").map((item) => item.trim())
+      .filter(item => item !== "" && !item.startsWith("Keywords:") && !item.startsWith("Locations:") && !item.startsWith("About Business"));
+    } else if (Array.isArray(productAndServices)) {
+      productsAndServicesArray = productAndServices.map((item) => item.trim())
+      .filter(item => item !== "" && !item.startsWith("Keywords:") && !item.startsWith("Locations:") && !item.startsWith("About Business"));;
+    } else {
+      throw new Error("Product and Services must be a string or an array");
     }
-    // If the product and service doesn't exist, save it
-    let userProductAndService = await ProductAndService.findOne({
-      user: userId,
-    });
+
+    // Find existing product and service document for the user
+    let userProductAndService = await ProductAndService.findOne({ user: userId });
 
     if (!userProductAndService) {
       // If no existing document, create a new one
       userProductAndService = new ProductAndService({
-        productAndServices: [productAndServices], // Create an array with the first product and service
+        productAndServices: productsAndServicesArray,
         user: userId,
       });
     } else {
-      // If the document exists, append the new product and service to the existing array
-      if (
-        !userProductAndService.productAndServices.includes(productAndServices)
-      ) {
-        userProductAndService.productAndServices.push(productAndServices);
-      }
+      // If the document exists, append the new products and services to the existing array
+      productsAndServicesArray.forEach((newItem) => {
+        if (!userProductAndService.productAndServices.includes(newItem)) {
+          userProductAndService.productAndServices.push(newItem);
+        }
+      });
     }
 
     await userProductAndService.save();
 
     return res.status(200).json({
       success: true,
-      message: "Product And Services Data saved successfully",
+      message: "Products and Services saved successfully",
       data: userProductAndService,
     });
   } catch (error) {
-    console.error("Error while Saving Product And Services Data:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to save Product And Services Data" });
+    console.error("Error while saving products and services:", error);
+    res.status(500).json({ message: "Failed to save products and services" });
   }
 };
+
 
 const updateProductAndService = async (req, res) => {
   try {

@@ -4,24 +4,38 @@ import AuthFooter from '../views/common/AuthFooter'
 import axios from 'axios'
 import Spinner from '../views/common/Spinner'
 import { Link, useNavigate } from 'react-router-dom'
-import { PORTAL_API_ROUTES } from '../services/APIURL/Apis'
-import {
-  fetchWebsiteName,
-  scrapeWebsite,
-  analyzeContent,
-  saveBusinessContent,
-  saveServiceContent,
-  saveKeywordContent,
-  saveLocationContent,
-} from '../services/portal/portalWT'
-
+import { PORTAL_API_ROUTES, BUSINESS_PROFILE_ROUTES } from '../services/APIURL/Apis'
+import { toast } from 'react-hot-toast'
 import { fetchPromptDetails } from '../services/PromptService/PromptService'
+
 const PortalWalkThrough = () => {
   const [websiteName, setWebsiteName] = useState('')
+  const [industryType, setIndustryType] = useState('')
   const [cleanContent, setCleanContent] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  const getIndustryType = async () => {
+    const getUrl = `${BUSINESS_PROFILE_ROUTES.GET_ABOUT_BP}`
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Token not found')
+      }
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+      const response = await axios.get(getUrl, config)
+      const industryRes = response.data.data.industryType
+      setIndustryType(industryRes)
+      // console.log("Response from industry type" , industryRes );
+    } catch (Error) {
+      console.log(error, 'Error while fetching industry type')
+    }
+  }
 
   const fetchwebsiteName = async (e) => {
     setLoading(true)
@@ -44,6 +58,7 @@ const PortalWalkThrough = () => {
       console.log('About Business Response', website_array[0])
       const zerothIndexValue = website_array[0]
       setWebsiteName(zerothIndexValue)
+      getIndustryType()
       handleSubmit()
       //console.log("Value at 0th index:", zerothIndexValue);
     } catch (error) {
@@ -52,6 +67,7 @@ const PortalWalkThrough = () => {
     }
   }
   const handleSubmit = async (e) => {
+    setLoading(true)
     try {
       const scrapeUrl = `${PORTAL_API_ROUTES.WEBSITE_SCRAPE}`
 
@@ -60,13 +76,18 @@ const PortalWalkThrough = () => {
 
         { website_name: websiteName },
       )
-      const { cleanContent } = response.data
-      console.log('cleanContent ', cleanContent)
-      setCleanContent(cleanContent)
+      const { summary } = response.data
+      console.log('cleanContent ', summary)
+      setCleanContent(summary)
       analyzeContent()
     } catch (error) {
       console.error('Error in fetching content of scrapped website:', error)
-      setError('Failed to analyze content')
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message)
+      } else {
+        toast.error("We're experiencing some technical difficulties. Please try again later.")
+      }
+    } finally {
       setLoading(false)
     }
   }
@@ -76,12 +97,20 @@ const PortalWalkThrough = () => {
     // console.log("promptDetails" , promptDetails);
     const openAISecretKey = process.env.OPENAI_SECRET_KEY
     const prompt = `
-    You are a seasoned professional in web content creation and search engine optimization (SEO). The user will supply you with a content dump from a website. Your task is to analyze this content to identify the company name to which the website belongs. Based on the provided content, you will craft an "About Us" page. This page should comprehensively list and describe all the services and products offered by the company. I have copied this  ${cleanContent}  content from a service/business website.Also generate the following information.
-      1.${promptDetails.BusinessDetails}
-      2. ${promptDetails.Keyword}
-      3.${promptDetails.ProductAndService}
-      4.${promptDetails.Location}
-     `
+   You are an experienced expert in web content creation and search engine optimization (SEO). The user will provide you with a content dump from a website. Your task is to analyze this content.
+     Here are the details related to the company:
+     1. Business name: ${websiteName}
+     2. Business industry:${industryType}
+     3.Below is the content dump from the website:${cleanContent}
+    Based on the above information please generate the followings:
+    1. Write content for the "About business/company". This should include detailed introduction and a description of all the products and services offered by ${websiteName} in 2000 words.Save this content under the title "About Business".
+    2. Provide maximum number of business keyword based on the product & services, and ${cleanContent} and location of the business. Save this content under the title "Keywords".
+    3. Provide a list of services offered.Save this content under the title "Services".
+    4. Provide a list of business location.Save this content under the title "Locations".
+     And always give me data in above order serial number wise.
+    `
+
+    // console.log('Prompt', prompt)
     const data = {
       model: 'gpt-3.5-turbo',
       messages: [
@@ -105,35 +134,48 @@ const PortalWalkThrough = () => {
           Authorization: `Bearer ${openAISecretKey}`,
         },
       })
-      console.log('response', response)
+      //console.log('response', response)
+
       const messageContent = response.data.choices[0].message.content
       console.log('message content', messageContent)
-      const businessStartIndex = messageContent.indexOf('Business:') + 10
-      const businessEndIndex = messageContent.indexOf('Service:')
-      const businessContent = messageContent.substring(businessStartIndex, businessEndIndex).trim()
-      await savingbusinessContent(businessContent)
 
-      const servicesStartIndex = messageContent.indexOf('Services:') + 9
-      const servicesEndIndex = messageContent.indexOf('Keywords:')
-      const servicesContent = messageContent.substring(servicesStartIndex, servicesEndIndex).trim()
-      await savingServiceContent(servicesContent)
+      // const aboutBusinessRegex = /About\s*Business[:]*\s*([\s\S]*?)\s*Keywords[:]*\s*/i
+      // const keywordsRegex = /Keywords[:]*\s*([\s\S]*?)\s*Services[:]*\s*/i
+      // const servicesRegex = /Services[:]*\s*([\s\S]*?)\s*Locations[:]*\s*/i
+      // const locationsRegex = /Locations[:]*\s*([\s\S]*?)$/i
 
-      const keywordsStartIndex = messageContent.indexOf('Keywords:') + 9
-      const keywordsContent = messageContent.substring(keywordsStartIndex).trim()
-      await savingKeyWordContent(keywordsContent)
+      const aboutBusinessRegex = /About\s*Business[:\s]*([\s\S]*?)(?=\s*Keywords[:\s]*|$)/i;
+      const keywordsRegex = /Keywords[:\s]*([\s\S]*?)(?=\s*Services[:\s]*|$)/i;
+      const servicesRegex = /Services[:\s]*([\s\S]*?)(?=\s*Locations[:\s]*|$)/i;
+      const locationsRegex = /Locations[:\s]*([\s\S]*?)(?=$)/i;
 
+      const aboutBusinessMatch = messageContent.match(aboutBusinessRegex)
+      const keywordsMatch = messageContent.match(keywordsRegex)
+      const servicesMatch = messageContent.match(servicesRegex)
+      const locationsMatch = messageContent.match(locationsRegex)
+
+      const aboutBusiness = aboutBusinessMatch ? aboutBusinessMatch[1].trim() : ''
+      const keywords = keywordsMatch ? keywordsMatch[1].trim() : ''
+      const services = servicesMatch ? servicesMatch[1].trim() : ''
+      const locations = locationsMatch ? locationsMatch[1].trim() : ''
+
+      // Saving the extracted content
+      // await savingBusinessContent(aboutBusiness)
+      // await savingKeyWordContent(keywords)
+      // await savingServiceContent(services)
+      // await savingLocationContent(locations)
       setLoading(false)
-      navigate('/dashboard')
+     // navigate('/dashboard')
     } catch (Error) {
       console.log(Error, 'Error while calling openAI api ')
+      toast.error("We're experiencing some technical difficulties. Please try again later.")
       setLoading(false)
     }
   }
 
-  const savingbusinessContent = async (businessContent) => {
+  const savingBusinessContent = async (businessContent) => {
     try {
       const saveBusinessUrl = `${PORTAL_API_ROUTES.SAVE_BUSINESS}`
-      console.log('saveBusinessUrl', saveBusinessUrl)
       const token = localStorage.getItem('token')
       if (!token) {
         throw new Error('Token not found')
@@ -154,7 +196,7 @@ const PortalWalkThrough = () => {
     }
   }
 
-  const savingServiceContent = async (serviceContent) => {
+  const savingServiceContent = async (servicesContent) => {
     try {
       const saveServiceUrl = `${PORTAL_API_ROUTES.SAVE_PRODUCT_SERVICE}`
       const token = localStorage.getItem('token')
@@ -166,11 +208,17 @@ const PortalWalkThrough = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-      const requestBody = {
-        productAndServices: serviceContent,
-      }
 
-      const ServiceContentResponse = await axios.post(saveServiceUrl, requestBody, config)
+      const cleanedServices = servicesContent
+        .split('\n')
+        .map((service) => service.replace(/^\d+\.\s*/, '').trim())
+        .filter((service) => service !== '' && service !== '###')
+
+      const ServiceContentResponse = await axios.post(
+        saveServiceUrl,
+        { productAndServices: cleanedServices },
+        config,
+      )
       console.log('Service content saved:', ServiceContentResponse.data)
     } catch (Error) {
       console.log('Error received while saving Service data coming from Open AI', Error)
@@ -189,18 +237,23 @@ const PortalWalkThrough = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-      const requestBody = {
-        keywords: keyWordsContent,
-      }
+      const cleanedKeywords = keyWordsContent
+        .split('\n')
+        .map((keyword) => keyword.replace(/^\d+\.\s*/, '').trim())
+        .filter((keyword) => keyword !== '' && keyword !== '###')
 
-      const KeywordsContentResponse = await axios.post(saveKeywordUrl, requestBody, config)
+      const KeywordsContentResponse = await axios.post(
+        saveKeywordUrl,
+        { keywords: cleanedKeywords },
+        config,
+      )
       console.log('Keywords content saved:', KeywordsContentResponse.data)
     } catch (Error) {
       console.log('Error received while saving keyword data coming from Open AI', Error)
     }
   }
 
-  const savingLocation = async (locationContent) => {
+  const savingLocationContent = async (locationsContent) => {
     try {
       const saveLocationUrl = `${PORTAL_API_ROUTES.SAVE_LOCATION}`
       const token = localStorage.getItem('token')
@@ -212,11 +265,16 @@ const PortalWalkThrough = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-      const requestBody = {
-        location: locationContent,
-      }
+      const cleanedLocations = locationsContent
+        .split('\n')
+        .map((location) => location.replace(/^\d+\.\s*/, '').trim())
+        .filter((location) => location !== '' && location !== '###')
 
-      const LocationResponse = await axios.put(saveLocationUrl, requestBody, config)
+      const LocationResponse = await axios.post(
+        saveLocationUrl,
+        { location: cleanedLocations },
+        config,
+      )
       console.log('Location content saved:', LocationResponse.data)
     } catch (Error) {
       console.log('Error received while saving location data coming from Open AI', Error)

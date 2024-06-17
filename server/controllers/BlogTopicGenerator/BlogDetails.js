@@ -311,7 +311,7 @@ exports.getBlogStatusByTopic = async (req, res) => {
     const { topic } = req.params;
 
     const blog = await BlogDetails.findOne({ topic });
-
+   
     if (!blog || blog.length === 0) {
       return res.status(404).json({
         success: false,
@@ -523,29 +523,10 @@ exports.getUserBlogSchedule = async (req, res) => {
   }
 };
 
-exports.getBlogPostforWebhook = async (req, res) => {
-  try {
-    const currentDate = new Date();
 
-    const latestBlog = await BlogDetails.aggregate([
-      {
-        $match: {
-          PublishDate: { $gt: currentDate },
-        },
-      },
-      {
-        $sort: { PublishDate: -1 },
-      },
-      {
-        $limit: 1,
-      },
-    ]);
 
-    res.status(200).json({ latestBlog });
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+
+
 
 exports.getBlogPostforWebhook = async (req, res) => {
   try {
