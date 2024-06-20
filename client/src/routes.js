@@ -55,6 +55,12 @@ const BlogOverView = lazy(() => import('./components/views/ContentMarketing/Blog
 const BlogHistory = lazy(() => import('./components/views/ContentMarketing/BlogHistory'))
 const UpcomingBlogs = lazy(() => import('./components/views/ContentMarketing/UpcomingBlogs'))
 const Profile = lazy(() => import('./components/views/Profile/Profile'))
+const PhpIntegration = lazy(
+  () => import('./components/views/API-Channels/connect-web/PHP/PhpIntegration'),
+)
+const NodeIntegration = lazy(
+  () => import('./components/views/API-Channels/connect-web/NodeJs/NodejsIntegration'),
+)
 
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
@@ -74,7 +80,11 @@ const routes = [
   { path: '/social-media-form', name: 'SocialMediaForm', element: SocialMediaForm },
   { path: '/website-connect', name: 'ConnectWebsite', element: ConnectWebsite },
   { path: '/connect-web', name: 'ConnectWeb', element: ConnectWeb },
-  //{ path: '/connect-web-others', name: 'ConnectWebsiteOther', element:ConnectWebsiteOther },
+  // Website integration route
+  { path: '/php-integration', name: 'PhpIntegration', element: PhpIntegration },
+  { path: '/node-integration', name: 'NodeIntegration ', element: NodeIntegration  },
+
+  ///////////////////////////////////
   { path: '/add-website', name: 'ConnectAddWebsite', element: ConnectAddWebsite },
 
   { path: '/business-profile', name: 'BusinessProfile', element: BusinessProfile },

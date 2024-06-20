@@ -151,7 +151,7 @@ export const BlogGenerate = async (topic) => {
       Optimize meta description and alt text for images.
       Proofreading: Check for grammar, spelling, and readability.
       Please generate article on this topic -${topic} based on the above instructions in 2000 words
-      Provide articles in HTML Format.
+      Provide articles in HTML Format and add CSS in the below content.
       `
 
   const data = {
@@ -255,7 +255,7 @@ export const fetchBlogsByTopic = async (topic) => {
     }
 
     const blogDetailsResponse = await axios.get(fetchBlogsUrl, config)
-    //console.log('blogDetailsResponse', blogDetailsResponse.data)
+    //console.log('blogDetailsResponse', blogDetailsResponse)
     return blogDetailsResponse.data
   } catch (error) {
     console.log('Error while fetching blogs by topic', error)

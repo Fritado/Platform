@@ -3,8 +3,10 @@ const router = express.Router()
 
 const {
   saveLocation,
-  updateLocation,
+  updateSingleLocation ,
+  deleteSingleLocationItem,
   getLocation,
+  createSingleLocation,
 } = require('../controllers/BusinessProfile/Location')
 const {
   saveProductsAndServices,
@@ -39,8 +41,10 @@ router.post('/save-businessinfo', auth, saveCompanyAndIndustry)
 router.put('/update-businessinfo', auth, updateCompanyAndIndustry)
 
 router.post('/create-location', auth, saveLocation)
-router.put('/update-location', auth, updateLocation)
+router.put('/update-location-name', auth, updateSingleLocation)
 router.get('/get-location', auth, getLocation)
+router.delete('/delete/location-item' , auth ,deleteSingleLocationItem)
+router.post('/create/new-location', auth ,  createSingleLocation);
 
 router.post('/create-product&services', auth, saveProductsAndServices)
 router.post('/create-single-product&services', auth, createSingleService)

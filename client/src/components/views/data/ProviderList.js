@@ -55,22 +55,12 @@ export const WebsiteProviderList = [
     link: '/connect-web-others',
   },
 ]
-// {chunkedProviderList.map((chunk, index) => (
-//   <div key={index} className="col-lg-2 col-md-3 col-sm-4 col-6">
-//     {chunk.map((ele) => (
-//       <div key={ele.id} className="border rounded border-light-subtle mb-3 py-3 px-4">
-//         <Link to={ele.link}>
-//           <span className="text-center">{ele.option}</span>
-//         </Link>
-//       </div>
-//     ))}
-//   </div>
-// ))}
+
 
 export const websiteTypeData = [
   {
     name: 'Content management system',
-    technology: ['Wordpress', 'Wix', 'Shopify', 'Joomla'],
+    technology: ['Select','Wordpress', 'Wix', 'Shopify', 'Joomla'],
   },
-  { name: 'Custom website', technology: ['PHP', 'Python', 'Node.js'] },
+  { name: 'Custom website', technology: [ 'Select','PHP', 'Python', 'Node.js'] },
 ]

@@ -11,13 +11,13 @@ const websiteTypeSchema = new Schema({
     type: String,
   
   },
-  webType: {
+  websiteType: {
     type: String,
     required: true,
     
   },
   technology: {
-    type: [String],
+    type:String,
     required: true,
   },
 });

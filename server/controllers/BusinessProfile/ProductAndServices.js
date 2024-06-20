@@ -18,17 +18,34 @@ const saveProductsAndServices = async (req, res) => {
     // Validate and prepare product and services
     let productsAndServicesArray = [];
     if (typeof productAndServices === "string") {
-      productsAndServicesArray = productAndServices.split("\n").map((item) => item.trim())
-      .filter(item => item !== "" && !item.startsWith("Keywords:") && !item.startsWith("Locations:") && !item.startsWith("About Business"));
+      productsAndServicesArray = productAndServices
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(
+          (item) =>
+            item !== "" &&
+            !item.startsWith("Keywords:") &&
+            !item.startsWith("Locations:") &&
+            !item.startsWith("About Business")
+        );
     } else if (Array.isArray(productAndServices)) {
-      productsAndServicesArray = productAndServices.map((item) => item.trim())
-      .filter(item => item !== "" && !item.startsWith("Keywords:") && !item.startsWith("Locations:") && !item.startsWith("About Business"));;
+      productsAndServicesArray = productAndServices
+        .map((item) => item.trim())
+        .filter(
+          (item) =>
+            item !== "" &&
+            !item.startsWith("Keywords:") &&
+            !item.startsWith("Locations:") &&
+            !item.startsWith("About Business")
+        );
     } else {
       throw new Error("Product and Services must be a string or an array");
     }
 
     // Find existing product and service document for the user
-    let userProductAndService = await ProductAndService.findOne({ user: userId });
+    let userProductAndService = await ProductAndService.findOne({
+      user: userId,
+    });
 
     if (!userProductAndService) {
       // If no existing document, create a new one
@@ -58,7 +75,7 @@ const saveProductsAndServices = async (req, res) => {
   }
 };
 
-
+/////
 const updateProductAndService = async (req, res) => {
   try {
     const { productAndServices } = req.body;
@@ -136,17 +153,22 @@ const getProductsAndServices = async (req, res) => {
   } catch (error) {}
 };
 
+//delete single product service
 const deleteProductAndServices = async (req, res) => {
   try {
     const { serviceToDelete } = req.body;
-    const userId = req.user.id;
-    console.log("Service to delete:", serviceToDelete);
-    // Find the user's product and service document
+
+    const userId = await User.findById(req.user.id);
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Sorry! User not found",
+      });
+    }
+
     const existingProductAndService = await ProductAndService.findOne({
       user: userId,
     });
-
-    console.log("Existing product and service:", existingProductAndService);
 
     if (!existingProductAndService) {
       return res.status(404).json({
@@ -155,18 +177,11 @@ const deleteProductAndServices = async (req, res) => {
       });
     }
 
-    // Parse the product and service string and split it into individual services
-    let allServices =
-      existingProductAndService.productAndServices[0].split(",");
-    allServices = allServices.map((service) => service.trim()); // Trim each service
-
-    console.log("All services:", allServices);
-    // Find the index of the service to delete
-    const index = allServices.findIndex(
+    // Check if the service to delete exists in the product and services array
+    const index = existingProductAndService.productAndServices.findIndex(
       (service) => service === serviceToDelete
     );
 
-    console.log("Index to delete:", index);
     if (index === -1) {
       return res.status(404).json({
         success: false,
@@ -175,10 +190,9 @@ const deleteProductAndServices = async (req, res) => {
     }
 
     // Remove the service at the found index
-    allServices.splice(index, 1);
+    existingProductAndService.productAndServices.splice(index, 1);
 
-    // Join the updated services into a string
-    existingProductAndService.productAndServices = [allServices.join(", ")];
+    // Save the updated document
     await existingProductAndService.save();
 
     return res.status(200).json({
@@ -200,6 +214,12 @@ const updateSingleProductAndService = async (req, res) => {
     const { oldService, newService } = req.body;
     const userId = req.user.id;
 
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Sorry! User not found",
+      });
+    }
     // Find the user's product and service document
     const existingProductAndService = await ProductAndService.findOne({
       user: userId,
@@ -210,14 +230,10 @@ const updateSingleProductAndService = async (req, res) => {
         message: "Product or Service not found for this user",
       });
     }
-
-    // Parse the product and service string and split it into individual services
-    let allServices =
-      existingProductAndService.productAndServices[0].split(",");
-    allServices = allServices.map((service) => service.trim()); // Trim each service
-
-    // Find the index of the old service
-    const index = allServices.findIndex((service) => service === oldService);
+    // Check if the old service exists in the product and services array
+    const index = existingProductAndService.productAndServices.findIndex(
+      (service) => service === oldService
+    );
     if (index === -1) {
       return res.status(404).json({
         success: false,
@@ -226,10 +242,9 @@ const updateSingleProductAndService = async (req, res) => {
     }
 
     // Update the service at the found index with the new one
-    allServices[index] = newService;
+    existingProductAndService.productAndServices[index] = newService;
 
-    // Join the updated services into a string
-    existingProductAndService.productAndServices = [allServices.join(", ")];
+    // Save the updated document
     await existingProductAndService.save();
 
     return res.status(200).json({

@@ -201,7 +201,7 @@ exports.getEachSingleBlogs = async (req, res) => {
         PId: projectId,
         topic: topic,
       },
-      { blogDescription: 1, blogId: 1 }
+      //{ blogDescription: 1, blogId: 1 }
     );
 
     if (!blog || !blog.blogDescription) {
@@ -211,7 +211,7 @@ exports.getEachSingleBlogs = async (req, res) => {
       });
     }
 
-    // console.log("Blog description:", blog.blogDescription);
+     //console.log("Blog description:", blog.blogDescription);
 
     return res.status(200).json({
       success: true,

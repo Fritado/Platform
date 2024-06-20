@@ -97,17 +97,26 @@ const PortalWalkThrough = () => {
     // console.log("promptDetails" , promptDetails);
     const openAISecretKey = process.env.OPENAI_SECRET_KEY
     const prompt = `
-   You are an experienced expert in web content creation and search engine optimization (SEO). The user will provide you with a content dump from a website. Your task is to analyze this content.
-     Here are the details related to the company:
-     1. Business name: ${websiteName}
-     2. Business industry:${industryType}
-     3.Below is the content dump from the website:${cleanContent}
-    Based on the above information please generate the followings:
-    1. Write content for the "About business/company". This should include detailed introduction and a description of all the products and services offered by ${websiteName} in 2000 words.Save this content under the title "About Business".
-    2. Provide maximum number of business keyword based on the product & services, and ${cleanContent} and location of the business. Save this content under the title "Keywords".
-    3. Provide a list of services offered.Save this content under the title "Services".
-    4. Provide a list of business location.Save this content under the title "Locations".
-     And always give me data in above order serial number wise.
+You have extensive expertise in crafting web content and optimizing it for search engines (SEO). Upon receiving a content dump from a website, your task is to analyze it thoroughly. Here are the specific details related to the company:
+
+1. Business name: ${websiteName}
+2. Business industry: ${industryType}
+3. Content dump from the website: ${cleanContent}
+
+Based on this information, please provide the following outputs in the specified order:
+
+1. About Business
+   - Write a detailed introduction and description of all products and services offered by ${websiteName} in 2000 words in HTML format. Ensure the background color is white.
+
+2. Keywords
+   - Provide the maximum number of business keywords based on the products, services, ${cleanContent}, and the location of the business. Save this content without HTML format.
+
+3. Services
+   - Provide a list of services offered by ${websiteName}. Save this content without HTML format.
+
+4. Locations
+   - Provide a list of business locations for ${websiteName}. Save this content without HTML format.
+
     `
 
     // console.log('Prompt', prompt)
@@ -139,15 +148,10 @@ const PortalWalkThrough = () => {
       const messageContent = response.data.choices[0].message.content
       console.log('message content', messageContent)
 
-      // const aboutBusinessRegex = /About\s*Business[:]*\s*([\s\S]*?)\s*Keywords[:]*\s*/i
-      // const keywordsRegex = /Keywords[:]*\s*([\s\S]*?)\s*Services[:]*\s*/i
-      // const servicesRegex = /Services[:]*\s*([\s\S]*?)\s*Locations[:]*\s*/i
-      // const locationsRegex = /Locations[:]*\s*([\s\S]*?)$/i
-
-      const aboutBusinessRegex = /About\s*Business[:\s]*([\s\S]*?)(?=\s*Keywords[:\s]*|$)/i;
-      const keywordsRegex = /Keywords[:\s]*([\s\S]*?)(?=\s*Services[:\s]*|$)/i;
-      const servicesRegex = /Services[:\s]*([\s\S]*?)(?=\s*Locations[:\s]*|$)/i;
-      const locationsRegex = /Locations[:\s]*([\s\S]*?)(?=$)/i;
+      const aboutBusinessRegex = /About\s*Business[:\s]*-?\s*([\s\S]*?)(?=\s*Keywords[:\s]*|$)/i
+      const keywordsRegex = /Keywords[:\s]*-?\s*([\s\S]*?)(?=\s*Services[:\s]*|$)/i
+      const servicesRegex = /Services[:\s]*-?\s*([\s\S]*?)(?=\s*Locations[:\s]*|$)/i
+      const locationsRegex = /Locations[:\s]*-?\s*([\s\S]*?)(?=$)/i
 
       const aboutBusinessMatch = messageContent.match(aboutBusinessRegex)
       const keywordsMatch = messageContent.match(keywordsRegex)
@@ -159,13 +163,13 @@ const PortalWalkThrough = () => {
       const services = servicesMatch ? servicesMatch[1].trim() : ''
       const locations = locationsMatch ? locationsMatch[1].trim() : ''
 
-      // Saving the extracted content
-      // await savingBusinessContent(aboutBusiness)
-      // await savingKeyWordContent(keywords)
-      // await savingServiceContent(services)
-      // await savingLocationContent(locations)
+     // Saving the extracted content
+      await savingBusinessContent(aboutBusiness)
+      await savingKeyWordContent(keywords)
+      await savingServiceContent(services)
+      await savingLocationContent(locations)
       setLoading(false)
-     // navigate('/dashboard')
+     navigate('/dashboard')
     } catch (Error) {
       console.log(Error, 'Error while calling openAI api ')
       toast.error("We're experiencing some technical difficulties. Please try again later.")

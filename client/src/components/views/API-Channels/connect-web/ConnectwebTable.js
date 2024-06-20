@@ -1,8 +1,9 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { FaFacebookSquare } from 'react-icons/fa'
 import { IoMdAddCircleOutline } from 'react-icons/io'
 import { GrStatusGood } from 'react-icons/gr'
 import { Link } from 'react-router-dom'
+
 const ConnectwebTable = ({ data, headers, appSettingRoute, icon, heading }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [perPage] = useState(5)
@@ -25,11 +26,11 @@ const ConnectwebTable = ({ data, headers, appSettingRoute, icon, heading }) => {
         <div className="d-flex flex-row">
           <span className="pe-2">{icon}</span>
           <h1 className="text-dark fw-normal pe-3">{heading}</h1>
-          <Link to='/add-website'>
+          <Link to="/add-website">
             <button className="mt-0 border rounded px-2 py-2">
               <span className="pe-2">
                 <IoMdAddCircleOutline size={24} />
-              Connect
+                Connect
               </span>
             </button>
           </Link>
@@ -55,25 +56,42 @@ const ConnectwebTable = ({ data, headers, appSettingRoute, icon, heading }) => {
                 </tr>
               </thead>
               <tbody>
-                {itemsToShow.map((item, index) => (
-                  <tr key={index}>
-                    <td>{startIndex + index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.appId}</td>
-                    <td>{item.appSecret}</td>
-                    <td>
-                      <div className="border rounded-pill py-1 d-flex justify-content-center">
-                        <span className="pe-1 mb-1">
-                          <GrStatusGood color="green" />
-                        </span>
-                        {item.status}
+                {totalItems === 0 ? (
+                  <tr>
+                    <td colSpan={headers.length} className="text-center fw-bold mt-3">
+                      Connect your website
+                      <div className='my-2 py-2'> 
+                      <Link to="/add-website">
+                        <button className="mt-0 border rounded px-2 py-2">
+                          <span className="pe-2">
+                            <IoMdAddCircleOutline size={24} />
+                            Connect
+                          </span>
+                        </button>
+                      </Link>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  itemsToShow.map((item, index) => (
+                    <tr key={index}>
+                      <td>{startIndex + index + 1}</td>
+                      <td>{item.domain}</td>
+                      <td>{item.type}</td>
+                      <td>{item.technology}</td>
+                      <td>
+                        <div className="border rounded-pill py-1 d-flex justify-content-center">
+                          <span className="pe-1 mb-1">
+                            <GrStatusGood color="green" />
+                          </span>
+                          {item.status}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
-           
           </div>
         </div>
       </div>

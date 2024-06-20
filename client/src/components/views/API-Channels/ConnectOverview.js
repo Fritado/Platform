@@ -4,9 +4,8 @@ import MenuHeader from '../common/MenuHeader'
 
 
 const SocialMediaTabsName = [
-  { id: '1', title: 'Overview', path: '/connect-overview' },
-  { id: '2', title: 'Website', path: '/website-connect' },
-  { id: '3', title: 'Social medias', path: '/connect-social-medias' },
+  { id: '1', title: 'Website', path: '/website-connect' },
+  { id: '2', title: 'Social medias', path: '/connect-social-medias' },
 ]
 
 const ConnectOverview = () => {

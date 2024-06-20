@@ -7,7 +7,7 @@ exports.saveWebsiteType = async (req, res) => {
     const userId = req.user.id;
     const user = await User.findById(userId);
     const project = await Project.findOne({ user: userId });
-    const { webType, technology } = req.body;
+    const {websiteType, technology } = req.body;
 
     if (!user) {
       return res.json({
@@ -30,14 +30,14 @@ exports.saveWebsiteType = async (req, res) => {
     }
 
     const filter = { user: userId, projectName: domainUrl[0] };
-    const update = { webType, technology };
+    const update = { websiteType, technology };
     const options = { new: true, upsert: true, setDefaultsOnInsert: true };
     const updatedWebsiteType = await WebsiteType.findOneAndUpdate(
       filter,
       update,
       options
     );
-
+    
     return res.status(201).json({
       success: true,
       message: "Website type saved successfully",

@@ -16,6 +16,7 @@ import {
   getProductService,
   getLocation,
 } from '../../services/onBoarding/businessProfileApi'
+import parse from 'html-react-parser'
 
 const BusinessProfile = () => {
   const [companyName, setCompanyName] = useState('')
@@ -55,6 +56,7 @@ const BusinessProfile = () => {
   const savingBusinessProfile = async (event) => {
     event.preventDefault()
     const token = localStorage.getItem('token')
+    console.log("saving ab")
     await saveAndUpdateBusinessProfile(companyName, aboutBusiness, token)
   }
 
@@ -71,8 +73,8 @@ const BusinessProfile = () => {
   }
 
   const editPDS = async (index, newService) => {
-    const token = localStorage.getItem('token')
-    await updateSingleProductService(productAndServices[index], newService, token)
+   
+    await updateSingleProductService(productAndServices[index], newService)
     const updatedService = [...productAndServices]
     updatedService[index] = newService
     setproductAndServices(updatedService)
@@ -91,8 +93,7 @@ const BusinessProfile = () => {
   }
 
   const deletePD = async (serviceToDelete) => {
-    const token = localStorage.getItem('token')
-    await deleteProductService(serviceToDelete, token)
+    await deleteProductService(serviceToDelete)
     const updatedProductAndService = productAndServices.filter(
       (service) => service !== serviceToDelete,
     )
@@ -116,7 +117,7 @@ const BusinessProfile = () => {
   }
   const fetchLocation = async () => {
     const locationData = await getLocation()
-    console.log(locationData)
+    // console.log(locationData)
     setLocation(locationData)
   }
 
@@ -150,16 +151,25 @@ const BusinessProfile = () => {
 
                 <Form.Group>
                   <label htmlFor="exampleTextarea1">About Business</label>
-                  <textarea
-                    name="aboutBusiness"
-                    value={aboutBusiness}
-                    onChange={handleInputChange(setAboutBusiness)}
-                    //onChange={(e) => setAboutBusiness(e.target.value)}
+
+                  <div
+                    contentEditable
+                    onChange={(e) => setAboutBusiness(e.target.innerText)}
                     className="form-control"
                     id="exampleTextarea1"
-                    col=""
-                    rows="4"
-                  ></textarea>
+                    style={{
+                      minHeight: '120px',
+                      padding: '12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      lineHeight: '1.5',
+                      backgroundColor: 'transparent',
+                      outline: 'none',
+                    }}
+                  >
+                    {aboutBusiness && parse(aboutBusiness)}
+                  </div>
                 </Form.Group>
                 <button onClick={savingBusinessProfile} type="submit" className="btn-db me-2">
                   Submit
@@ -206,22 +216,23 @@ const BusinessProfile = () => {
                 enhancing the ability to reach more pertinent prospective customers.
               </p>
 
-              <div className="d-flex mx-auto mt-3 justify-content-center align-items-center">
-                <ul style={{ listStyle: 'none' }} className="py-3 d-flex flex-row gap-3">
-                  {Array.isArray(location) &&
-                    location.map((loc, index) => (
-                      <li key={index} className="border d-inline px-2 py-1 position-relative">
-                        <span className="location-text">{loc}</span>
-                        <span className="position-absolute top-0 end-0 ">
-                          <RxCross2
-                            size={20}
-                            className="delete-location-icon"
-                            // onClick={() => deleteLocation(loc)}
-                          />
-                        </span>
-                      </li>
-                    ))}
-                </ul>
+              <div className="d-flex flex-wrap gap-3 align-items-start">
+                {Array.isArray(location) &&
+                  location.map((loc, index) => (
+                    <div
+                      key={index}
+                      className="border d-inline-flex align-items-center px-3 py-2 position-relative"
+                    >
+                      <span className="location-text  px-3 py-2">{loc}</span>
+                      <span className="position-absolute top-0 end-0 p-2">
+                        <RxCross2
+                          size={20}
+
+                          // onClick={() => deleteLocation(loc)}
+                        />
+                      </span>
+                    </div>
+                  ))}
               </div>
 
               <button className="btn-db me-2">Add</button>
@@ -267,7 +278,7 @@ const BusinessProfile = () => {
                             type="text"
                             value={newServiceValue}
                             onChange={(e) => setNewServiceValue(e.target.value)}
-                            // onKeyPress={(e) => handleKeyPress(e, index)}
+                             onKeyPress={(e) => handleKeyPress(e, index)}
                           />
                         </li>
                       ) : (
@@ -277,17 +288,11 @@ const BusinessProfile = () => {
                       )}
 
                       <div className="d-flex align-items-center px-3">
-                        <span
-                          className="pe-3"
-                          // onClick={() => handleEdit(index)}
-                        >
+                        <span className="pe-3" onClick={() => handleEdit(index)}>
                           <CiEdit size={22} />
                         </span>
                         <span className="ps-3">
-                          <MdDeleteForever
-                            size={22}
-                            //onClick={() => deletePD(service)}
-                          />
+                          <MdDeleteForever size={22} onClick={() => deletePD(service)} />
                         </span>
                       </div>
                     </div>

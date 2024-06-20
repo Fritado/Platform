@@ -3,7 +3,7 @@ const User = require("../../models/User");
 
 // Function to generate a unique webhook URL for each user
 const generateWebhookUrl = (domain) => {
-  return `${domain}/fritado/webhook`;
+  return `${domain}/fritado/webhook.php`;
 };
 exports.saveProjectUrl = async (req, res) => {
   try {
@@ -59,7 +59,7 @@ exports.saveProjectUrl = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Project URL saved successfully.",
-     // webhookUrl
+      // webhookUrl
     });
   } catch (error) {
     console.log("Error while saving Project URL into database", error);
@@ -86,11 +86,15 @@ exports.getProjectUrl = async (req, res) => {
 
     // Extract and return project URLs
     const projectUrls = projects.map((project) => project.domainUrl);
+    const projectDetails = projects.map((project) => ({
+      webhookUrl: project.webhookUrl,
+    }));
 
     return res.status(200).json({
       success: true,
       message: "Project Url response is coming",
       data: projectUrls,
+      projectDetails: projectDetails,
     });
   } catch (error) {
     console.log("Error while retrieving project URLs from the database", error);

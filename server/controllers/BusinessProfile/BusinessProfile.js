@@ -78,6 +78,7 @@ const updateBusinessProfile = async (req, res) => {
       existingBusinessProfile.companyName = companyName;
     }
     if (aboutBusiness) {
+      const cleanedAboutBusiness = aboutBusiness.trim().replace(/\s+/g, ' ');
       existingBusinessProfile.aboutBusiness = aboutBusiness;
     }
 

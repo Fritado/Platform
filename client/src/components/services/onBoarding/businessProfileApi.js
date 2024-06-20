@@ -92,40 +92,43 @@ export const createAndSaveProductAndService = async (productAndServices, token) 
     console.log('Error in saving Product And Service', error)
   }
 }
-//// this is need to be modify
-export const updateSingleProductService = async (oldService, newService, token) => {
+
+export const updateSingleProductService = async (oldService, newService) => {
   const editUrl = `${BUSINESS_PROFILE_ROUTES.UPDATE_SINGLE_PRODUCT_AND_SERVICE}`
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
 
   try {
+    const token = localStorage.getItem('token')
     if (!token) {
       throw new Error('Token not found')
     }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
     await axios.put(editUrl, { oldService, newService }, config)
   } catch (error) {
     console.error('Error updating keyword:', error)
   }
 }
 
-export const deleteProductService = async (serviceToDelete, token) => {
+export const deleteProductService = async (serviceToDelete) => {
   const deletePD = `${BUSINESS_PROFILE_ROUTES.DELETE_PRODUCT_AND_SERVICE}`
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-
   try {
+    const token = localStorage.getItem('token')
     if (!token) {
       throw new Error('Token not found')
     }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
     await axios.delete(deletePD, {
-      data: { serviceToDelete },
       headers: config.headers,
+      data: { serviceToDelete },
     })
   } catch (error) {
     console.error('Error deleting Product and service:', error)

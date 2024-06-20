@@ -53,6 +53,9 @@ export const BUSINESS_PROFILE_ROUTES = {
   SAVE_BUSINESS_INFO: API_BASE_URL + '/api/businessProfile/save-businessinfo',
   UPDATE_BUSINESS_INFO: API_BASE_URL + '/api/businessProfile/update-businessinfo',
   GET_LOCATION : API_BASE_URL + '/api/businessProfile/get-location',
+  UPDATE_SINGLE_LOCATION : API_BASE_URL + '/api/businessProfile/update-location-name',
+  DELETE_SINGLE_LOCATION : API_BASE_URL + '/api/businessProfile/delete/location-item',
+  CREATE_SINGLE_LOCATION : API_BASE_URL + '/api/businessProfile/create/new-location',
   GET_KEYWORD : API_BASE_URL + '/api/businessProfile/get-keywords',
 }
 

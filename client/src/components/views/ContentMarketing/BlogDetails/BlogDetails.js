@@ -11,6 +11,7 @@ import {
   getBlogStatusByTopic,
 } from '../../../services/BlogTopicApi'
 import { useParams } from 'react-router-dom'
+import parse from 'html-react-parser'
 
 const decodeTopic = (encodedTopic) => {
   return decodeURIComponent(encodedTopic.replace(/\+/g, ' '))
@@ -44,7 +45,7 @@ const BlogDetails = () => {
   const fetchBlogDetails = async (topic) => {
     try {
       const response = await fetchBlogsByTopic(topic)
-      //console.log("response" , response);
+      // console.log("response" , response);
       if (response.success) {
         setBlogId(response.blogId)
         setBlogDescription(response.data)
@@ -69,7 +70,7 @@ const BlogDetails = () => {
   const handleSave = async () => {
     try {
       const ans = await updateBlogDescription(blogId, editedDescription)
-     // console.log('blogId', blogId)
+      // console.log('blogId', blogId)
       if (ans.success) {
         setBlogDescription(editedDescription)
       } else {
@@ -101,7 +102,7 @@ const BlogDetails = () => {
     }
   }
   const handleToggle = async () => {
-    try { 
+    try {
       if (status === 'pending') {
         setStatus('approved')
         const response = await approveBlog(blogId)
@@ -167,11 +168,11 @@ const BlogDetails = () => {
                   <div className="d-flex flex-column mx-auto">
                     <p
                       contentEditable
-                      style={{ border: 'none', outline: 'none' }}
+                      style={{ border: 'none', outline: 'none', backgroundColor: 'transparent' }}
                       onBlur={handleBlur}
                       onKeyDown={handleKeyDown}
                     >
-                      {firstParagraph}....
+                      {parse(blogDescription)}
                     </p>
                     <div className="px-4 py-1">
                       <img
@@ -181,14 +182,6 @@ const BlogDetails = () => {
                         style={{ height: '23rem' }}
                       />
                     </div>
-                    <p
-                      contentEditable
-                      style={{ border: 'none', outline: 'none' }}
-                      onBlur={handleBlur}
-                      onKeyDown={handleKeyDown}
-                    >
-                      {secondParagraph}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -200,5 +193,5 @@ const BlogDetails = () => {
     </div>
   )
 }
-
+// remove footer from blog content
 export default BlogDetails

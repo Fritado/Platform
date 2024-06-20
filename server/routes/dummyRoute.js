@@ -2,16 +2,6 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 
-// router.post("/test-webhook", async (req, res) => {
-//   const { Url, topic, blogDescription } = req.body;
-//   try {
-//     await axios.post(Url, { topic, blogDescription });
-//     res.status(200).send("Test webhook sent successfully");
-//   } catch (error) {
-//     res.status(500).send(`Error sending test webhook: ${error.message}`);
-//   }
-// });
-
 const sendArticle = require('../controllers/dummy');
 
 router.post('/sendArticle', async (req, res) => {
@@ -33,6 +23,19 @@ router.post('/sendArticle', async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
+// router.post("/test-webhook", async (req, res) => {
+//   const { Url, topic, blogDescription } = req.body;
+//   try {
+//     await axios.post(Url, { topic, blogDescription });
+//     res.status(200).send("Test webhook sent successfully");
+//   } catch (error) {
+//     res.status(500).send(`Error sending test webhook: ${error.message}`);
+//   }
+// });
 
 
 // async function checkSchedule() {

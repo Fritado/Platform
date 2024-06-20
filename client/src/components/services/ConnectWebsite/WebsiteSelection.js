@@ -13,8 +13,8 @@ export const saveWebsiteType = async (websiteData) => {
         Authorization: `Bearer ${token}`,
       },
     }
-    const websiteTypeData = await axios.post(saveUrl, websiteData, config)
-    console.log('website type saved successfully  ', websiteTypeData)
+    const websiteTypeData = await axios.post(saveUrl, websiteData, config);
+    return websiteTypeData.data;
   } catch (error) {
     console.log('Error while Saving website type in database', error)
     throw error
@@ -34,14 +34,10 @@ export const fetchWebsiteDetails = async () => {
       },
     }
     const websiteDetails = await axios.get(getUrl, config)
-    console.log(websiteDetails, ' websiteDetails')
-    return websiteDetails.data.data
+    console.log(websiteDetails.data.data, ' websiteDetails')
+    return websiteDetails.data.data;
   } catch (error) {
     console.log('Error while getting  website Details from  database', error)
     throw error
   }
-}
-
-export const deleteWebsiteType = async () =>{
-    
 }

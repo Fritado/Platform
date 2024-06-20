@@ -31,7 +31,7 @@ const _nav = [
   {
     component:CNavItem,
     name: 'Connect',
-    to: '/connect-overview',
+    to: '/website-connect',
     icon: (
       <span className="pe-2">
         <GrConnect />

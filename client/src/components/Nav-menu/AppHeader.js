@@ -29,7 +29,7 @@ import { getDomianName } from '../services/BusinessDomain/domain'
 
 const AppHeader = () => {
   const headerRef = useRef()
-  const [domainName, setDomainName] = useState(null)
+  const [domainName, setDomainName] = useState({ fullUrl: null, domainName: null })
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const [sidebarShow, setSidebarShow] = useState(true)
 
@@ -67,7 +67,7 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CDropdown className="pe-2">
             <CDropdownToggle color="white" className="text-dark fw-semibold fs-5">
-              <span className="">{domainName ? domainName : 'Fritado'}</span>{' '}
+              <span className="">{domainName.domainName ? domainName.domainName : 'Fritado'}</span>{' '}
             </CDropdownToggle>
             <CDropdownMenu>
               <CDropdownItem href="#">

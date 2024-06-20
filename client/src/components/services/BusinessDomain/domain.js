@@ -61,11 +61,12 @@ export const getDomianName = async (token) => {
     }
 
     const response = await axios.get(getDomainNameUrl, config)
-
+    const projectDetails = response.data.projectDetails[0];
+    const webhookUrl = projectDetails.webhookUrl;
     const fullUrl = response.data.data[0][0]
     const domainName = extractDomainName(fullUrl)
-    // console.log('Domain Name:', domainName)
-    return domainName
+     //console.log('Domain Name:', webhookUrl)
+    return { fullUrl, domainName ,webhookUrl}
   } catch (error) {
     console.error('Error while fetching domain name', error)
     return null
