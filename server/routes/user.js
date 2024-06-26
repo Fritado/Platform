@@ -9,7 +9,9 @@ const {
   changePassword,
   updateContactNumber,
   getUserDetails,
-  getAllUsers
+  getAllUsers,
+  updateProgress,
+  updateUserPlan,
 } = require("../controllers/Auth");
 const { auth } = require("../middlewares/auth");
 const {
@@ -27,6 +29,10 @@ router.post("/reset-password", resetPassword);
 router.post ('/update-user-profile' ,auth, updateContactNumber);
 router.get("/fetch-user-details" , auth , getUserDetails);
 router.get("/fetch-all-users-details" , getAllUsers);
+// update route
+router.post('/update-progress', auth , updateProgress)
 
+//update user plan
+router.put('/update-plan' , auth , updateUserPlan);
 
 module.exports = router;

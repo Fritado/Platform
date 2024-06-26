@@ -2,6 +2,7 @@ const User = require('../../models/User')
 const BillingPlans = require('../../models/BillingsPlans/BillingPlan')
 const moment = require('moment')
 
+//review this function and delete if not needed
 exports.trialDateAndPaymentStatus = async (req, res) => {
   try {
     const userId = req.user.id
@@ -67,3 +68,4 @@ exports.getBillingDetails = async (req, res) => {
     })
   }
 }
+

@@ -5,6 +5,7 @@ const User = require("../../models/User");
 const generateWebhookUrl = (domain) => {
   return `${domain}/fritado/webhook.php`;
 };
+
 exports.saveProjectUrl = async (req, res) => {
   try {
     const { projectUrl } = req.body;
@@ -32,21 +33,15 @@ exports.saveProjectUrl = async (req, res) => {
 
     if (existingProjectUrl) {
       // If it already exists, return a response indicating that it's a duplicate
-      return res.status(400).json({ error: "Duplicate project URL." });
+      return res.status(400).json({
+        error: "Duplicate project URL! Project is already exist in database",
+      });
     }
     if (existingProject) {
-      // Check if the project URL already exists in the array
-      if (!existingProject.domainUrl.includes(projectUrl)) {
-        // If it doesn't exist, add the new URL to the array
-        existingProject.domainUrl.push(projectUrl);
-        await existingProject.save();
-      } else {
-        // If it already exists, return a response indicating that it's a duplicate
-        return res.status(400).json({
-          error:
-            "project Url for this user is already exist! Duplicate project URL.",
-        });
-      }
+      // Update the existing project with the new URL
+      existingProject.domainUrl = projectUrl;
+      existingProject.webhookUrl = generateWebhookUrl(projectUrl);
+      await existingProject.save();
     } else {
       const webhookUrl = generateWebhookUrl(projectUrl);
       const newProject = new Project({
@@ -54,6 +49,7 @@ exports.saveProjectUrl = async (req, res) => {
         webhookUrl: webhookUrl,
         user: userId,
       });
+
       await newProject.save();
     }
     return res.status(200).json({

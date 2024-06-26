@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../common/Header'
 import AuthFooter from '../common/AuthFooter'
 import Spinner from '../common/Spinner'
@@ -6,6 +6,7 @@ import Logo from '../../../assets/images/logo2.png'
 import { Link, useNavigate } from 'react-router-dom'
 import { industryOptions } from '../data/industryTypeData'
 import { saveBusinessInfo } from '../../services/onBoarding/businessProfileApi'
+import {updateProgress} from "../../services/Auth/AuthApi"
 
 const BusinessInfo = () => {
   const [loading, setLoading] = useState(false)
@@ -13,19 +14,16 @@ const BusinessInfo = () => {
   const [companyName, setCompanyName] = useState('')
   const navigate = useNavigate()
 
-  const handleSaveBusinessInfo = async (e) => {
+   const handleSaveBusinessInfo = async (e) => {
     e.preventDefault()
     const token = localStorage.getItem('token')
-    try {
-      setLoading(true)
-      const savedData = await saveBusinessInfo(companyName, industryType, token)
+    try { 
+      await updateProgress('/business-info', false)   
+      const savedData = await saveBusinessInfo(companyName, industryType, token);   
       navigate('/business-domain')
     } catch (error) {
       console.log('Error while saving business info:', error)
-    } finally {
-      setLoading(false);
-      // Reset loading state after API call is done
-    }
+    } 
   }
   return (
     <div>
@@ -73,8 +71,10 @@ const BusinessInfo = () => {
                   </select>
                 </div>
                 <button
+
                   type="submit"
                   className="mt-3 btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                  
                 >
                   SUBMIT
                 </button>

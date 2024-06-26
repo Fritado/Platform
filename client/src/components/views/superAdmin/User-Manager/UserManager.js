@@ -3,6 +3,7 @@ import { HiOutlineUserGroup } from 'react-icons/hi'
 import UserManagerCard from './UserManagerCard'
 import { fetchUserInfo ,deleteUser } from '../../../services/Subscription/UsermanagerService'
 
+
 const UserManager = () => {
   const [users, setUsers] = useState([])
 
@@ -25,11 +26,10 @@ const UserManager = () => {
   useEffect(() => {
     const getUserInfo = async () => {
       try {
-        const response = await fetchUserInfo()
-
+        const response = await fetchUserInfo();
         if (response.success) {
           const filteredUsers = response.users.filter((user) => user.role === 'user')
-          // console.log(filteredUsers , "filteredUsers")
+          //console.log(filteredUsers , "filteredUsers")
           setUsers(filteredUsers)
         } else {
           console.error('Failed to fetch user data')

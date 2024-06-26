@@ -1,4 +1,4 @@
-import React from 'react'
+import React , {useEffect} from 'react'
 import { IoTriangle, IoSquareSharp } from 'react-icons/io5'
 import { MdCircle } from 'react-icons/md'
 import { RiCalendar2Line, RiTimerLine, RiWifiOffFill, RiLoaderLine } from 'react-icons/ri'
@@ -10,9 +10,9 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 const DesktopView = () => {
   const location = useLocation()
   const pageSpeedData = location.state?.pageSpeedData
-  const audits = pageSpeedData.lighthouseResult.audits
-  const time = pageSpeedData.lighthouseResult.fetchTime
-  const imageUrl = pageSpeedData.lighthouseResult.fullPageScreenshot.screenshot.data
+  const audits = pageSpeedData?.lighthouseResult?.audits
+  const time = pageSpeedData?.lighthouseResult?.fetchTime
+  const imageUrl = pageSpeedData?.lighthouseResult.fullPageScreenshot.screenshot.data
 
   const inputTime = new Date(time)
   const formattedTime = inputTime.toLocaleString('en-GB', {
@@ -23,9 +23,8 @@ const DesktopView = () => {
     minute: '2-digit',
     second: '2-digit',
   })
-
   console.log("DeskTop view", pageSpeedData);
-
+  
   return (
     <div>
       <div className="mx-auto justify-content-center my-2">
@@ -90,19 +89,19 @@ const DesktopView = () => {
               <div className="d-flex flex-column mt-1 " style={{ width: '50%' }}>
                 <span className="ps-3">
                   <IoTriangle color="red" className="icon" />
-                  {audits['first-contentful-paint'].title}
+                  {audits['first-contentful-paint']?.title}
                 </span>
-                <h2 className="ps-4 ms-2 pt-1">{audits['first-contentful-paint'].displayValue}</h2>
+                <h2 className="ps-4 ms-2 pt-1">{audits['first-contentful-paint']?.displayValue}</h2>
               </div>
               <div className="d-flex flex-column mt-1 ">
                 <span>
                   {' '}
                   <IoTriangle color="red" className="icon" />
-                  {audits['largest-contentful-paint'].title}
+                  {audits['largest-contentful-paint']?.title}
                 </span>
                 <h2 className="ps-4 ms-2 pt-1">
                   {' '}
-                  {audits['largest-contentful-paint'].displayValue}
+                  {audits['largest-contentful-paint']?.displayValue}
                 </h2>
               </div>
             </div>
@@ -111,26 +110,26 @@ const DesktopView = () => {
               <div className="d-flex flex-column mt-1 " style={{ width: '50%' }}>
                 <span className="pe-3">
                   <MdCircle color="rgb(15, 221, 60)" className="icon" />
-                  {audits['total-blocking-time'].title}
+                  {audits['total-blocking-time']?.title}
                 </span>
-                <h2 className="ps-4 ms-2 pt-1"> {audits['total-blocking-time'].displayValue}</h2>
+                <h2 className="ps-4 ms-2 pt-1"> {audits['total-blocking-time']?.displayValue}</h2>
               </div>
               <div className="d-flex flex-column mt-1 ">
                 <span>
                   {' '}
                   <MdCircle color="rgb(15, 221, 60)" className="icon" />
-                  {audits['cumulative-layout-shift'].title}
+                  {audits['cumulative-layout-shift']?.title}
                 </span>
-                <h2 className="ps-4 ms-2 pt-1">{audits['cumulative-layout-shift'].displayValue}</h2>
+                <h2 className="ps-4 ms-2 pt-1">{audits['cumulative-layout-shift']?.displayValue}</h2>
               </div>
             </div>
             <div className="d-flex flex-row border-top px-3 py-2">
               <div className="d-flex flex-column mt-1 ">
                 <span className="pe-3">
                   <IoTriangle color="red" className="icon" />
-                  {audits['speed-index'].title}
+                  {audits['speed-index']?.title}
                 </span>
-                <h2 className="ps-4 ms-2 pt-1"> {audits['speed-index'].displayValue}</h2>
+                <h2 className="ps-4 ms-2 pt-1"> {audits['speed-index']?.displayValue}</h2>
               </div>
             </div>
 

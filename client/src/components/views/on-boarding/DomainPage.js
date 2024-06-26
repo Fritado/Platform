@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState , useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AuthFooter from '../common/AuthFooter'
 import { useNavigate } from 'react-router-dom'
@@ -10,6 +10,8 @@ import {
   savingDomainUrl,
   fetchPageSpeedData,
 } from '../../services/BusinessDomain/domain'
+import { toast } from 'react-hot-toast'
+import {updateProgress} from "../../services/Auth/AuthApi"
 
 const DomainPage = () => {
   const [urlInput, setUrlInput] = useState('')
@@ -17,13 +19,20 @@ const DomainPage = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   // const modifiedUrlInput = `https://${urlInput}` //https://seo.com
-  const PageSpeedApiKey = 'AIzaSyCHCEQO7ge4Rs6ABVtlcOWiejNFp5T9LWI'
+  const PageSpeedApiKey = 'AIzaSyCHCEQO7ge4Rs6ABVtlcOWiejNFp5T9LWI';
 
   const handleOnChange = (e) => {
     //  console.log(e.target.value);
     const inputPrefix = e.target.value.trim() //seo.com
     setUrlInput(inputPrefix.startsWith('https://') ? inputPrefix.slice(8) : inputPrefix)
   }
+ const upatePageHandler = async()=>{
+  await updateProgress('/business-domain', false);
+ }
+ useEffect(()=>{
+  upatePageHandler();
+ },[]);
+  
   const fetchData = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -34,18 +43,19 @@ const DomainPage = () => {
       if (!token) {
         throw new Error('Token not found')
       }
-
+      //await updateProgress('/business-domain', false)   
       const exists = await checkIfProjectUrlExists(modifiedUrlInput, token)
       if (!exists) {
         await savingDomainUrl(modifiedUrlInput, token)
       }
-
       const data = await fetchPageSpeedData(modifiedUrlInput, PageSpeedApiKey)
       setPageSpeedData(data)
       localStorage.setItem('modifiedUrlInput', modifiedUrlInput)
       navigate('/pagespeed-insights', { state: { pageSpeedData: data } })
+   
     } catch (error) {
       console.error('Error:', error)
+      toast.error("We're experiencing some technical difficulties. Please try again later.")
       setLoading(false)
     }
   }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { HiOutlineUserGroup } from 'react-icons/hi'
 import { IoMdAddCircleOutline } from 'react-icons/io'
 import { GrStatusGood } from 'react-icons/gr'
@@ -10,11 +10,12 @@ import { IoKeySharp } from 'react-icons/io5'
 import { RiDeleteBin6Fill } from 'react-icons/ri'
 import { AiFillThunderbolt } from 'react-icons/ai'
 
-const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
+const UserManagerCard = ({ data, headers, icon, heading, onDeleteUser }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [perPage] = useState(5)
   const totalItems = data.length
   const totalPages = Math.ceil(totalItems / perPage)
+  const [paymentDueDate, setPaymentDueDate] = useState()
 
   const nextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
@@ -26,8 +27,7 @@ const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
 
   const startIndex = (currentPage - 1) * perPage
   const endIndex = startIndex + perPage
-  const itemsToShow = data.slice(startIndex, endIndex);
-  console.log(itemsToShow  , "user")
+  const itemsToShow = data.slice(startIndex, endIndex)
 
   return (
     <div className="mx-4">
@@ -68,13 +68,13 @@ const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
                   <tr key={item._id}>
                     <td>{startIndex + index + 1}</td>
                     <td>
-                      <input type="checkbox"/>
+                      <input type="checkbox" />
                     </td>
                     <td className="text-center">{<PiUserCircleFill size={38} />}</td>
                     <td>{`${item.firstname} ${item.lastname}`}</td>
                     <td>{item.email}</td>
                     <td>{item.userId}</td>
-                    <td>Trial</td>
+                    <td>{item.Plan}</td>
                     <td>
                       <div className="border rounded-pill px-2 py-1 d-flex justify-content-center">
                         <span className="pe-2 mb-1">
@@ -83,7 +83,12 @@ const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
                         {item.accountStatus}
                       </div>
                     </td>
-                    <td>{/* Add expiry if available */}</td>
+                    <td>
+                      {/* Display paymentDueDate */}
+                      {item.billingAndPlans.map((plan) => (
+                        <div key={plan._id}>{formatDate(plan.paymentDueDate)}</div>
+                      ))}
+                    </td>
                     <td>
                       <div className="d-flex flex-row gap-3">
                         <span className="border rounded-circle p-2 align-items-center  d-flex justify-content-center">
@@ -93,8 +98,9 @@ const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
                         <span className="border rounded-circle p-2 d-flex justify-content-center">
                           <IoKeySharp color="" size={20} />
                         </span>
-                        <span className="border rounded-circle p-2 d-flex justify-content-center"
-                        onClick={() => onDeleteUser(item._id)}
+                        <span
+                          className="border rounded-circle p-2 d-flex justify-content-center"
+                          onClick={() => onDeleteUser(item._id)}
                         >
                           {' '}
                           <RiDeleteBin6Fill color="red" size={20} />
@@ -113,22 +119,22 @@ const UserManagerCard = ({ data, headers, icon, heading ,onDeleteUser}) => {
               </tbody>
             </table>
           </div>
-            <div className="d-flex justify-content-end mt-5">
-              <button
-                className="px-3 py-2 me-1 border rounded border-light-subtle"
-                onClick={prevPage}
-                disabled={currentPage === 1}
-              >
-                Prev
-              </button>
-              <button
-                className="px-3 py-2 me-1 border rounded border-light-subtle"
-                onClick={nextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
-            </div>
+          <div className="d-flex justify-content-end mt-5">
+            <button
+              className="px-3 py-2 me-1 border rounded border-light-subtle"
+              onClick={prevPage}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </button>
+            <button
+              className="px-3 py-2 me-1 border rounded border-light-subtle"
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,9 +1,9 @@
-import React, { Suspense, lazy } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import React, { Suspense, lazy} from 'react'
+import { Route, Routes} from 'react-router-dom'
 import Spinner from './components/views/common/Spinner'
 const Login = lazy(() => import('./components/views/pages/Login'))
 const Register = lazy(() => import('./components/views/pages/Register'))
-const VerifyOtp = lazy(()=> import ('./components/views/pages/VerifyOtp'));
+const VerifyOtp = lazy(() => import('./components/views/pages/VerifyOtp'))
 const ForgotPassword = lazy(() => import('./components/views/pages/ForgotPassword'))
 const NewPassword = lazy(() => import('./components/views/pages/NewPassword'))
 const BlogDetails = lazy(
@@ -20,10 +20,9 @@ const PortalWalkThrough = lazy(() => import('./components/views/PortalWalkThroug
 const PageSpeedInsights = lazy(() => import('./components/views/on-boarding/PageSpeedInsights'))
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'))
 
-// const Pricing = lazy(() => import('./components/views/on-boarding/Pricing'))
-// const SelectPlan = lazy(() => import('./components/views/on-boarding/SelectPlan'))
 
 const AppRoutes = () => {
+ 
   let userData = null
   const userDataString = localStorage.getItem('user')
   // userData = userDataString ? JSON.parse(userDataString) : null
@@ -34,6 +33,8 @@ const AppRoutes = () => {
       console.error('Error parsing user data from localStorage:', e);
     }
   }
+  
+
   const userRole = userData ? userData.role : 'user'
 
   return (
@@ -62,8 +63,6 @@ const AppRoutes = () => {
         <Route path="/connect-website" element={<ConnectWebsite />} />
         <Route path="/super-admin-dashboard" element={<AdminDashboard />} />
         <Route path="/business-domain" element={<DomainPage />} />
-        {/* <Route path="/pricing" element={<Pricing />} />
-        <Route path="/payment" element={<SelectPlan />} /> */}
         <Route path="/portal-walk-through" element={<PortalWalkThrough />} />
         <Route path="/pagespeed-insights" element={<PageSpeedInsights />} />
         <Route path="/business-info" element={<BusinessInfo />} />

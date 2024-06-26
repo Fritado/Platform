@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { PiPlugsConnectedDuotone } from 'react-icons/pi'
 import { BsFileEarmarkCodeFill } from 'react-icons/bs'
 import axios from 'axios'
+import { toast } from 'react-hot-toast'
+
 
 const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
   const [buttonStatus, setButtonStatus] = useState('inactive')
@@ -36,15 +38,18 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
       if (response.status === 200 && response.data === '') {
         setButtonStatus('active')
         localStorage.setItem(`buttonStatus-${token}`, 'active')
+        toast.success("Connection succesfull.")
         return 'active'
       } else {
         setButtonStatus('inactive')
         localStorage.setItem(`buttonStatus-${token}`, 'inactive')
+        toast.error("We're experiencing some technical difficulties. Please try again later.")
         return 'inactive'
       }
     } catch (error) {
       console.error('Error while checking webhook status', error)
       setButtonStatus('inactive')
+      toast.error("We're experiencing some technical difficulties. Please try again later.")
       throw error
     }
   }
@@ -65,11 +70,11 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
 
     switch (buttonStatus) {
       case 'active':
-        buttonClass = 'mt-1 fs-6 border rounded px-3 py-2 btn-success'
+        buttonClass += 'btn-success'
         buttonText = 'Connected'
         break
       case 'inactive':
-        buttonClass = 'mt-1 fs-6 border rounded px-3 py-2 '
+        buttonClass += ''
         buttonText = 'Connect'
         break
       default:
@@ -80,7 +85,7 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
       <button
         className={buttonClass}
         onClick={handleButtonClick}
-        // disabled={buttonStatus === 'active'}
+         disabled={buttonStatus === 'active'}
       >
         <span className="pe-2">
           <PiPlugsConnectedDuotone size={20} />
@@ -100,8 +105,8 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
     },
   ]
   return (
-    <div className="container mx-auto mb-3">
-      <section className="container">
+    <div className="d-flex mx-auto mb-3">
+      <section className="">
         <div className="d-flex flex-column">
           <div className="d-flex flex-wrap gap-3">
             {/* App details */}

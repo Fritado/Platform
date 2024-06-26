@@ -151,7 +151,7 @@ export const BlogGenerate = async (topic) => {
       Optimize meta description and alt text for images.
       Proofreading: Check for grammar, spelling, and readability.
       Please generate article on this topic -${topic} based on the above instructions in 2000 words
-      Provide articles in HTML Format and add CSS in the below content.
+      Provide articles in HTML Format.
       `
 
   const data = {

@@ -74,6 +74,9 @@ const Register = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
   }
+  const validateContactNumber = (contactNumber) => {
+    return contactNumber.length === 10
+  }
   const handleOnChange = (event) => {
     // console.log(event.target.value)
     const { name, value } = event.target
@@ -100,22 +103,18 @@ const Register = () => {
     e.preventDefault()
     setLoading(true)
     try {
-      if (!termsAccepted) {
-        toast.error('Please accept the Terms & Conditions')
-        setLoading(false)
-        return
-      }
+      
       const fullContactNumber = `${country_Code} ${contactNumber}`.trim()
 
       const passwordCriteriaMet = Object.values(criteriaMet).every((criterion) => criterion)
       if (!passwordCriteriaMet) {
-        toast.error('Please ensure that your password meets the criteria')
+        toast.error('Please ensure the password meets the criteria.')
         setLoading(false)
         return
       }
       // Check if password and confirm password match
       if (password !== confirmPassword) {
-        toast.error('Password and Confirm Password do not match. Please try again.')
+        toast.error('Passwords do not match. Please re-enter the same password in both fields and try again.')
         setLoading(false)
         return
       }
@@ -130,7 +129,7 @@ const Register = () => {
         toast.success('OTP sent successfully.')
         navigate('/verify-otp')
       } else {
-        toast.error(res.data.message || 'Failed to send OTP. Please try again.')
+        toast.error(res.data.message || 'Failed to send OTP. Please retry.')
       }
       setFormData({
         firstname: '',
@@ -205,8 +204,14 @@ const Register = () => {
       } else {
         document.querySelector('.email-tooltip').style.display = 'block'
       }
+    } else if (focusedField === 'contactNumber') {
+      if (validateContactNumber(contactNumber)) {
+        document.querySelector('.contact-tooltip').style.display = 'none'
+      } else {
+        document.querySelector('.contact-tooltip').style.display = 'block'
+      }
     }
-  }, [emailValid, focusedField])
+  }, [emailValid, focusedField, contactNumber])
 
   return (
     <div>
@@ -257,7 +262,7 @@ const Register = () => {
                       className="password-tooltip email-tooltip"
                       style={{ display: emailValid ? 'none' : 'block' }}
                     >
-                      <p>Please enter valid email address</p>
+                      <p>Please enter a valid email address</p>
                     </div>
                   )}
                 </div>
@@ -298,9 +303,19 @@ const Register = () => {
                     name="contactNumber"
                     value={contactNumber}
                     onChange={handleOnChange}
+                    onFocus={() => setFocusedField('contactNumber')}
+                    onBlur={() => setFocusedField()}
                     className="form-control form-control-lg"
                     placeholder="Mobile Number"
                   />
+                  {focusedField === 'contactNumber' && (
+                    <div
+                      className="password-tooltip contact-tooltip"
+                      style={{ display: validateContactNumber(contactNumber) ? 'none' : 'block' }}
+                    >
+                      <p>Please enter a valid 10-digit mobile number.</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group  position-relative">
@@ -366,8 +381,9 @@ const Register = () => {
 
                 <div className="form-group">
                   <p className="text-muted" onClick={handleModalShow} style={{ cursor: 'pointer' }}>
-                    I agree to all{' '}
-                    <span style={{ color: ' rgba(47,130,162,.859)' }}>Terms & Conditions</span>
+                    Accept the {' '}
+                    <span className="fw-bold" style={{ color: ' rgba(47,130,162,.859)' }}>Terms and Conditions</span> to
+                    create your account
                   </p>
                 </div>
                 <button

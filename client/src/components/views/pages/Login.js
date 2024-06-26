@@ -11,6 +11,7 @@ import Logo from '../../../assets/images/logo2.png'
 import { AUTH_API_ROUTES } from '../../services/APIURL/Apis'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
+
 const Login = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -27,28 +28,26 @@ const Login = () => {
   }
 
   const handelOnSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     try {
       const url = `${AUTH_API_ROUTES.LOGIN}`
       const response = await axios.post(url, formData)
       toast.success('Login Successfull')
       // console.log('response', response)
       const { token, redirectTo } = response.data
-      localStorage.setItem('token', token);
-
+      localStorage.setItem('token', token)
       dispatch(loginUser(response))
-      dispatch(userToken(token));
+      dispatch(userToken(token))
       window.location.href = redirectTo
     } catch (error) {
-      if(error.response && error.response.data && error.response.data.message){
+      if (error.response && error.response.data && error.response.data.message) {
         toast.error(error.response.data.message)
-      }else{
-      toast.error("We're experiencing some technical difficulties. Please try again later.");
+      } else {
+        toast.error("We're experiencing some technical difficulties. Please try again later.")
       }
-     // console.log(error)
-    }
-    finally{
+      // console.log(error)
+    } finally {
       setLoading(false)
     }
   }
@@ -133,6 +132,7 @@ const Login = () => {
               </Form>
             </div>
           </div>
+
           <div className="d-flex mx-auto">
             <div className="mt-5 custom-margin">
               <h6 className="my-2 fw-bolder">Authorized Users Only</h6>

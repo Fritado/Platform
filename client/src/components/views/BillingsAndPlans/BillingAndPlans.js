@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useCallback } from 'react'
 import BillingPlans from './BillingPlans'
 import { Link } from 'react-router-dom'
 import { LuBadgeHelp } from 'react-icons/lu'
@@ -9,27 +9,48 @@ import { GoArrowUpRight } from 'react-icons/go'
 import BillingModelBox from './BillingModelBox'
 import axios from 'axios'
 import { getTrialDate, getPaymentDetails } from '../../services/BillingPlans-payment'
+import { getUserDetails ,updateUserPlan} from '../../services/Auth/AuthApi'
+import { fetchAllPackages } from '../../services/Subscription/PackageManagerService'
 
 const BillingAndPlans = () => {
   const [showModal, setShowModal] = useState(false)
   const [trialDate, setTrialDate] = useState()
-  const [price, setPrice] = useState(4999)
   const [paymentStatus, setPaymentStatus] = useState('Unpaid')
+  const [userDetails, setUserDetails] = useState({})
+  const [plans, setPlans] = useState([])
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [hasPaidForPremium, setHasPaidForPremium] = useState(false)
 
-  const fetchHandler = async () => {
-    const trialRes = await getTrialDate()
-    const paymentDetails = await getPaymentDetails()
-    const { paymentStatus } = paymentDetails.data.data
-    setPaymentStatus(paymentStatus)
-    const { freeTrialEndDateFormatted } = trialRes.data.data
-    setTrialDate(freeTrialEndDateFormatted)
-  }
+  const fetchHandler = useCallback(async () => {
+    try {
+      const trialRes = await getTrialDate()
+      const paymentDetails = await getPaymentDetails()
+      const userResponse = await getUserDetails()
+      const PlanDetails = await fetchAllPackages()
+      console.log(PlanDetails , "PlanDetails")
+      setUserDetails(userResponse)
+      setPlans(PlanDetails.packages)
+
+      const { paymentStatus } = paymentDetails.data.data
+      setPaymentStatus(paymentStatus)
+
+      const { freeTrialEndDateFormatted } = trialRes.data.data
+      setTrialDate(freeTrialEndDateFormatted)
+
+      const standardPlan = PlanDetails.packages.find((plan) => plan.packageName === 'Standard')
+      setSelectedPlan(standardPlan)
+    } catch (error) {
+      console.log(error, 'Error in checkout')
+    }
+  },[]);
+
   const closeModel = () => {
     return setShowModal(false)
   }
   useEffect(() => {
     fetchHandler()
-  }, [])
+  }, [fetchHandler])
 
   const checkoutHandler = async () => {
     try {
@@ -42,21 +63,23 @@ const BillingAndPlans = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-      const { data: { key } } = await axios.get("http://localhost:4000/api/payment/get-payment-key")
+      const {
+        data: { key },
+      } = await axios.get('http://localhost:4000/api/payment/get-payment-key')
       //console.log(key , "key");
-      
+
       const order = await axios.post(
         'http://localhost:4000/api/payment/checkout',
         {
-          paymentAmount: price / 100,
+          //price / 100
+          paymentAmount: selectedPlan.packagePrice,
         },
         config,
       )
-      //console.log('Response order', order.data)
-
+      const { firstname, lastname, email, contactNumber } = userDetails
       var options = {
         key,
-        amount: price,
+        amount: selectedPlan.packagePrice * 100,
         currency: 'USD',
         name: 'Fritado Technologies',
         description: 'Test Transaction',
@@ -64,9 +87,9 @@ const BillingAndPlans = () => {
         order_id: order.data.message.id,
         callback_url: 'http://localhost:4000/api/payment/payment-verification',
         prefill: {
-          name: 'Gaurav Kumar', //your customer's name
-          email: 'gaurav.kumar@example.com',
-          contact: '9000090000', //Provide the customer's phone number for better conversion rates
+          name: `${firstname} ${lastname}`,
+          email: email,
+          contact: contactNumber,
         },
         notes: {
           address: 'Razorpay Corporate Office',
@@ -74,13 +97,36 @@ const BillingAndPlans = () => {
         theme: {
           color: '#3399cc',
         },
+        handler: async (response) => {
+          try {
+            console.log('Sending packageName:', selectedPlan.packageName); 
+            const updateResponse = await updateUserPlan(selectedPlan.packageName);
+            if (updateResponse.success) {
+              setPlanUpdateSuccess(true);
+            } if (selectedPlan.packageName === 'Premium') {
+              setHasPaidForPremium(true);
+            }
+             else {
+              throw new Error('Plan update failed');
+            }
+          } catch (error) {
+            console.log(error, 'Error updating user plan');
+          }
+        },
       }
       var rzp1 = new window.Razorpay(options)
       rzp1.open()
+      
     } catch (error) {
       console.log(error, 'Error in checkout')
     }
   }
+
+  const handlePlanChange = () => {
+    const premiumPlan = plans.find((plan) => plan.packageName === 'Premium');
+    setSelectedPlan(premiumPlan);
+    setIsPremium(true);
+  };
 
   return (
     <div>
@@ -98,14 +144,14 @@ const BillingAndPlans = () => {
             <div className="mb-3 mb-sm-0">
               <div className="d-flex mb-3 align-items-center">
                 <h3 className="fw-bold mb-0 me-2">Free Trial until {trialDate}</h3>
-                
-                  <button className=" ms-2 border-0 rounded py-1 px-3" onClick={checkoutHandler}>
-                    {paymentStatus === 'Unpaid' ? 'Pay Now' : 'Paid'}
-                  </button>
-               
+
+                <button className=" ms-2 border-0 rounded py-1 px-3" onClick={checkoutHandler}>
+                  {paymentStatus === 'Unpaid' ? 'Pay Now' : 'Paid'}
+                </button>
               </div>
               <p className="">
-                Lorem Free Trial until Feb Free Trial until {trialDate} ${price / 100}
+                Lorem Free Trial until Feb Free Trial until {trialDate} $
+                {selectedPlan?.packagePrice}
               </p>
             </div>
             <div className="d-flex flex-md-row flex-sm-column" style={{ gap: '14px' }}>
@@ -113,7 +159,13 @@ const BillingAndPlans = () => {
                 Cancel Subscription
               </button>
 
-              <button className="btn-db px-3 py-2">Upgrade to pro</button>
+              <button
+                className="btn-db px-3 py-2"
+                onClick={handlePlanChange}
+                disabled={isPremium || hasPaidForPremium}
+              >
+                 {isPremium || hasPaidForPremium ? 'Downgrade to standard plan' : 'Upgrade to premium plan'}
+              </button>
             </div>
           </div>
           <div className="my-3">

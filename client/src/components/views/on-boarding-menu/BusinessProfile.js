@@ -117,7 +117,6 @@ const BusinessProfile = () => {
   }
   const fetchLocation = async () => {
     const locationData = await getLocation()
-    // console.log(locationData)
     setLocation(locationData)
   }
 

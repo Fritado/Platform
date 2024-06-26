@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { MdEditDocument } from 'react-icons/md'
 import { FaRegIdCard, FaKey } from 'react-icons/fa'
 import { FcCustomerSupport } from 'react-icons/fc'
-import { AiFillSave } from 'react-icons/ai'
 import { RxCross2 } from 'react-icons/rx'
 import { VscDebugBreakpointUnsupported } from 'react-icons/vsc'
 import { websiteTypeData } from '../../data/ProviderList'
-import { Link } from 'react-router-dom'
 import PhpIntegration from './PHP/PhpIntegration'
 import NodeIntegration from './NodeJs/NodejsIntegration'
 import { saveWebsiteType } from '../../../services/ConnectWebsite/WebsiteSelection'
@@ -17,7 +14,14 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
     webType: 'Content management system',
     tech: '',
   })
-
+  const DefaultIntegration = () => (
+    <div className="my-3 bg-white">
+      <div className="p-4 my-5 text-center">
+        <h4>Currently working on integration</h4>
+      </div> 
+    </div>
+  )
+  
   const handleWebsiteTypeChange = (event) => {
     const selectedWebType = event.target.value
     setFormData({ ...formData, webType: selectedWebType, tech: '' })
@@ -31,9 +35,7 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
   // const handleSave = async () => {
   //   try {
   //     const { webType, tech } = formData
-
   //     const savedData = await saveWebsiteType({ websiteType: webType, technology: tech })
-
   //     console.log('Website type saved successfully:', savedData)
   //   } catch (error) {
   //     console.error('Error while saving website type:', error)
@@ -130,6 +132,7 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
               saveWebsiteType={saveWebsiteType}
             />
           )}
+            {formData.tech && formData.tech !== 'PHP' && <DefaultIntegration />}
           {/* {formData.tech === 'Node.js' && (
             <NodeIntegration
               webhookUrl={webhookUrl}

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { FaUser } from 'react-icons/fa'
 import { IoMdLogOut } from 'react-icons/io'
 import { useDispatch } from 'react-redux'
-import { logoutUser } from '../../../slice/authSlice'
+import { logoutUser } from '../../../slice/authSlice';
+import { IoLogOutOutline } from "react-icons/io5";
 import {
   CAvatar,
   CBadge,
@@ -79,31 +80,29 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilUser} className="me-2" />
           <Link to="/profile">Profile</Link>
         </CDropdownItem>
-        <CDropdownItem href="#">
+        {/* <CDropdownItem href="#">
           <CIcon icon={cilSettings} className="me-2" />
           Settings
-        </CDropdownItem>
-        <CDropdownItem href="#">
+        </CDropdownItem> */}
+        <CDropdownItem href="/billing-and-plan">
           <CIcon icon={cilCreditCard} className="me-2" />
           Payments
-          <CBadge color="secondary" className="ms-2">
-            42
-          </CBadge>
+          
         </CDropdownItem>
-        <CDropdownItem href="#">
+        {/* <CDropdownItem href="#">
           <CIcon icon={cilFile} className="me-2" />
           Projects
           <CBadge color="primary" className="ms-2">
             42
           </CBadge>
-        </CDropdownItem>
+        </CDropdownItem> */}
         <CDropdownDivider />
         <CDropdownItem href="#">
           <CIcon icon={cilLockLocked} className="me-2" />
           Lock Account
         </CDropdownItem>
         <CDropdownItem href="#" onClick={handleLogoutBtn}>
-          <CIcon className="me-2" />
+          <IoLogOutOutline style={{marginRight:"8px"}} size={18}/>
           Logout
         </CDropdownItem>
       </CDropdownMenu>

@@ -53,7 +53,7 @@ const saveLocation = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Locations saved successfully",
-     // data: userLocation,
+      data: userLocation,
     });
   } catch (error) {
     console.error("Error while saving locations:", error);
@@ -97,7 +97,7 @@ const updateSingleLocation = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Location updated successfully",
-      //data: existingLocation,
+      data: existingLocation,
     });
   } catch (Error) {
     console.error("Error while updating location data", error);
@@ -132,8 +132,8 @@ const getLocation = async (req, res) => {
     }
     return res.status(200).json({
       success: true,
-      message: "Keywords retrieved successfully",
-      //data: userLocation,
+      message: "Location retrieved successfully",
+      data: userLocation,
     });
   } catch (error) {
     console.error("Error while retrieving location", error);
@@ -179,7 +179,7 @@ const deleteSingleLocationItem = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Location deleted successfully",
-      //data: existingLocation,
+      data: existingLocation,
     });
   } catch (error) {
     console.error("Error while deleting Location", error);
@@ -239,7 +239,7 @@ const createSingleLocation = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Location created successfully",
-    //  data: userLocation,
+     data: userLocation,
     });
   } catch (error) {
     console.error("Error while creating location:", error);

@@ -5,12 +5,12 @@ const billingPlansSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-
   freeTrialEndDate: {
-    //user registration + 7 days (including registation date and trail end date)
     type: Date,
   },
-
+  paymentDueDate:{
+    type: Date,
+  },
   paymentStatus: {
     type: Boolean,
   },

@@ -42,7 +42,7 @@ exports.saveBlogs = async (req, res) => {
       publishDate = moment(lastBlog.PublishDate).add(2, "days").toDate();
     } else {
       // If it's the first blog, set publish date as user's signup date plus 5 days
-      publishDate = moment(user.createdAt).add(5, "days").toDate();
+      publishDate = moment(user.createdAt).add(6, "days").toDate();
     }
 
     const Blogs = new BlogDetails({
@@ -200,7 +200,7 @@ exports.getEachSingleBlogs = async (req, res) => {
       {
         PId: projectId,
         topic: topic,
-      },
+      }
       //{ blogDescription: 1, blogId: 1 }
     );
 
@@ -211,7 +211,7 @@ exports.getEachSingleBlogs = async (req, res) => {
       });
     }
 
-     //console.log("Blog description:", blog.blogDescription);
+    //console.log("Blog description:", blog.blogDescription);
 
     return res.status(200).json({
       success: true,
@@ -311,7 +311,7 @@ exports.getBlogStatusByTopic = async (req, res) => {
     const { topic } = req.params;
 
     const blog = await BlogDetails.findOne({ topic });
-   
+
     if (!blog || blog.length === 0) {
       return res.status(404).json({
         success: false,
@@ -349,6 +349,7 @@ exports.getBlogStatusByTopic = async (req, res) => {
   }
 };
 
+// function to update blogs in overview page of current blog posts
 exports.getRecentBlogPost = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -365,6 +366,7 @@ exports.getRecentBlogPost = async (req, res) => {
     today.setHours(0, 0, 0, 0); // Set to the beginning of the day
 
     // Fetch recent blog post
+    //PublishDate: { $gte: today } filters the documents to those where the PublishDate field is greater than or equal to today. This means we're looking for blog posts published today or later.
     const recentBlog = await BlogDetails.findOne({
       user: userId,
       PublishDate: { $gte: today },
@@ -523,189 +525,93 @@ exports.getUserBlogSchedule = async (req, res) => {
   }
 };
 
+async function sendBlog(
+  blogID,
+  topic,
+  blogDescription,
+  publishDate,
+  approvedDate,
+  status,
+  webhookUrl,
+  
+) {
+  
+  const payload = {
+    BlogID: blogID,
+    Topic: topic,
+    BlogDescription: blogDescription,
+    PublishDate: publishDate,
+    ApprovedDate: approvedDate,
+    Status: status,
+  };
 
+ // console.log("Sending article with payload:", payload);
 
+  const agent = new https.Agent({ keepAlive: false });
 
-
-
-exports.getBlogPostforWebhook = async (req, res) => {
   try {
-    const currentDate = new Date();
-
-    const latestBlog = await BlogDetails.aggregate([
-      {
-        $match: {
-          PublishDate: { $gt: currentDate },
-        },
-      },
-      {
-        $sort: { PublishDate: -1 },
-      },
-      {
-        $limit: 1,
-      },
-    ]);
-
-    res.status(200).json({ latestBlog });
-    return latestBlog[0];
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-exports.sendBlogPostsViaWebhook = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    console.log("User ID:", userId);
-
-    const user = await User.findById(userId);
-    console.log("User:", user);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    const project = await Projects.findOne({ user: userId }).exec();
-    console.log("Project:", project);
-
-    if (!project) {
-      console.error("Project not found for user");
-      return res.status(404).json({
-        success: false,
-        message: "Project not found for user",
-      });
-    }
-
-    const { domainUrl } = project;
-    if (!domainUrl) {
-      console.error("Domain URL not found in project");
-      return res.status(400).json({
-        success: false,
-        message: "Domain URL not found in project",
-      });
-    }
-    const webUrl = `https://jhanvient.in/webhook.html`.trim();
-    console.log("Domain URL:", webUrl);
-
-    try {
-      new URL(webUrl);
-    } catch (e) {
-      console.error("Invalid Web URL:", webUrl);
-      throw new Error("Invalid Web URL");
-    }
-
-    const Url = `	https://webhook.site/bec42c21-470e-4dd4-b643-fd51de62c043	`;
-    console.log("Webhook URL:", Url);
-
-    const agent = new https.Agent({ keepAlive: false });
-    const { post } = req.body;
-    if (!post || !post.topic || !post.blogDescription) {
-      console.error("Invalid post object:", post);
-      return res.status(400).json({
-        success: false,
-        message: "Invalid post object",
-      });
-    }
-
-    const payload = {
-      topic: post.topic,
-      blogDescription: post.blogDescription,
-    };
-    console.log("Sending article with payload:", payload);
-
-    const response = await axios.post(webUrl, payload, {
+    const response = await axios.post(webhookUrl, payload, {
       timeout: 10000,
       httpsAgent: agent,
     });
+    console.log(`Status: ${response.status}`);
     console.log("Response:", response.data);
-    console.log(`Blog post sent and updated successfully for user ${user}`);
-
-    return res.status(200).json({
-      success: true,
-      message: "Blog post sent successfully",
-      data: response.data,
-    });
+    return response.data;
   } catch (error) {
     if (error.response) {
-      // Server responded with a status other than 2xx
-      console.error("Error response from server:", error.response.data);
-      return res.status(error.response.status).json({
-        success: false,
-        message: error.response.statusText,
-        error: error.response.data,
-      });
+      console.error(
+        "Response error:",
+        error.response.status,
+        error.response.data
+      );
     } else if (error.request) {
-      // Request was made but no response was received
       console.error("No response received:", error.request);
-      return res.status(500).json({
-        success: false,
-        message: "No response received from the server",
-        error: error.message,
-      });
     } else {
-      // Something else happened while setting up the request
-      console.error("Error setting up request:", error.message);
-      return res.status(500).json({
-        success: false,
-        message: "Error setting up request",
-        error: error.message,
-      });
+      console.error("Error:", error.message);
     }
   }
+}
+exports.sendBlog = async (req, res) => {
+  const { blogID } = req.body;
+
+    try {
+        const blog = await BlogDetails.findById(blogID);
+        if (!blog) {
+            return res.status(404).json({
+                success: false,
+                message: 'Blog not found',
+            });
+        }
+        const projectId = blog.PId;
+        const projectDetails = await Projects.findById(projectId);
+        const webhookUrl =  projectDetails.webhookUrl
+        console.log(webhookUrl  , " projectDetails");
+        if (!projectDetails) {
+            return res.status(404).json({
+                success: false,
+                message: 'Project details not found',
+            });
+        }
+
+        const topic = blog.topic;
+        const blogDescription = blog.blogDescription;
+        const publishDate = blog.PublishDate;
+        const approvedDate = blog.approvedDate; // Assuming approvedDate is the same as PublishDate
+        const status = blog.status;
+        
+       
+       const blogResponse = await sendBlog(blogID, topic, blogDescription, publishDate, approvedDate, status,  webhookUrl);
+        console.log(blogResponse , "blogResponse ")
+        res.status(200).json({
+            success: true,
+            message: 'Article sent successfully',
+            data:blogResponse 
+        });
+    } catch (error) {
+        console.error('Error while sending article:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to send article'
+        });
+    }
 };
-
-// async function checkSchedule() {
-//   const now = new Date();
-//   console.log("log");
-//   // Find blog schedules that match the current time
-//   const blogSchedules = await BlogSchedule.find({
-//     startDate: { $lte: now },
-//     endDate: { $gte: now },
-//     blogAutoPostTime: `${now.getHours()}:${now.getMinutes()}`,
-//   }).populate("user");
-
-//   console.log(`Found ${blogSchedules.length} blog schedules.`);
-
-//   for (const schedule of blogSchedules) {
-//     console.log("Processing schedule:", schedule);
-
-//     const project = await Projects.findOne({ user: schedule.user._id });
-//     console.log("Project", project);
-
-//     const latestBlog = await BlogDetails.findOne({
-//       user: schedule.user._id,
-//       status: "approved",
-//       PublishDate: { $lte: now },
-//     }).sort({ PublishDate: -1 });
-//     console.log("latest blog", latestBlog);
-
-//     if (latestBlog && project) {
-//       try {
-//         const constUrl = `https://webhook.site/bec42c21-470e-4dd4-b643-fd51de62c043`; // Corrected variable name
-//         const payload = {
-//           topic: latestBlog.topic,
-//           blogDescription: latestBlog.blogDescription,
-//         };
-//         console.log("Sending payload to:", constUrl);
-//         console.log("Payload:", payload);
-//         await axios.post(constUrl, payload);
-//         // latestBlog.status = "posted";
-//         // await latestBlog.save();
-//         console.log("Payload sent successfully.");
-//       } catch (error) {
-//         console.error(
-//           `Error posting blog ${latestBlog._id} to ${project.webhookUrl}:`,
-//           error
-//         );
-//       }
-//     }
-//   }
-// }
-
-// Schedule to run every minute
-// cron.schedule("* * * * *", checkSchedule);
-
-// console.log("Cron job running every minute to check article schedules.");

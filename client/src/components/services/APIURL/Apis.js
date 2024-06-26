@@ -9,6 +9,8 @@ export const AUTH_API_ROUTES = {
   NEW_PASSWORD: API_BASE_URL + '/api/auth/reset-password',
   SAVE_PROFILE: API_BASE_URL + '/api/auth/update-user-profile',
   FETCH_PROFILE: API_BASE_URL + '/api/auth/fetch-user-details',
+  UPDATE_PAGE_PROGRESS : API_BASE_URL + '/api/auth/update-progress',
+  UPDATE_USER_PLAN :API_BASE_URL + '/api/auth/update-plan',
 }
 
 export const DOMAIN_API_ROUTES = {

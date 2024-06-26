@@ -9,6 +9,7 @@ const emailContent = require("../mail/emailContent");
 const mailSender = require("../utils/mailSender");
 //console.log(mailSender);
 const emailTemplate = require("../mail/templates/emailTemplate");
+const BillingsPlan = require("../models/BillingsPlans/BillingPlan");
 
 async function generateUniqueUserId() {
   let userId;
@@ -30,7 +31,7 @@ exports.sendOtp = async (req, res) => {
       return res.status(401).json({
         success: false,
         message:
-          "This email ID is already in use. Please create a new account or retrieve your password.",
+          "This email id is already in use. Please create a new account or retrieve your password.",
       });
     }
 
@@ -62,7 +63,7 @@ exports.sendOtp = async (req, res) => {
       const otpPayload = { email, otp };
       otpEntry = await Otp.create(otpPayload);
     }
-   // console.log("OTP Body", otpEntry);
+    // console.log("OTP Body", otpEntry);
 
     const template = emailContent.sendOtp;
     await mailSender(
@@ -111,6 +112,12 @@ exports.signup = async (req, res) => {
         message: "All Fields are required",
       });
     }
+    if (contactNumber > 10 && contactNumber < 10) {
+      return res.json({
+        sucess: false,
+        message: "Please enter a valid 10-digit mobile number.",
+      });
+    }
     if (!passwordRegex.test(password)) {
       return res.status(401).json({
         success: false,
@@ -123,7 +130,7 @@ exports.signup = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Password and Confirm Password do not match. Please try again.",
+          "Passwords do not match. Please re-enter the same password in both fields and try again.",
       });
     }
 
@@ -132,7 +139,8 @@ exports.signup = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists. Please sign in to continue.",
+        message:
+          "A user with this email address already exists. Please log in or reset your password.",
       });
     }
     //Find the most recent OTP for the email
@@ -155,7 +163,7 @@ exports.signup = async (req, res) => {
     //hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     const uniqueUserId = await generateUniqueUserId();
-    // Set default role
+    const freeTrialEndDate = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000);
     const defaultRole = "user";
 
     //Create the user
@@ -170,7 +178,13 @@ exports.signup = async (req, res) => {
       termsAccepted: true,
     });
 
-    //console.log(newUser, "user details");
+    // Create the billing plan entry
+    const newBillingPlan = await BillingsPlan.create({
+      user: newUser._id,
+      freeTrialEndDate: freeTrialEndDate,
+      paymentDueDate: freeTrialEndDate, // Initial payment due date is the end of the free trial
+      paymentStatus: false, // Initial payment status is unpaid
+    });
 
     const welcomeEmail = emailContent.welcomeEmail;
     const emailBodyContent = welcomeEmail.body(
@@ -189,6 +203,7 @@ exports.signup = async (req, res) => {
     return res.status(200).json({
       success: true,
       newUser,
+      newBillingPlan,
       message: "User registered successfully",
     });
   } catch (error) {
@@ -218,7 +233,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: `User is not Registered with Us Please Sign Up to Continue`,
+        message: `This user is not registered with us. Please create an account and try again.`,
       });
     }
 
@@ -231,22 +246,13 @@ exports.login = async (req, res) => {
       const token = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: "24h",
       });
-      // console.log("Generated Token\n", token);
-      //save the token to user document in db
       user.token = token;
       //user.password = undefined
-
-      // const redirectTo = user.hasLoggedInBefore ? '/dashboard' : '/business-info'
-      // if (!user.hasLoggedInBefore) {
-      //   user.hasLoggedInBefore = true
-      //   await user.save()
-      // }
-
       let redirectTo = "/dashboard";
       if (user.role === "superAdmin") {
         redirectTo = "/admin-dashboard";
       } else if (!user.hasLoggedInBefore) {
-        redirectTo = "/business-info";
+        redirectTo = user.lastVisited;
         user.hasLoggedInBefore = true;
       }
 
@@ -266,14 +272,14 @@ exports.login = async (req, res) => {
         user,
         id: user._id,
         role: user.role,
-        message: `User login successful.`,
+        message: `User login successfully.`,
         redirectTo,
       });
     } else {
       //incorrect passowrd
       return res.status(401).json({
         success: false,
-        message: `Invalid username or password. Please try again.`,
+        message: `Invalid username or password. Please enter valid credentials or contact support for assistance with account recovery.`,
       });
     }
   } catch (error) {
@@ -374,7 +380,7 @@ exports.updateContactNumber = async (req, res) => {
       .json({ message: "Internal server error while updating contact number" });
   }
 };
-
+//use this (getUserDetails) to get the progress update of page
 exports.getUserDetails = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -384,9 +390,11 @@ exports.getUserDetails = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const user = await User.findById(userId).select(
-      "firstname lastname email contactNumber"
-    );
+    //   to fetch these details only
+    // const user = await User.findById(userId).select(
+    //   "firstname lastname email contactNumber"
+    // );
+    const user = await User.findById(userId);
 
     // Check if user exists
     if (!user) {
@@ -408,15 +416,23 @@ exports.getUserDetails = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.aggregate([
+      {
+        $lookup: {
+          from: 'billingplans', // Collection name for BillingPlans
+          localField: '_id',
+          foreignField: 'user',
+          as: 'billingAndPlans',
+        },
+      },
+    ]);
 
-    if (!users) {
+    if (!users || users.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No users found",
       });
     }
-
     return res.status(200).json({
       success: true,
       users,
@@ -428,6 +444,61 @@ exports.getAllUsers = async (req, res) => {
       success: false,
       error: error.message,
       message: "Cannot fetch users. Please try again.",
+    });
+  }
+};
+
+// progress update before reach to dashboard
+exports.updateProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { lastVisited, stepsCompleted } = req.body;
+    const user = await User.findById(userId);
+    if (user) {
+      user.lastVisited = lastVisited;
+      user.stepsCompleted = stepsCompleted;
+      await user.save();
+      return res
+        .status(200)
+        .json({ success: true, message: "Progress updated." });
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error updating progress." });
+  }
+};
+
+//update the package
+exports.updateUserPlan = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { packageName } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found please signup first",
+      });
+    }
+    user.Plan = packageName;
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      message: "Plan updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      message: "Failed to update user plan",
     });
   }
 };

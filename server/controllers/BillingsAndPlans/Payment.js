@@ -57,7 +57,7 @@ exports.paymentVerification = async (req, res) => {
     const isAuthentic = expectedSignature === razorpay_signature
 
     if (isAuthentic) {
-      await Payment.findOne(
+      await Payment.findOneAndUpdate(
         { order_id: razorpay_order_id },
         {
           $set: {
@@ -71,10 +71,10 @@ exports.paymentVerification = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'Payment successfull',
+        message: 'Payment successfull done',
       })
     } else {
-      return res.status(200).json({
+      return res.status(400).json({
         success: 'false',
         message: 'Invalid signature, Payment Failed',
       })
@@ -117,7 +117,6 @@ exports.getPaymentDetailsByUserId = async (req, res) => {
 
 exports.getApiKey = async (req, res) => {
   try{
-
     return res.status(200).json({ key: process.env.RAZORPAY_KEY })
   }catch(error){
     console.log("error while getting api key from backend side" , error);

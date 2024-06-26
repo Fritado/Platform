@@ -41,10 +41,10 @@ const VerifyOtp = () => {
       if (signupRes.data.success) {
         const { newUser, token } = signupRes.data
         //dispatch(loginUser({ user: newUser, token }));
-        toast.success('Signup successful!')
+        toast.success('Your account has been successfully created.')
         navigate('/login')
       } else {
-        toast.error(signupRes.data.message || 'Signup failed. Please try again.')
+        toast.error(signupRes.data.message || 'Registration unsuccessful. Please try again.')
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
@@ -76,24 +76,27 @@ const VerifyOtp = () => {
     } 
   }
   return (
-    <div>
-      <div className="d-flex flex-column mx-auto ">
-        <div className="otp d-flex flex-column mx-auto my-4 pt-5 auth px-3 bg-white">
-          <div className="">
-            <div className="brand-logo text-center">
+    <div className="container">
+      <div className="d-flex flex-column mx-auto mt-5">
+        <div className="otp d-flex flex-column mx-auto my-4 py-4 auth px-5 bg-white" style={{ maxWidth: "420px" }}>
+          <div className="text-left">
+            <div className="brand-logo">
               <img
                 src={Logo}
                 alt="logo"
                 className="d-flex mx-auto align-items-center justify-content-center"
+                style={{ maxWidth: "100%" }}
               />
             </div>
-            <h4 className="">Verify account creation code</h4>
-            <p>{`A verification code has been sent to your`} <strong>${userEmail}</strong></p>
+            <h4>Please check your email </h4>
+            <h6 className="fw-normal">Confirm your email address to get started with Fritado!</h6>
+            <p>{`We have sent an email confirmation OTP to`} <strong>{userEmail}</strong></p>
+            <p>If you do not receive anything right away, please check your spam folder or contact our support.</p>
             <Link to="/register" className="text-color">
-              <p className="">Change email id</p>
+              <p className="fw-semibold">Wrong email address?</p>
             </Link>
           </div>
-          <form className="pt-2" onSubmit={handleVerifyAndSignup}>
+          <form className="pt-" onSubmit={handleVerifyAndSignup}>
             <OtpInput
               value={otp}
               onChange={setOtp}
@@ -102,45 +105,46 @@ const VerifyOtp = () => {
                 <input
                   {...props}
                   placeholder="-"
-                  className="w-25 p-2 border border-bottom-3 rounded text-center"
+                  className="w-100 p-2 border border-bottom-3 rounded text-center"
+                  style={{ maxWidth: "50px" }}
                 />
               )}
               containerStyle={{
                 justifyContent: 'space-between',
                 gap: '0 6px',
-                marginTop: '20px',
+                marginTop: '10px',
               }}
             />
-            <div className="mt-4 font-weight-light">
-              <p className="pt-4 cursor-pointer" style={{ fontSize: '16px' }}>
-                Issue with the code ?{' '}
+            <div className="mt-2 font-weight-light text-left">
+              <p className="pt-4" style={{ fontSize: '16px' }}>
+                Issue with the code?{' '}
                 <strong onClick={handleResendOtp} style={{ cursor: 'pointer' }}>
-                  Resend code{' '}
+                  Resend code
                 </strong>
               </p>
               <button
                 type="submit"
                 disabled={!otp}
-                className="mt-2 btn btn-primary btn-lg font-weight-medium auth-form-btn"
+                className="mt-2 btn btn-primary btn-lg font-weight-medium auth-form-btn w-100"
               >
-                {!loading ? 'Verify Otp' : 'Verifing...'}
+                {!loading ? 'VERIFY OTP' : 'VERIFYING...'}
               </button>
             </div>
           </form>
         </div>
         <div className="d-flex mx-auto">
-          <div className="mt-5 custom-margin">
-            <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
-            <p className="text-justify">
-              Step into Fritado AI's secure systems, reserved for authorized users. We prioritize
-              safeguarding sensitive data and detecting any unauthorized activity. By using our
-              systems, you agree to monitoring and potential sharing of evidence with law
-              enforcement in case of criminal activity. Your continued use implies acceptance of our
-              Privacy Policy and Terms and Conditions. If you don't agree, please close your browser
-              window.
-            </p>
+            <div className="mt-5 custom-margin">
+              <h6 className="my-2 fw-bolder">Authorized Users Only</h6>
+              <p className="text-justify">
+                Step into Fritado AI's secure systems, reserved for authorized users. We prioritize
+                safeguarding sensitive data and detecting any unauthorized activity. By using our
+                systems, you agree to monitoring and potential sharing of evidence with law
+                enforcement in case of criminal activity. Your continued use implies acceptance of
+                our Privacy Policy and Terms and Conditions. If you don't agree, please close your
+                browser window.
+              </p>
+            </div>
           </div>
-        </div>
         <AuthFooter />
       </div>
     </div>

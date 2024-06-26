@@ -194,7 +194,7 @@ export const getLocation = async (token) => {
     }
 
     const Locationresponse = await axios.get(getLocationUrl, config)
-    // console.log('Locationresponse ',Locationresponse.data.data.location)
+    //console.log('Locationresponse ',Locationresponse)
     return Locationresponse.data.data.location
   } catch (error) {
     console.error('Error while fetching Service data', error)

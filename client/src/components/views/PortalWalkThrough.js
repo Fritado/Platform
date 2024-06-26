@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../views/common/Header'
 import AuthFooter from '../views/common/AuthFooter'
 import axios from 'axios'
@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { PORTAL_API_ROUTES, BUSINESS_PROFILE_ROUTES } from '../services/APIURL/Apis'
 import { toast } from 'react-hot-toast'
 import { fetchPromptDetails } from '../services/PromptService/PromptService'
+import { updateProgress } from '../services/Auth/AuthApi'
 
 const PortalWalkThrough = () => {
   const [websiteName, setWebsiteName] = useState('')
@@ -28,6 +29,7 @@ const PortalWalkThrough = () => {
           Authorization: `Bearer ${token}`,
         },
       }
+
       const response = await axios.get(getUrl, config)
       const industryRes = response.data.data.industryType
       setIndustryType(industryRes)
@@ -53,6 +55,7 @@ const PortalWalkThrough = () => {
       }
 
       const Website_Name = await axios.get(getWebsiteUrl, config)
+      //console.log(Website_Name  , "Website_Name");
       const data = Website_Name.data
       const website_array = data.data[0]
       console.log('About Business Response', website_array[0])
@@ -60,7 +63,6 @@ const PortalWalkThrough = () => {
       setWebsiteName(zerothIndexValue)
       getIndustryType()
       handleSubmit()
-      //console.log("Value at 0th index:", zerothIndexValue);
     } catch (error) {
       console.log(error, 'Error in portal walk Through while fetching website name of business')
       setLoading(false)
@@ -87,9 +89,9 @@ const PortalWalkThrough = () => {
       } else {
         toast.error("We're experiencing some technical difficulties. Please try again later.")
       }
-    } finally {
-      setLoading(false)
     }
+      setLoading(false)
+    
   }
   const analyzeContent = async (e) => {
     const promptDetailsResponse = await fetchPromptDetails()
@@ -148,10 +150,15 @@ Based on this information, please provide the following outputs in the specified
       const messageContent = response.data.choices[0].message.content
       console.log('message content', messageContent)
 
-      const aboutBusinessRegex = /About\s*Business[:\s]*-?\s*([\s\S]*?)(?=\s*Keywords[:\s]*|$)/i
-      const keywordsRegex = /Keywords[:\s]*-?\s*([\s\S]*?)(?=\s*Services[:\s]*|$)/i
-      const servicesRegex = /Services[:\s]*-?\s*([\s\S]*?)(?=\s*Locations[:\s]*|$)/i
-      const locationsRegex = /Locations[:\s]*-?\s*([\s\S]*?)(?=$)/i
+      // const aboutBusinessRegex = /About\s*Business[:\s]*-?\s*([\s\S]*?)(?=\s*Keywords[:\s]*|$)/i
+      // const keywordsRegex = /Keywords[:\s]*-?\s*([\s\S]*?)(?=\s*Services[:\s]*|$)/i
+      // const servicesRegex = /Services[:\s]*-?\s*([\s\S]*?)(?=\s*Locations[:\s]*|$)/i
+      // const locationsRegex = /Locations[:\s]*-?\s*([\s\S]*?)(?=$)/i
+
+      const aboutBusinessRegex = /1\.\s*About\s*Business[:\s]*([\s\S]*?)(?=2\.\s*Keywords[:\s]*|$)/i
+      const keywordsRegex = /2\.\s*Keywords[:\s]*([\s\S]*?)(?=3\.\s*Services[:\s]*|$)/i
+      const servicesRegex = /3\.\s*Services[:\s]*([\s\S]*?)(?=4\.\s*Locations[:\s]*|$)/i
+      const locationsRegex = /4\.\s*Locations[:\s]*([\s\S]*?)(?=$)/i
 
       const aboutBusinessMatch = messageContent.match(aboutBusinessRegex)
       const keywordsMatch = messageContent.match(keywordsRegex)
@@ -163,17 +170,18 @@ Based on this information, please provide the following outputs in the specified
       const services = servicesMatch ? servicesMatch[1].trim() : ''
       const locations = locationsMatch ? locationsMatch[1].trim() : ''
 
-     // Saving the extracted content
+      // Saving the extracted content
       await savingBusinessContent(aboutBusiness)
       await savingKeyWordContent(keywords)
       await savingServiceContent(services)
       await savingLocationContent(locations)
-      setLoading(false)
-     navigate('/dashboard')
+      await updateProgress('/portal-walk-through', true)
+
+      navigate('/dashboard')
     } catch (Error) {
       console.log(Error, 'Error while calling openAI api ')
       toast.error("We're experiencing some technical difficulties. Please try again later.")
-      setLoading(false)
+      
     }
   }
 
@@ -313,19 +321,21 @@ Based on this information, please provide the following outputs in the specified
           </div>
         </div>
         <div className="d-flex justify-content-center mx-auto  mt-4 ">
-          <Link to="#">
-            <button
-              onClick={fetchwebsiteName}
-              className="mt-3 btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn "
-            >
-              Explore Your Dashboard
-            </button>
-            {loading && (
-              <div className="position-absolute top-100 start-50 translate-middle">
-                <Spinner />
-              </div>
-            )}
-          </Link>
+          <div>
+
+          
+          <button
+            onClick={fetchwebsiteName}
+            className="mt-3 btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn "
+          >
+            Explore Your Dashboard
+          </button>
+          {loading && (
+            <div className="position-absolute top-100 start-50 translate-middle">
+              <Spinner />
+            </div>
+          )}
+          </div>
         </div>
       </div>
       <AuthFooter />
