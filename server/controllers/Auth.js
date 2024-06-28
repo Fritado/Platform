@@ -1,13 +1,11 @@
 const User = require("../models/User");
 const Otp = require("../models/OTP");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const crypto = require("crypto");
 const emailContent = require("../mail/emailContent");
 const mailSender = require("../utils/mailSender");
-//console.log(mailSender);
 const emailTemplate = require("../mail/templates/emailTemplate");
 const BillingsPlan = require("../models/BillingsPlans/BillingPlan");
 
@@ -96,8 +94,10 @@ exports.signup = async (req, res) => {
       otp,
     } = req.body;
 
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
+
+    //console.log("Received password: ", password);
+    //console.log("Password matches regex: ", passwordRegex.test(password));
 
     if (
       !firstname ||
@@ -112,12 +112,15 @@ exports.signup = async (req, res) => {
         message: "All Fields are required",
       });
     }
-    if (contactNumber > 10 && contactNumber < 10) {
-      return res.json({
-        sucess: false,
-        message: "Please enter a valid 10-digit mobile number.",
-      });
-    }
+    // if (contactNumber.length !== 10 || isNaN(contactNumber)) {
+    //   return res
+    //     .status(400)
+    //     .json({
+    //       success: false,
+    //       message: "Please enter a valid 10-digit mobile number",
+    //     });
+    // }
+
     if (!passwordRegex.test(password)) {
       return res.status(401).json({
         success: false,
@@ -419,10 +422,10 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.aggregate([
       {
         $lookup: {
-          from: 'billingplans', // Collection name for BillingPlans
-          localField: '_id',
-          foreignField: 'user',
-          as: 'billingAndPlans',
+          from: "billingplans", // Collection name for BillingPlans
+          localField: "_id",
+          foreignField: "user",
+          as: "billingAndPlans",
         },
       },
     ]);

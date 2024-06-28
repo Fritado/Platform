@@ -22,6 +22,7 @@ const BlogOverView = () => {
   const fetchRecentBlog = async () => {
     try {
       const Blogresponse = await getRecentBlog()
+      console.log(Blogresponse, 'Blogresponse')
       const recentBlogData = Blogresponse.data.data.recentBlog
       const upcomingBlogData = Blogresponse.data.data.upcomingBlogs
 
@@ -67,7 +68,13 @@ const BlogOverView = () => {
   useEffect(() => {
     fetchRecentBlog()
   }, [])
-  const dotColor = blogStatus.status === 'approved' ? 'green' : 'red';
+  const dotColor = blogStatus.status === 'approved' ? 'green' : 'red'
+
+  const extractImagePath = (path) => {
+    const basePath = "F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\";
+    return path.replace(basePath, "").replace(/\\/g, "/");
+  };
+ 
   return (
     <div className="container mx-auto">
       <BlogAutomation />
@@ -91,9 +98,12 @@ const BlogOverView = () => {
             </div>
 
             {recentBlog && (
-              
               <div className="mx-4 my-3 blog-card border rounded">
-                <img src={ProfileImg} alt="blog-post-picture" className="w-100 mb-3" />
+                <img
+                  src={`http://localhost:4000/blog-images/${extractImagePath(recentBlog.blogImage)}`}
+                  alt="blog-post-picture"
+                  className="w-100 mb-3"
+                />
                 <div className="p-2">
                   <div className="">
                     <h3>{recentBlog.topic}</h3>

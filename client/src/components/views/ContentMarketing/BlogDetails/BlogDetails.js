@@ -21,7 +21,7 @@ const BlogDetails = () => {
   const decodedTopic = decodeTopic(topic)
   // console.log("topic", decodedTopic);
   const [blogDescription, setBlogDescription] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [blogImage, setBlogImage] = useState('')
   const [firstParagraph, setFirstParagraph] = useState('')
   const [secondParagraph, setSecondParagraph] = useState('')
   const [status, setStatus] = useState('pending')
@@ -45,10 +45,11 @@ const BlogDetails = () => {
   const fetchBlogDetails = async (topic) => {
     try {
       const response = await fetchBlogsByTopic(topic)
-      // console.log("response" , response);
+       console.log("response" , response);
       if (response.success) {
         setBlogId(response.blogId)
         setBlogDescription(response.data)
+        setBlogImage(response.image) 
         extractParagraphs(response.data)
         setLoading(false)
       } else {
@@ -95,7 +96,6 @@ const BlogDetails = () => {
     try {
       const response = await getBlogStatusByTopic(topic)
       const blogStatus = response.data.status
-      console.log('Status Response:', blogStatus)
       setStatus(blogStatus)
     } catch (error) {
       console.error('Error fetching blog status:', error)
@@ -115,6 +115,10 @@ const BlogDetails = () => {
       console.error('Error toggling blog status:', error)
     }
   }
+  const extractImagePath = (path) => {
+    const basePath = "F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\";
+    return path.replace(basePath, "").replace(/\\/g, "/");
+  };
   return (
     <div>
       <Header />
@@ -176,7 +180,7 @@ const BlogDetails = () => {
                     </p>
                     <div className="px-4 py-1">
                       <img
-                        src={ProfileImg}
+                       src={`http://localhost:4000/blog-images/${extractImagePath(blogImage)}`}
                         alt="blog-post-picture"
                         className="w-100 mb-3"
                         style={{ height: '23rem' }}
@@ -193,5 +197,5 @@ const BlogDetails = () => {
     </div>
   )
 }
-// remove footer from blog content
+
 export default BlogDetails

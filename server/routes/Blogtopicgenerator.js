@@ -26,6 +26,8 @@ const { auth } = require("../middlewares/auth");
 router.post("/blog-topic-generator", auth, saveBlogTopic);
 router.get("/fetch-blog-topics", auth, getBlogTopics);
 
+
+//blog content related route
 router.post("/save-blogs", auth, saveBlogs);
 router.get("/get-allblogs", auth, getAllBlogs);
 router.get("/check-blogs", auth, checkBlogsAvailability);

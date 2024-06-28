@@ -27,11 +27,11 @@ import { IoMdAdd } from 'react-icons/io'
 import { AppHeaderDropdown } from './header/index'
 import { getDomianName } from '../services/BusinessDomain/domain'
 
-const AppHeader = () => {
+const AppHeader = ({ setSidebarShow }) => {
   const headerRef = useRef()
   const [domainName, setDomainName] = useState({ fullUrl: null, domainName: null , webhookUrl: null,})
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const [sidebarShow, setSidebarShow] = useState(true)
+ // const [sidebarShow, setSidebarShow] = useState(true)
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -61,7 +61,7 @@ const AppHeader = () => {
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
       <CContainer className="px-4" fluid>
         <CHeaderToggler
-          onClick={() => setSidebarShow(!sidebarShow)}
+          onClick={() => setSidebarShow(prev => !prev)}
           style={{ marginInlineStart: '-14px' }}
         >
           <CIcon icon={cilMenu} size="lg" />

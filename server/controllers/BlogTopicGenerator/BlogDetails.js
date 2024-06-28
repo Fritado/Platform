@@ -7,12 +7,17 @@ const moment = require("moment");
 const cron = require("node-cron");
 const axios = require("axios");
 const https = require("https");
+const fs = require("fs");
+const path = require("path");
 
 exports.saveBlogs = async (req, res) => {
   try {
-    const { topic, blogDescription } = req.body;
+    const { topic, blogDescription, blogImage } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId);
+   
+    const clientId = user.userId;
+    console.log(clientId , "clientId")
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -44,13 +49,30 @@ exports.saveBlogs = async (req, res) => {
       // If it's the first blog, set publish date as user's signup date plus 5 days
       publishDate = moment(user.createdAt).add(6, "days").toDate();
     }
+  
+    const userFolderPath = path.join(__dirname, "..", "BlogImage",  clientId);
+    if (!fs.existsSync(userFolderPath)) {
+      fs.mkdirSync(userFolderPath, { recursive: true });
+    }
+    const imageExtension = path.extname(new URL(blogImage).pathname);
+    const imageFileName = `${topic.replace(/\s+/g, "_")}${imageExtension}`;
+    const imagePath = path.join(userFolderPath, imageFileName);
+    //const relativeImagePath = path.join(userId, imageFileName);
+    console.log(imagePath, "imagePath")
+
+    const imageResponse = await axios.get(blogImage, {
+      responseType: "arraybuffer",
+    });
+
+    fs.writeFileSync(imagePath, imageResponse.data);
 
     const Blogs = new BlogDetails({
       topic: topic,
       blogDescription: blogDescription,
+      blogImage: imagePath,
       user: user._id,
       PId: projectId,
-      PublishDate: publishDate, // Set the calculated publish date
+      PublishDate: publishDate, 
     });
     const newBlog = await Blogs.save();
 
@@ -218,6 +240,7 @@ exports.getEachSingleBlogs = async (req, res) => {
       message: "Blog retrieved successfully by topic",
       blogId: blog._id,
       data: blog.blogDescription,
+      image: blog.blogImage,
     });
   } catch (error) {
     console.error("error while fetching blog detail of this topic", error);
@@ -228,6 +251,7 @@ exports.getEachSingleBlogs = async (req, res) => {
   }
 };
 
+//reviw this function this is not working updateBlogDescription
 exports.updateBlogDescription = async (req, res) => {
   try {
     const { blogId, blogDescription } = req.body;
@@ -532,10 +556,8 @@ async function sendBlog(
   publishDate,
   approvedDate,
   status,
-  webhookUrl,
-  
+  webhookUrl
 ) {
-  
   const payload = {
     BlogID: blogID,
     Topic: topic,
@@ -545,7 +567,7 @@ async function sendBlog(
     Status: status,
   };
 
- // console.log("Sending article with payload:", payload);
+  // console.log("Sending article with payload:", payload);
 
   const agent = new https.Agent({ keepAlive: false });
 
@@ -571,47 +593,55 @@ async function sendBlog(
     }
   }
 }
+
 exports.sendBlog = async (req, res) => {
   const { blogID } = req.body;
 
-    try {
-        const blog = await BlogDetails.findById(blogID);
-        if (!blog) {
-            return res.status(404).json({
-                success: false,
-                message: 'Blog not found',
-            });
-        }
-        const projectId = blog.PId;
-        const projectDetails = await Projects.findById(projectId);
-        const webhookUrl =  projectDetails.webhookUrl
-        console.log(webhookUrl  , " projectDetails");
-        if (!projectDetails) {
-            return res.status(404).json({
-                success: false,
-                message: 'Project details not found',
-            });
-        }
-
-        const topic = blog.topic;
-        const blogDescription = blog.blogDescription;
-        const publishDate = blog.PublishDate;
-        const approvedDate = blog.approvedDate; // Assuming approvedDate is the same as PublishDate
-        const status = blog.status;
-        
-       
-       const blogResponse = await sendBlog(blogID, topic, blogDescription, publishDate, approvedDate, status,  webhookUrl);
-        console.log(blogResponse , "blogResponse ")
-        res.status(200).json({
-            success: true,
-            message: 'Article sent successfully',
-            data:blogResponse 
-        });
-    } catch (error) {
-        console.error('Error while sending article:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to send article'
-        });
+  try {
+    const blog = await BlogDetails.findById(blogID);
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found",
+      });
     }
+    const projectId = blog.PId;
+    const projectDetails = await Projects.findById(projectId);
+    const webhookUrl = projectDetails.webhookUrl;
+    console.log(webhookUrl, " projectDetails");
+    if (!projectDetails) {
+      return res.status(404).json({
+        success: false,
+        message: "Project details not found",
+      });
+    }
+
+    const topic = blog.topic;
+    const blogDescription = blog.blogDescription;
+    const publishDate = blog.PublishDate;
+    const approvedDate = blog.approvedDate; // Assuming approvedDate is the same as PublishDate
+    const status = blog.status;
+
+    const blogResponse = await sendBlog(
+      blogID,
+      topic,
+      blogDescription,
+      publishDate,
+      approvedDate,
+      status,
+      webhookUrl
+    );
+    console.log(blogResponse, "blogResponse ");
+    res.status(200).json({
+      success: true,
+      message: "Article sent successfully",
+      data: blogResponse,
+    });
+  } catch (error) {
+    console.error("Error while sending article:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send article",
+    });
+  }
 };

@@ -83,7 +83,7 @@ const BillingAndPlans = () => {
         currency: 'USD',
         name: 'Fritado Technologies',
         description: 'Test Transaction',
-        image: 'https://example.com/your_logo', //fritado logo
+        image: 'https://example.com/your_logo', 
         order_id: order.data.message.id,
         callback_url: 'http://localhost:4000/api/payment/payment-verification',
         prefill: {

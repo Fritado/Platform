@@ -44,6 +44,7 @@ app.use(
   })
 );
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/blog-images', express.static(path.join(__dirname, 'controllers', 'BlogImage')));
 
 //routes https://platform.fritado.com
 //http://localhost:30001

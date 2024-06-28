@@ -1,7 +1,6 @@
 import axios from 'axios'
-import {API_BASE_URL, BLOG_API_ROUTES } from '../services/APIURL/Apis'
+import { API_BASE_URL, BLOG_API_ROUTES } from '../services/APIURL/Apis'
 import { fetchPromptDetails } from '../services/PromptService/PromptService'
-
 
 export const fetchingAboutBusiness = async (e) => {
   const fetchingURL = `${BLOG_API_ROUTES.GET_BUSINESS_PROFILE}`
@@ -99,8 +98,8 @@ export const saveBlogTopic = async (topics) => {
       apiResponse: topics,
     }
     const response = await axios.post(blogTopicUrl, requestBody, config)
-    console.log('Saved', response);
-    return response.data; 
+    console.log('Saved', response)
+    return response.data
   } catch (error) {
     console.log('Error while Saving Blog Topics content in database', error)
     throw error
@@ -134,7 +133,6 @@ export const BlogGenerate = async (topic) => {
   const promptDetails = promptDetailsResponse[0]
 
   const openAISecretKey = process.env.OPENAI_SECRET_KEY
-  // console.log("openAISecretKey", openAISecretKey)
 
   //const prompt = `${promptDetails.BlogDescription} - '${topic}'`;
   const prompt = `When writing a professional blog, follow this structured system to ensure quality and SEO optimization:
@@ -178,17 +176,17 @@ export const BlogGenerate = async (topic) => {
       },
     })
     //console.log(response, "response");
-    const blogData = response.data.choices[0].message.content
-    console.log(response.data.choices[0].message.content , "content");
-    return blogData
+    const blogContent = response.data.choices[0].message.content
+    // console.log(response.data.choices[0].message.content, 'content')
+    return blogContent;
   } catch (error) {
     console.error('Error:', error)
   }
 }
 
-//save blog description with its topic
+//save blog description with its topic and image
 
-export const saveAllBlogs = async (topic, blogDescription) => {
+export const saveAllBlogs = async (topic, blogDescription, blogImage) => {
   const saveBlogUrl = `${BLOG_API_ROUTES.SAVE_BLOGS}`
 
   try {
@@ -204,10 +202,12 @@ export const saveAllBlogs = async (topic, blogDescription) => {
     const requestBody = {
       topic: topic,
       blogDescription: blogDescription,
+      blogImage: blogImage,
     }
-
-    const AllBlogs = await axios.post(saveBlogUrl, requestBody, config)
-    console.log('All Blogs', AllBlogs)
+    console.log('Request Body:', requestBody);
+    const BlogResponse = await axios.post(saveBlogUrl, requestBody, config);
+    console.log('Response:', BlogResponse.data);
+    return BlogResponse.data;
   } catch (error) {
     console.log('Error while Saving Blog Details in database', error)
     throw error
@@ -216,7 +216,6 @@ export const saveAllBlogs = async (topic, blogDescription) => {
 
 export const checkBlogAvailability = async () => {
   const checkUrl = `${BLOG_API_ROUTES.CHECK_BLOGS}`
-  console.log('checkUrl', checkUrl)
   try {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -262,6 +261,7 @@ export const fetchBlogsByTopic = async (topic) => {
     throw error
   }
 }
+
 export const updateBlogDescription = async (blogId, editedDescription) => {
   const updateBlogUrl = `${BLOG_API_ROUTES.UPDATE_BLOG_DETAILS}`
   console.log(updateBlogUrl, 'url')
@@ -290,14 +290,13 @@ export const updateBlogDescription = async (blogId, editedDescription) => {
 }
 
 export const approveBlog = async (blogId) => {
-  const approveBlogUrl = `${API_BASE_URL}/api/openAi/blogs/${blogId}/approve`;
- // console.log("approveBlogUrl" ,approveBlogUrl)
+  const approveBlogUrl = `${API_BASE_URL}/api/openAi/blogs/${blogId}/approve`
+  // console.log("approveBlogUrl" ,approveBlogUrl)
   try {
-  
     const statusResponse = await axios.put(approveBlogUrl, {})
 
     if (statusResponse.status === 200) {
-     // console.log('Blog approved successfully')
+      // console.log('Blog approved successfully')
       return statusResponse.data
     } else {
       console.error('Failed to approve blog:', statusResponse.statusText)
@@ -386,6 +385,60 @@ export const getPostScheduledTime = async () => {
     return scheduledData
   } catch (Error) {
     console.log('Error while scheduling blog post time', error)
+    throw error
+  }
+}
+
+//image generate using open ai
+
+export const generateImage = async (topic, blogContent) => {
+  const openAISecretKey = process.env.OPENAI_SECRET_KEY
+
+  const prompt = `Image Generation Prompt for Blog:
+   "Create a professional image that aligns with the blog's content and topic. Use the following details for guidance:
+    Blog Title:${topic}
+    Blog Content Overview: ${blogContent}
+    Consider the following elements when designing the image:
+    Theme and Subject Matter: Capture the main theme and subject of the blog. Focus on visual elements that reflect the core message and topic.
+    Tone and Style: The image should match the tone of the blog (e.g., formal, casual, inspirational, informative). Choose an appropriate artistic style (e.g., clean and modern, colorful and dynamic).
+    Key Visual Elements: Include any specific elements mentioned in the blog content (e.g., relevant objects, people, settings).
+    Color Scheme: Use a color palette that complements the blog's design and enhances readability.
+    Typography and Text: If including text, ensure it is legible and enhances the visual appeal without overpowering the main elements.
+    Ensure the final image is visually appealing, relevant, and professional, enhancing the overall reader experience.`
+
+  const data = {
+    model: 'dall-e-3',
+    prompt: prompt,
+    n: 1,
+    size: '1792x1024',
+  }
+
+  const url = 'https://api.openai.com/v1/images/generations'
+
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openAISecretKey}`,
+      },
+    })
+
+    const imageUrl = response.data.data[0].url
+    //console.log(imageUrl, 'Generated Image URL')
+    return imageUrl;
+  } catch (error) {
+    console.error('Error:', error)
+  }
+}
+
+export const generateBlogAndImage = async (topic) => {
+  try {
+    const blogContent = await BlogGenerate(topic)
+    const imageUrl = await generateImage(topic, blogContent)
+     console.log({ blogContent, imageUrl }, 'generateBlogAndImage  response')
+    return { blogContent, imageUrl}
+  } catch (error) {
+    console.error('Error generating blog and image:', error)
     throw error
   }
 }

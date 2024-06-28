@@ -12,7 +12,7 @@ const blogDetailsSchema = new mongoose.Schema(
     },
     blogImage: {
       type: String,
-      // required: true,
+    
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,

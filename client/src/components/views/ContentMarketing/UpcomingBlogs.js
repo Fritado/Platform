@@ -10,11 +10,11 @@ import {
   fetchOpenAITopics,
   saveBlogTopic,
   gettingBlogTopics,
-  BlogGenerate,
   saveAllBlogs,
   checkBlogAvailability,
   fetchBlogsByTopic,
   getBlogStatusByTopic,
+  generateBlogAndImage,
 } from '../../services/BlogTopicApi'
 import { getKeyWords } from '../../services/onBoarding/KeywordApi'
 import { getProductService, getLocation } from '../../services/onBoarding/businessProfileApi'
@@ -24,7 +24,6 @@ const UpcomingBlogs = () => {
   const [users, setUsers] = useState()
   const [topics, setTopics] = useState([])
   const [generatedBlogs, setGeneratedBlogs] = useState([])
-  //const [blogStatuses, setBlogStatuses] = useState({});
   const [statusMap, setStatusMap] = useState({})
   const [businessData, setBusinessData] = useState({
     aboutBusiness: '',
@@ -93,7 +92,7 @@ const UpcomingBlogs = () => {
 
   const fetchBlogTopics = async () => {
     try {
-      // console.log('calling get')
+      
       const blogTpcResponse = await gettingBlogTopics()
       if (blogTpcResponse.length === 0) {
         // Check if topics are not already present
@@ -149,7 +148,7 @@ const UpcomingBlogs = () => {
   }
 
   useEffect(() => {
-    fetchBlogTopics()
+    fetchBlogTopics();    
   }, [])
 
   const BlogsResponse = async () => {
@@ -168,10 +167,10 @@ const UpcomingBlogs = () => {
         if (isMissing) {
           console.log(`Generating blog for topic: ${topic}`)
           // If the topic is missing, generate the blog
-          const blog = await BlogGenerate(topic)
-          console.log('blog', blog)
-          generatedBlogs.push({ topic, blog })
-          await saveAllBlogs(trimmedTopic, blog)
+          const{ blogContent, imageUrl }= await generateBlogAndImage(topic);
+         // console.log('blog', { blogContent, imageUrl });
+          generatedBlogs.push({  topic, blogContent, imageUrl})
+          await saveAllBlogs(trimmedTopic, blogContent, imageUrl)
           console.log(`Blog generated for topic: ${topic}`)
         } else {
           console.log(`Skipping topic ${topic} as blog already exists`)
