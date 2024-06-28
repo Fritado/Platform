@@ -100,7 +100,7 @@ const BlogOverView = () => {
             {recentBlog && (
               <div className="mx-4 my-3 blog-card border rounded">
                 <img
-                  src={`http://localhost:4000/blog-images/${extractImagePath(recentBlog.blogImage)}`}
+                  src={`https://server.fritado.com/blog-images/${extractImagePath(recentBlog.blogImage)}`}
                   alt="blog-post-picture"
                   className="w-100 mb-3"
                 />

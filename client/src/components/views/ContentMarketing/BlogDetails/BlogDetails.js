@@ -180,7 +180,7 @@ const BlogDetails = () => {
                     </p>
                     <div className="px-4 py-1">
                       <img
-                       src={`http://localhost:4000/blog-images/${extractImagePath(blogImage)}`}
+                       src={`https://server.fritado.com/blog-images/${extractImagePath(blogImage)}`}
                         alt="blog-post-picture"
                         className="w-100 mb-3"
                         style={{ height: '23rem' }}

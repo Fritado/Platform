@@ -22,7 +22,7 @@ const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 
 require("dotenv").config();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 30002;
 
 //databse connect
 database.connect();
@@ -34,7 +34,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:30001",
+    origin: "https://platform.fritado.com",
     credentials: true,
   })
 );

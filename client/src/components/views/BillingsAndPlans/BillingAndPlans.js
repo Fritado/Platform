@@ -65,11 +65,11 @@ const BillingAndPlans = () => {
       }
       const {
         data: { key },
-      } = await axios.get('http://localhost:4000/api/payment/get-payment-key')
+      } = await axios.get('https://server.fritado.com/api/payment/get-payment-key')
       //console.log(key , "key");
 
       const order = await axios.post(
-        'http://localhost:4000/api/payment/checkout',
+        'https://server.fritado.com/api/payment/checkout',
         {
           //price / 100
           paymentAmount: selectedPlan.packagePrice,
@@ -85,7 +85,7 @@ const BillingAndPlans = () => {
         description: 'Test Transaction',
         image: 'https://example.com/your_logo', 
         order_id: order.data.message.id,
-        callback_url: 'http://localhost:4000/api/payment/payment-verification',
+        callback_url: 'https://server.fritado.com/api/payment/payment-verification',
         prefill: {
           name: `${firstname} ${lastname}`,
           email: email,
