@@ -1,31 +1,44 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
 import { Form } from 'react-bootstrap'
 import { MdAdd } from 'react-icons/md'
-import axios from 'axios'
 import { CiEdit } from 'react-icons/ci'
 import { MdDeleteForever } from 'react-icons/md'
 import { RxCross2 } from 'react-icons/rx'
 import {
   saveAndUpdateBusinessProfile,
-  createAndSaveLocation,
-  createAndSaveProductAndService,
   updateSingleProductService,
   deleteProductService,
   getAboutBusinessProfile,
   getProductService,
+  deleteEachLocation,
   getLocation,
+  updateEachLocation,
+  addNewLocation,
+  addNewService,
 } from '../../services/onBoarding/businessProfileApi'
 import parse from 'html-react-parser'
+import AddModal from './AddModal'
 
 const BusinessProfile = () => {
   const [companyName, setCompanyName] = useState('')
   const [aboutBusiness, setAboutBusiness] = useState('')
   const [industryType, setIndustryType] = useState('')
   const [location, setLocation] = useState('')
+  const [editableLocationIndex, setEditableLocationIndex] = useState(null)
+  const [newLocationValue, setNewLocationValue] = useState('')
   const [productAndServices, setproductAndServices] = useState([])
   const [editableIndex, setEditableIndex] = useState(null)
   const [newServiceValue, setNewServiceValue] = useState('')
+  const [showModal, setShowModal] = useState(false)
+  const [modalMode, setModalMode] = useState('service')
+
+  const closeModal = () => {
+    setShowModal(false)
+  }
+  const handleModalOpen = (mode) => {
+    setModalMode(mode)
+    setShowModal(true)
+  }
 
   const saveLocalStorage = () => {
     try {
@@ -56,24 +69,11 @@ const BusinessProfile = () => {
   const savingBusinessProfile = async (event) => {
     event.preventDefault()
     const token = localStorage.getItem('token')
-    console.log("saving ab")
+    // console.log('saving ab')
     await saveAndUpdateBusinessProfile(companyName, aboutBusiness, token)
   }
-
-  const savingLocation = async (event) => {
-    event.preventDefault()
-    const token = localStorage.getItem('token')
-    await createAndSaveLocation(location, token)
-  }
-
-  const savingProductAndService = async (event) => {
-    event.preventDefault()
-    const token = localStorage.getItem('token')
-    await createAndSaveProductAndService(productAndServices, token)
-  }
-
+  
   const editPDS = async (index, newService) => {
-   
     await updateSingleProductService(productAndServices[index], newService)
     const updatedService = [...productAndServices]
     updatedService[index] = newService
@@ -119,7 +119,56 @@ const BusinessProfile = () => {
     const locationData = await getLocation()
     setLocation(locationData)
   }
+  const deleteLocation = async (loc) => {
+    await deleteEachLocation(loc)
+    const updatedLocationsName = location.filter((item) => item !== loc)
+    setLocation(updatedLocationsName)
+  }
+  const handleLocationEdit = (index) => {
+    setEditableLocationIndex(index)
+    setNewLocationValue(location[index])
+  }
+  const handleLocationChange = (e) => {
+    setNewLocationValue(e.target.value)
+  }
 
+  const handleLocationKeyPress = (e, index) => {
+    if (e.key === 'Enter') {
+      updateLocation(index)
+    }
+  }
+
+  const handleLocationBlur = (index) => {
+    updateLocation(index)
+  }
+  const updateLocation = async (index) => {
+    const oldLocation = location[index]
+    const newLocation = newLocationValue
+    await updateEachLocation(oldLocation, newLocation)
+    const updatedLocations = [...location]
+    updatedLocations[index] = newLocation
+    setLocation(updatedLocations)
+    setEditableLocationIndex(null)
+  }
+
+  const handleAddLocation = async (locationName) => {
+    try {
+      await addNewLocation(locationName)
+      setShowModal(false)
+      fetchLocation()
+    } catch (error) {
+      console.error('Error adding location:', error)
+    }
+  }
+  const handleAddService = async (serviceName) => {
+    try {
+      await addNewService(serviceName)
+      setShowModal(false)
+      getService() 
+    } catch (error) {
+      console.error('Error adding service:', error)
+    }
+  }
   return (
     <div>
       <div className="page-header">
@@ -163,7 +212,7 @@ const BusinessProfile = () => {
                       borderRadius: '4px',
                       fontSize: '14px',
                       lineHeight: '1.5',
-                      backgroundColor: 'transparent',
+                      backgroundColor: 'white',
                       outline: 'none',
                     }}
                   >
@@ -222,23 +271,46 @@ const BusinessProfile = () => {
                       key={index}
                       className="border d-inline-flex align-items-center px-3 py-2 position-relative"
                     >
-                      <span className="location-text  px-3 py-2">{loc}</span>
-                      <span className="position-absolute top-0 end-0 p-2">
-                        <RxCross2
-                          size={20}
-
-                          // onClick={() => deleteLocation(loc)}
+                      {editableLocationIndex === index ? (
+                        <input
+                          type="text"
+                          value={newLocationValue}
+                          onChange={handleLocationChange}
+                          onKeyPress={(e) => handleLocationKeyPress(e, index)}
+                          onBlur={() => handleLocationBlur(index)}
+                          className="form-control"
+                          style={{
+                            border: 'none',
+                            outline: 'none',
+                            backgroundColor: 'transparent',
+                          }}
                         />
+                      ) : (
+                        <span
+                          className="location-text px-3 py-2"
+                          onClick={() => handleLocationEdit(index)}
+                          style={{
+                            border: 'none',
+                            outline: 'none',
+                            backgroundColor: 'transparent',
+                          }}
+                        >
+                          {loc}
+                        </span>
+                      )}
+                      <span className="position-absolute top-0 end-0 p-2">
+                        <RxCross2 size={20} onClick={() => deleteLocation(loc)} />
                       </span>
                     </div>
                   ))}
               </div>
 
-              <button className="btn-db me-2">Add</button>
+              <button className="btn-db me-2" onClick={() => handleModalOpen('location')}>
+                Add
+              </button>
             </div>
           </div>
         </div>
-
         <div className="col-12 grid-margin stretch-card">
           <div className="card">
             <div className="card-body">
@@ -249,14 +321,12 @@ const BusinessProfile = () => {
               </p>
 
               <div style={{ textAlign: 'right' }} className="mt-2">
-                <Link to="/add-keyword">
-                  <button onClick={savingProductAndService} className="btn-db me-2">
-                    Add{' '}
-                    <span>
-                      <MdAdd size={26} />
-                    </span>
-                  </button>
-                </Link>
+                <button onClick={() => handleModalOpen('service')} className="btn-db me-2">
+                  Add{' '}
+                  <span>
+                    <MdAdd size={26} />
+                  </span>
+                </button>
               </div>
 
               <ul style={{ listStyle: 'none' }} className="py-3">
@@ -277,7 +347,7 @@ const BusinessProfile = () => {
                             type="text"
                             value={newServiceValue}
                             onChange={(e) => setNewServiceValue(e.target.value)}
-                             onKeyPress={(e) => handleKeyPress(e, index)}
+                            onKeyPress={(e) => handleKeyPress(e, index)}
                           />
                         </li>
                       ) : (
@@ -301,6 +371,18 @@ const BusinessProfile = () => {
           </div>
         </div>
       </div>
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-container" style={{ width: '40%' }}>
+            <AddModal
+              closeModal={closeModal}
+              handleAddService={handleAddService}
+              handleAddLocation={handleAddLocation}
+              mode={modalMode}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.REACT_APP_BASE_URL || 'https://server.fritado.com'
+export const API_BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:4000'
 
 export const AUTH_API_ROUTES = {
   LOGIN: API_BASE_URL + '/api/auth/login',
@@ -40,20 +40,28 @@ export const BLOG_API_ROUTES = {
   RECENT_BLOG: API_BASE_URL + '/api/openAi/recent-blogs/publish',
   SCHEDULE_BLOG_POST_TIME : API_BASE_URL + "/api/openAi/schedule-blog-time",
   GET_SCHEDULED_TIME_BY_USER : API_BASE_URL +  '/api/openAi/fetch-user-scheduled-time',
+  
+  //blog image
+  CHECK_BLOG_IMAGE :  API_BASE_URL + '/api/openAi/check/blog-image',
+  SAVE_CHECK_BLOGIMAGE : API_BASE_URL + '/api/openAi/save/blog-image',
 }
 
 export const BUSINESS_PROFILE_ROUTES = {
   UPDATE_BP: API_BASE_URL + '/api/businessProfile/update-businessProfile',
   SAVE_BP: API_BASE_URL + '/api/businessProfile/create-businessProfile',
   CREATE_LOCATION: API_BASE_URL + '/api/businessProfile/create-location',
+
   CREATE_PRODUCT_AND_SERVICE: API_BASE_URL + '/api/businessProfile/create-product&services',
   UPDATE_SINGLE_PRODUCT_AND_SERVICE:
     API_BASE_URL + '/api/businessProfile/update-single-product-service',
   DELETE_PRODUCT_AND_SERVICE: API_BASE_URL + '/api/businessProfile/delete-product-service',
-  GET_ABOUT_BP: API_BASE_URL + '/api/businessProfile/get-businessProfile',
+  CREATE_sINGLE_PRODUCT_AND_SERVICE : API_BASE_URL + '/api/businessProfile/create-single-product&services',
   GET_PRODUCT_AND_SERVICE: API_BASE_URL + '/api/businessProfile/get-product-service',
+
+  GET_ABOUT_BP: API_BASE_URL + '/api/businessProfile/get-businessProfile',
   SAVE_BUSINESS_INFO: API_BASE_URL + '/api/businessProfile/save-businessinfo',
   UPDATE_BUSINESS_INFO: API_BASE_URL + '/api/businessProfile/update-businessinfo',
+
   GET_LOCATION : API_BASE_URL + '/api/businessProfile/get-location',
   UPDATE_SINGLE_LOCATION : API_BASE_URL + '/api/businessProfile/update-location-name',
   DELETE_SINGLE_LOCATION : API_BASE_URL + '/api/businessProfile/delete/location-item',

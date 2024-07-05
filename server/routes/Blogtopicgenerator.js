@@ -8,6 +8,8 @@ const {
 
 const {
   saveBlogs,
+  checkBlogImage,
+ saveBlogImage,
   getAllBlogs,
   checkBlogsAvailability,
   getEachSingleBlogs,
@@ -18,6 +20,7 @@ const {
   scheduleBlogPostTime,
   getUserBlogSchedule,
   sendBlog,
+  uploadBlogImage,
 } = require("../controllers/BlogTopicGenerator/BlogDetails");
 
 
@@ -37,6 +40,10 @@ router.put("/blogs/:blogId/approve", approveBlog); //http://localhost:4000/openA
 router.get("/blogs/status/:topic", getBlogStatusByTopic);
 router.get("/recent-blogs/publish", auth, getRecentBlogPost);
 
+
+router.post("/save/blog-image" , auth , saveBlogImage);
+router.get("/check/blog-image" , checkBlogImage)
+//router.post("/blog/:blogId/upload-image" , uploadBlogImage)
 // schedule blog post time route
 router.post("/schedule-blog-time", auth, scheduleBlogPostTime);
 router.get("/fetch-user-scheduled-time", auth, getUserBlogSchedule);

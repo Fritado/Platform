@@ -75,7 +75,7 @@ const saveProductsAndServices = async (req, res) => {
   }
 };
 
-/////
+
 const updateProductAndService = async (req, res) => {
   try {
     const { productAndServices } = req.body;
@@ -265,30 +265,38 @@ const createSingleService = async (req, res) => {
   try {
     const { newService } = req.body;
     const userId = req.user.id;
+    const user = await User.findById(userId);
+    if(!user){
+      return res.status(404).json({
+        sussess:false,
+        message:"User not found"
+      })
+    }
 
-    // Find the user's product and service document
     let existingProductAndService = await ProductAndService.findOne({
       user: userId,
     });
-
-    // If the user doesn't have any product and service document, create a new one
-    if (!existingProductAndService) {
+    if(!existingProductAndService){
       existingProductAndService = new ProductAndService({
-        productAndServices: [newService],
-        user: userId,
-      });
-    } else {
-      // If the user already has a document, append the new service to the existing array with comma separation
-      existingProductAndService.productAndServices[0] += `, ${newService}`;
+        productAndServices : [newService],
+        user:userId,
+      })
+    }else{
+      if(!existingProductAndService.productAndServices.includes(newService)){
+        existingProductAndService.productAndServices.push(newService);
+      }else {
+        return res.status(400).json({
+          success: false,
+          message: "Service already exists",
+        });
+      }
     }
-
-    // Save the updated product and service document
     await existingProductAndService.save();
 
     return res.status(200).json({
       success: true,
       message: "Service created and saved successfully",
-      data: existingProductAndService,
+      data:existingProductAndService,
     });
   } catch (error) {
     console.error("Error while creating service:", error);

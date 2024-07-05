@@ -9,15 +9,41 @@ const axios = require("axios");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+  destination: async function (req, file, cb) {
+    try {
+      const userId = req.user.id; // Assuming user ID is available through authentication
+      const user = await User.findById(userId);
+      if (!user) {
+        return cb(new Error(`User with ID ${userId} not found`));
+      }
+      const clientId = user.clientId; // Assuming clientId is a field in the User model
+      const clientFolderPath = path.join(__dirname, '..', 'BlogImage', clientId.toString());
+      if (!fs.existsSync(clientFolderPath)) {
+        fs.mkdirSync(clientFolderPath, { recursive: true });
+      }
+      cb(null, clientFolderPath);
+    } catch (error) {
+      cb(error);
+    }
+  },
+  filename: function (req, file, cb) {
+    const originalName = file.originalname;
+    const fileName = `${Date.now()}-${originalName}`;
+    cb(null, fileName);
+  }
+});
+
+const upload = multer({ storage });
 
 exports.saveBlogs = async (req, res) => {
   try {
-    const { topic, blogDescription, blogImage } = req.body;
+    const { topic, blogDescription } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId);
-   
-    const clientId = user.userId;
-    console.log(clientId , "clientId")
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -49,30 +75,13 @@ exports.saveBlogs = async (req, res) => {
       // If it's the first blog, set publish date as user's signup date plus 5 days
       publishDate = moment(user.createdAt).add(6, "days").toDate();
     }
-  
-    const userFolderPath = path.join(__dirname, "..", "BlogImage",  clientId);
-    if (!fs.existsSync(userFolderPath)) {
-      fs.mkdirSync(userFolderPath, { recursive: true });
-    }
-    const imageExtension = path.extname(new URL(blogImage).pathname);
-    const imageFileName = `${topic.replace(/\s+/g, "_")}${imageExtension}`;
-    const imagePath = path.join(userFolderPath, imageFileName);
-    //const relativeImagePath = path.join(userId, imageFileName);
-    console.log(imagePath, "imagePath")
-
-    const imageResponse = await axios.get(blogImage, {
-      responseType: "arraybuffer",
-    });
-
-    fs.writeFileSync(imagePath, imageResponse.data);
 
     const Blogs = new BlogDetails({
       topic: topic,
       blogDescription: blogDescription,
-      blogImage: imagePath,
       user: user._id,
       PId: projectId,
-      PublishDate: publishDate, 
+      PublishDate: publishDate,
     });
     const newBlog = await Blogs.save();
 
@@ -86,7 +95,121 @@ exports.saveBlogs = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Error in saving Blogs",
-      error: error.message, // Send error message for debugging
+      error: error.message,
+    });
+  }
+};
+
+// exports.uploadBlogImage = upload.single('imageFile'), async (req, res) => {
+//   try {
+//     const blogId = req.params.blogId;  // Assuming blogId is passed as a parameter
+//     const imagePath = req.file.path; // Path to the uploaded file
+    
+//     // Update the BlogDetails document with the image path
+//     const existingBlog = await BlogDetails.findById(blogId);
+//     if (!existingBlog) {
+//       return res.status(404).json({
+//         success: false,
+//         message: `Blog with ID ${blogId} not found`,
+//       });
+//     }
+
+//     existingBlog.blogImage.push(imagePath);
+//     await existingBlog.save();
+
+//     return res.status(200).json({
+//       success: true,
+//       message: `Image uploaded successfully for blogId ${blogId}`,
+//       data: {
+//         blogId: existingBlog._id,
+//         imagePath: imagePath,
+//       },
+//     });
+//   } catch (error) {
+//     console.error(`Error saving blog image for blogId ${blogId}:`, error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Error saving blog image",
+//       error: error.message,
+//     });
+//   }
+// };
+
+exports.checkBlogImage = async (req,res) => {
+  try {
+    const {blogId} = req.body;
+    const existingBlog = await BlogDetails.findById(blogId);
+    if (!existingBlog) {
+      return res.json({
+        success:false,
+        message:"Blog image not found"
+      })
+    }
+    return { success: true, data: { blogImage: blog.blogImage } };
+  } catch (error) {
+    console.error(`Error checking blog image for blogId `, error);
+    throw error;
+  }
+};
+
+//modify this function according to save in array
+exports.saveBlogImage = async (req, res) => {
+  const { blogId, blogImage } = req.body;
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    const clientId = user.userId;
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const existingBlog = await BlogDetails.findById(blogId);
+    if (!existingBlog) {
+      return res.status(404).json({
+        success: false,
+        message: `Blog with ID ${blogId} not found`,
+      });
+    }
+
+   
+
+    const userFolderPath = path.join(__dirname, "..", "BlogImage", clientId);
+    if (!fs.existsSync(userFolderPath)) {
+      fs.mkdirSync(userFolderPath, { recursive: true });
+    }
+
+    const imageExtension = path.extname(new URL(blogImage).pathname);
+    const imageFileName = `${topic.replace(/\s+/g, "_")}${imageExtension}`;
+    const imagePath = path.join(userFolderPath, imageFileName);
+    console.log(imagePath, "imagePath");
+
+    const imageResponse = await axios.get(blogImageURL, {
+      responseType: "arraybuffer",
+    });
+
+    fs.writeFileSync(imagePath, imageResponse.data);
+    existingBlog.blogImage = imagePath;
+    await existingBlog.save();
+
+    console.log(`Blog image saved for blogId ${blogId}`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Blog image saved for blogId ${blogId}`,
+      data: {
+        blogId: existingBlog._id,
+        imagePath: imagePath,
+      },
+    });
+  } catch (error) {
+    console.error(`Error saving blog image for blogId ${blogId}:`, error);
+    return res.status(500).json({
+      success: false,
+      message: "Error saving blog image",
+      error: error.message,
     });
   }
 };
@@ -251,7 +374,6 @@ exports.getEachSingleBlogs = async (req, res) => {
   }
 };
 
-//reviw this function this is not working updateBlogDescription
 exports.updateBlogDescription = async (req, res) => {
   try {
     const { blogId, blogDescription } = req.body;
@@ -263,11 +385,18 @@ exports.updateBlogDescription = async (req, res) => {
         message: "User not found",
       });
     }
+    if (!blogId || !blogDescription) {
+      return res.status(400).json({
+        success: false,
+        message: "Blog ID and Blog Description are required",
+      });
+    }
 
     const blog = await BlogDetails.findOne({
       _id: blogId,
       user: userId,
     }).exec();
+
     if (!blog) {
       return res.status(404).json({
         success: false,

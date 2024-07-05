@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import BlogAutomation from './BlogAutomation'
-import { Link } from 'react-router-dom'
 import { IoMdArrowRoundForward, IoMdArrowRoundBack } from 'react-icons/io'
-import ProfileImg from '../../../assets/images/Blogs/profile_image.jpg'
 import { GoDotFill } from 'react-icons/go'
 import { FiKey } from 'react-icons/fi'
-import { getRecentBlog, getBlogStatusByTopic, fetchBlogsByTopic } from '../../services/BlogTopicApi'
+import {
+  getRecentBlog,
+  getBlogStatusByTopic,
+  fetchBlogsByTopic,
+  handleBlogImage,
+} from '../../services/BlogTopicApi'
 import { useNavigate } from 'react-router-dom'
+import { FiDownload } from 'react-icons/fi'
+import DefaultBlogImage from '../../../assets/images/default-blog-image.png.jpg'
+import axios from 'axios'
 
 const BlogOverView = () => {
   const navigate = useNavigate()
@@ -14,26 +20,26 @@ const BlogOverView = () => {
   const [upComingBlogs, setUpcomingBlogs] = useState(null)
   const [blogStatus, setBlogStatus] = useState({})
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [imageGenerated, setImageGenerated] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
+ 
 
   const handleItemClick = (id) => {
     setSelectedItemId(id)
   }
-
+  
   const fetchRecentBlog = async () => {
     try {
       const Blogresponse = await getRecentBlog()
-      console.log(Blogresponse, 'Blogresponse')
       const recentBlogData = Blogresponse.data.data.recentBlog
       const upcomingBlogData = Blogresponse.data.data.upcomingBlogs
-
       const blogTopic = recentBlogData.topic
       const blogStatusByTopic = await getBlogStatusByTopic(blogTopic)
-      //console.log("Blogresponse" , Blogresponse)
-      // console.log('upcomingBlogData', upcomingBlogData)
 
       setRecentBlog(recentBlogData)
       setUpcomingBlogs(upcomingBlogData)
       setBlogStatus(blogStatusByTopic.data)
+      setImageGenerated(!!recentBlogData.blogImage)
     } catch (error) {
       console.error('Error fetching recent blog:', error)
     }
@@ -43,8 +49,6 @@ const BlogOverView = () => {
     try {
       if (recentBlog) {
         const res = await fetchBlogsByTopic(recentBlog.topic)
-        //  console.log(recentBlog.topic)
-
         if (res.success) {
           navigate(`/blog-details/${encodeURIComponent(recentBlog.topic)}`)
         } else {
@@ -58,6 +62,50 @@ const BlogOverView = () => {
     }
   }
 
+  const handleDownloadImage = async () => {
+    try {
+      if (recentBlog) {
+        const { _id, topic, blogDescription } = recentBlog
+        await handleBlogImage(_id, topic, blogDescription)
+        fetchRecentBlog()
+      }
+    } catch (error) {
+      console.error('Error handling blog image:', error)
+    }
+  }
+
+  // const handleFileUpload = async (event) => {
+  //   const file = event.target.files[0]
+  //   if (!file) return
+
+  //   try {
+  //     const formData = new FormData()
+  //     formData.append('imageFile', file)
+
+  //     // Replace with your API endpoint to upload image
+  //     const res = await axios.post(
+  //       `http://localhost:4000/api/openAi/blog/${recentBlog._id}/upload-image`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'multipart/form-data',
+  //         },
+  //       },
+  //     )
+  //     console.log(res, 'upload res')
+
+  //     if (res.status === 200) {
+  //       console.log('Image uploaded successfully!')
+  //       setUploadError(null)
+  //       fetchRecentBlog()
+  //     } else {
+  //       console.error('Failed to upload image:', res.data.message)
+  //     }
+  //   } catch (error) {
+  //     console.error('Error uploading image:', error)
+  //   }
+  // }
+
   const prevBlog = () => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? upComingBlogs.length - 1 : prevIndex - 1))
   }
@@ -68,13 +116,17 @@ const BlogOverView = () => {
   useEffect(() => {
     fetchRecentBlog()
   }, [])
+
   const dotColor = blogStatus.status === 'approved' ? 'green' : 'red'
 
   const extractImagePath = (path) => {
-    const basePath = "F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\";
-    return path.replace(basePath, "").replace(/\\/g, "/");
-  };
- 
+    if (typeof path === 'string') {
+      const basePath = 'F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\'
+      return path.replace(basePath, '').replace(/\\/g, '/')
+    }
+    return ''
+  }
+
   return (
     <div className="container mx-auto">
       <BlogAutomation />
@@ -99,11 +151,41 @@ const BlogOverView = () => {
 
             {recentBlog && (
               <div className="mx-4 my-3 blog-card border rounded">
-                <img
-                  src={`https://server.fritado.com/blog-images/${extractImagePath(recentBlog.blogImage)}`}
-                  alt="blog-post-picture"
-                  className="w-100 mb-3"
-                />
+                <div className="position-relative">
+                  <img
+                    src={
+                      recentBlog.blogImage
+                        ? `https://server.fritado.com/blog-images/${extractImagePath(recentBlog.blogImage)}`
+                        : DefaultBlogImage
+                    }
+                    alt={recentBlog.blogImage ? 'Blog-post-image' : 'Default Blog Image'}
+                    className="w-100 mb-3"
+                  />
+                  {!imageGenerated && (
+                    <div
+                      className="d-flex flex-column align-items-center position-absolute top-50 start-50 translate-middle border border-2 border-black py-1 px-3"
+                      style={{ cursor: 'pointer' }}
+                      onClick={handleDownloadImage}
+                    >
+                      <h6 className="text-black fw-medium">Click to view image</h6>
+                      <FiDownload size={24} color="black" />
+                    </div>
+                  )}
+                  <div className="p-2 d-flex flex-row gap-3">
+                    <div className="border rounded px-4 py-2">Image</div>
+                   
+                      <input
+                        type="file"
+                       // onChange={handleFileUpload}
+                        style={{ opacity: '',  }}
+                        className="fs-6 border-0 rounded py-2 px-4"
+                      />
+                    
+                      {/* <button className="position-absolute fs-6 border-0 rounded py-2 px-4 overflow-hidden">Upload</button> */}
+                   
+                  </div>
+                </div>
+
                 <div className="p-2">
                   <div className="">
                     <h3>{recentBlog.topic}</h3>

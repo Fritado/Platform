@@ -190,7 +190,7 @@ const deleteSingleLocationItem = async (req, res) => {
   }
 };
 
-// Create Single Location
+// Create Single Location --> integrate with frontend left
 const createSingleLocation = async (req, res) => {
   try {
     const { locationName } = req.body;

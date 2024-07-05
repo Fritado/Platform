@@ -113,6 +113,7 @@ export const updateSingleProductService = async (oldService, newService) => {
   }
 }
 
+//DELETE Each single service
 export const deleteProductService = async (serviceToDelete) => {
   const deletePD = `${BUSINESS_PROFILE_ROUTES.DELETE_PRODUCT_AND_SERVICE}`
   try {
@@ -132,6 +133,28 @@ export const deleteProductService = async (serviceToDelete) => {
     })
   } catch (error) {
     console.error('Error deleting Product and service:', error)
+  }
+}
+
+// create each service
+export const addNewService = async (newService) => {
+  const addServiecUrl = `${BUSINESS_PROFILE_ROUTES.CREATE_sINGLE_PRODUCT_AND_SERVICE}`
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    const payload = { newService };
+    const newServiceRes = await axios.post(addServiecUrl,  payload, config)
+    
+   // return newServiceRes
+  } catch (error) {
+    console.error('Error saving new Product and service:', error)
   }
 }
 
@@ -179,8 +202,30 @@ export const getProductService = async (token) => {
   }
 }
 
+export const deleteEachLocation = async(locationName)=>{
+  const deleteLocationUrl = `${BUSINESS_PROFILE_ROUTES.DELETE_SINGLE_LOCATION}`;
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: { locationName }, 
+    }
+   
+    const deleteResponse = await axios.delete( deleteLocationUrl ,config);
+   
+  } catch (error) {
+    console.error('Error deleting Location', error)
+  }
+
+}
+
 export const getLocation = async (token) => {
-  const getLocationUrl = `${BUSINESS_PROFILE_ROUTES.GET_LOCATION}`
+  const getLocationUrl = `${BUSINESS_PROFILE_ROUTES.GET_LOCATION}`;
 
   try {
     const token = localStorage.getItem('token')
@@ -199,5 +244,52 @@ export const getLocation = async (token) => {
   } catch (error) {
     console.error('Error while fetching Service data', error)
     return []
+  }
+}
+
+
+export const addNewLocation = async(locationName)=>{
+  const addLocUrl = `${BUSINESS_PROFILE_ROUTES.CREATE_SINGLE_LOCATION}`;
+
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    const payload = { locationName};
+    const newLocationRes = await axios.post(addLocUrl,  payload, config)
+    
+   // return newLocationRes
+  } catch (error) {
+    console.error('Error saving new Product and service:', error)
+  }
+
+}
+
+export const updateEachLocation = async( oldLocation, newLocation) =>{
+  const updateLocUrl = `${BUSINESS_PROFILE_ROUTES.UPDATE_SINGLE_LOCATION}`;
+  
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
+    const updatedLocation = await axios.put(updateLocUrl,{ oldLocation, newLocation} ,config)
+   // console.log('updatedLocation ',updatedLocation);
+    
+  } catch (error) {
+    console.error('Error while fetching Service data', error)
+    
   }
 }

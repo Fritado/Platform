@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react'
 import Header from '../../common/Header'
 import { Link } from 'react-router-dom'
 import AuthFooter from '../../common/AuthFooter'
-import ProfileImg from '../../../../assets/images/Blogs/profile_image.jpg'
+import DefaultBlogImage from '../../../../assets/images/default-blog-image.png.jpg'
 import { GiFastBackwardButton } from 'react-icons/gi'
 import {
   fetchBlogsByTopic,
   updateBlogDescription,
   approveBlog,
   getBlogStatusByTopic,
+  handleBlogImage,
+  generateImage
 } from '../../../services/BlogTopicApi'
 import { useParams } from 'react-router-dom'
 import parse from 'html-react-parser'
+import { FiDownload } from 'react-icons/fi'
 
 const decodeTopic = (encodedTopic) => {
   return decodeURIComponent(encodedTopic.replace(/\+/g, ' '))
@@ -19,14 +22,15 @@ const decodeTopic = (encodedTopic) => {
 const BlogDetails = () => {
   const { topic } = useParams()
   const decodedTopic = decodeTopic(topic)
-  // console.log("topic", decodedTopic);
+  //console.log("topic", decodedTopic);
   const [blogDescription, setBlogDescription] = useState('')
-  const [blogImage, setBlogImage] = useState('')
   const [firstParagraph, setFirstParagraph] = useState('')
   const [secondParagraph, setSecondParagraph] = useState('')
   const [status, setStatus] = useState('pending')
   const [editedDescription, setEditedDescription] = useState('')
   const [blogId, setBlogId] = useState('')
+  const [imageGenerated, setImageGenerated] = useState(false)
+  const [blogDetails, setBlogDetails] = useState(null)
 
   useEffect(() => {
     fetchBlogDetails(decodedTopic)
@@ -45,13 +49,13 @@ const BlogDetails = () => {
   const fetchBlogDetails = async (topic) => {
     try {
       const response = await fetchBlogsByTopic(topic)
-       console.log("response" , response);
+      console.log('response', response)
+      setBlogDetails(response)
       if (response.success) {
         setBlogId(response.blogId)
         setBlogDescription(response.data)
-        setBlogImage(response.image) 
         extractParagraphs(response.data)
-        setLoading(false)
+        setImageGenerated(!!response.image)
       } else {
         console.error('Failed to fetch blog details:', response.message)
       }
@@ -59,6 +63,19 @@ const BlogDetails = () => {
       console.error('Error fetching blog details:', error)
     }
   }
+
+  const handleDownloadImage = async () => {
+    try {
+      if (blogDetails) {
+        const { blogId, data } = blogDetails
+        await handleBlogImage(blogId, decodedTopic, data)
+        fetchBlogDetails() // Refresh the recent blog data to reflect the updated image
+      }
+    } catch (error) {
+      console.error('Error handling blog image:', error)
+    }
+  }
+
   const extractParagraphs = (description) => {
     const words = description.split(' ')
     const first200Words = words.slice(0, 100).join(' ')
@@ -70,8 +87,7 @@ const BlogDetails = () => {
 
   const handleSave = async () => {
     try {
-      const ans = await updateBlogDescription(blogId, editedDescription)
-      // console.log('blogId', blogId)
+      const ans = await updateBlogDescription(blogId, blogDescription)
       if (ans.success) {
         setBlogDescription(editedDescription)
       } else {
@@ -83,7 +99,8 @@ const BlogDetails = () => {
   }
 
   const handleBlur = (e) => {
-    setEditedDescription(e.target.innerText)
+    const updatedDescription = e.target.innerText
+    setEditedDescription(updatedDescription)
     handleSave()
   }
   const handleKeyDown = (e) => {
@@ -115,10 +132,15 @@ const BlogDetails = () => {
       console.error('Error toggling blog status:', error)
     }
   }
+
   const extractImagePath = (path) => {
-    const basePath = "F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\";
-    return path.replace(basePath, "").replace(/\\/g, "/");
-  };
+    if (typeof path === 'string') {
+      const basePath = 'F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\'
+      return path.replace(basePath, '').replace(/\\/g, '/')
+    }
+    return ''
+  }
+
   return (
     <div>
       <Header />
@@ -178,13 +200,27 @@ const BlogDetails = () => {
                     >
                       {parse(blogDescription)}
                     </p>
-                    <div className="px-4 py-1">
+                    <div className="px-4 py-1 position-relative d-flex justify-content-center">
                       <img
-                       src={`https://server.fritado.com/blog-images/${extractImagePath(blogImage)}`}
+                        src={
+                          blogDetails?.image
+                            ? `https://server.fritado.com/blog-images/${extractImagePath(blogDetails?.image)}`
+                            : DefaultBlogImage
+                        }
                         alt="blog-post-picture"
                         className="w-100 mb-3"
                         style={{ height: '23rem' }}
                       />
+                      {!imageGenerated && (
+                        <div
+                          className="d-flex flex-column align-items-center position-absolute top-50 start-50 translate-middle border border-2 border-black py-1 px-3"
+                          style={{ cursor: 'pointer' }}
+                          onClick={handleDownloadImage}
+                        >
+                          <h6 className="text-black fw-medium">Click to view image</h6>
+                          <FiDownload size={24} color="black" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

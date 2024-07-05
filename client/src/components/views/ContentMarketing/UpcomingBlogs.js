@@ -14,7 +14,8 @@ import {
   checkBlogAvailability,
   fetchBlogsByTopic,
   getBlogStatusByTopic,
-  generateBlogAndImage,
+  BlogGenerate 
+ 
 } from '../../services/BlogTopicApi'
 import { getKeyWords } from '../../services/onBoarding/KeywordApi'
 import { getProductService, getLocation } from '../../services/onBoarding/businessProfileApi'
@@ -167,10 +168,10 @@ const UpcomingBlogs = () => {
         if (isMissing) {
           console.log(`Generating blog for topic: ${topic}`)
           // If the topic is missing, generate the blog
-          const{ blogContent, imageUrl }= await generateBlogAndImage(topic);
+          const  blogContent = await BlogGenerate(topic);
          // console.log('blog', { blogContent, imageUrl });
-          generatedBlogs.push({  topic, blogContent, imageUrl})
-          await saveAllBlogs(trimmedTopic, blogContent, imageUrl)
+          generatedBlogs.push({  topic, blogContent})
+          await saveAllBlogs(trimmedTopic, blogContent)
           console.log(`Blog generated for topic: ${topic}`)
         } else {
           console.log(`Skipping topic ${topic} as blog already exists`)

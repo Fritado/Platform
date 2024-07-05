@@ -178,7 +178,7 @@ export const BlogGenerate = async (topic) => {
     //console.log(response, "response");
     const blogContent = response.data.choices[0].message.content
     // console.log(response.data.choices[0].message.content, 'content')
-    return blogContent;
+    return blogContent
   } catch (error) {
     console.error('Error:', error)
   }
@@ -186,7 +186,7 @@ export const BlogGenerate = async (topic) => {
 
 //save blog description with its topic and image
 
-export const saveAllBlogs = async (topic, blogDescription, blogImage) => {
+export const saveAllBlogs = async (topic, blogDescription) => {
   const saveBlogUrl = `${BLOG_API_ROUTES.SAVE_BLOGS}`
 
   try {
@@ -202,12 +202,10 @@ export const saveAllBlogs = async (topic, blogDescription, blogImage) => {
     const requestBody = {
       topic: topic,
       blogDescription: blogDescription,
-      blogImage: blogImage,
     }
-    console.log('Request Body:', requestBody);
-    const BlogResponse = await axios.post(saveBlogUrl, requestBody, config);
-    console.log('Response:', BlogResponse.data);
-    return BlogResponse.data;
+
+    const BlogResponse = await axios.post(saveBlogUrl, requestBody, config)
+    return BlogResponse.data
   } catch (error) {
     console.log('Error while Saving Blog Details in database', error)
     throw error
@@ -264,7 +262,6 @@ export const fetchBlogsByTopic = async (topic) => {
 
 export const updateBlogDescription = async (blogId, editedDescription) => {
   const updateBlogUrl = `${BLOG_API_ROUTES.UPDATE_BLOG_DETAILS}`
-  console.log(updateBlogUrl, 'url')
   try {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -334,7 +331,7 @@ export const getRecentBlog = async () => {
       },
     }
     const recentBlog = await axios.get(recentBlogUrl, config)
-    console.log(recentBlog, 'rblog')
+
     return recentBlog
   } catch (error) {
     console.log('Error while fetching recent blog according to publish date', error)
@@ -383,29 +380,63 @@ export const getPostScheduledTime = async () => {
     const scheduledData = await axios.get(getScheduledUrl, config)
     console.log(scheduledData, 'post schedule respose coming')
     return scheduledData
-  } catch (Error) {
+  } catch (error) {
     console.log('Error while scheduling blog post time', error)
     throw error
   }
 }
 
-//image generate using open ai
+//check blogImage present or not
+export const checkBlogImageByBlogId = async (blogId) => {
+  const checkUrl = `${BLOG_API_ROUTES.CHECK_BLOG_IMAGE}`
+  try {
+    const findBlogImage = await axios.get(checkUrl,blogId)
+    return findBlogImage
+  } catch (error) {
+    console.log('Error while checking blog image in db', error)
+    throw error
+  }
+}
+//check and save blogImage in db
+export const saveBlogImage = async (blogId, blogImage = null) => {
+  const saveImageUrl = `${BLOG_API_ROUTES.SAVE_CHECK_BLOGIMAGE}`
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
 
+    const saveBlogImage = await axios.post(saveImageUrl, { blogId, blogImage }, config)
+    console.log('Response from saving blog image:', saveBlogImage.data)
+    return saveBlogImage.data
+  } catch (error) {
+    console.log('Error while saving blog image in db', error)
+    throw error
+  }
+}
+
+//image generate using open ai
 export const generateImage = async (topic, blogContent) => {
   const openAISecretKey = process.env.OPENAI_SECRET_KEY
-
-  const prompt = `Image Generation Prompt for Blog:
-   "Create a professional image that aligns with the blog's content and topic. Use the following details for guidance:
-    Blog Title:${topic}
-    Blog Content Overview: ${blogContent}
-    Consider the following elements when designing the image:
-    Theme and Subject Matter: Capture the main theme and subject of the blog. Focus on visual elements that reflect the core message and topic.
-    Tone and Style: The image should match the tone of the blog (e.g., formal, casual, inspirational, informative). Choose an appropriate artistic style (e.g., clean and modern, colorful and dynamic).
-    Key Visual Elements: Include any specific elements mentioned in the blog content (e.g., relevant objects, people, settings).
-    Color Scheme: Use a color palette that complements the blog's design and enhances readability.
-    Typography and Text: If including text, ensure it is legible and enhances the visual appeal without overpowering the main elements.
-    Ensure the final image is visually appealing, relevant, and professional, enhancing the overall reader experience.`
-
+    const prompt = `{
+      "prompt": "Image Generation Prompt for Blog:
+      "Create a professional image that aligns with the blog's content and topic. Use the following details for guidance:
+      Blog Title:${topic}    
+      Blog Content Overview: ${blogContent}
+      Consider the following elements when designing the image:
+      Theme and Subject Matter: Capture the main theme and subject of the blog. Focus on visual elements that reflect the core message and topic. 
+      Tone and Style: The image should match the tone of the blog (e.g., formal, casual, inspirational, informative). Choose an appropriate artistic style (e.g., clean and modern, colorful and dynamic).
+      Key Visual Elements: Include any specific elements mentioned in the blog content (e.g., relevant objects, people, settings).
+      Color Scheme: Use a color palette that complements the blog's design and enhances readability.
+      Typography and Text: If including text, ensure it is legible and enhances the visual appeal without overpowering the main elements.
+      Ensure the final image is visually appealing, relevant, and professional, enhancing the overall reader experience."
+    }`
+  
   const data = {
     model: 'dall-e-3',
     prompt: prompt,
@@ -424,21 +455,41 @@ export const generateImage = async (topic, blogContent) => {
     })
 
     const imageUrl = response.data.data[0].url
-    //console.log(imageUrl, 'Generated Image URL')
-    return imageUrl;
+    console.log(imageUrl, 'Generated Image URL')
+    return imageUrl
   } catch (error) {
     console.error('Error:', error)
   }
 }
 
-export const generateBlogAndImage = async (topic) => {
+// function to handle image generation and saving
+export const handleBlogImage = async (blogId, topic, blogContent) => {
   try {
-    const blogContent = await BlogGenerate(topic)
-    const imageUrl = await generateImage(topic, blogContent)
-     console.log({ blogContent, imageUrl }, 'generateBlogAndImage  response')
-    return { blogContent, imageUrl}
+    // Check if the blog image exists
+    const checkResponse = await checkBlogImageByBlogId(blogId);
+    console.log(checkResponse, 'checkResponse handleBlogImage');
+
+    if (checkResponse.success && checkResponse.data.blogImage) {
+      console.log(
+        'Blog image already exists, no need to generate a new one.',
+        checkResponse.data.blogImage
+      );
+      return checkResponse.data.blogImage;
+    }
+
+    const generatedImageUrl = await generateImage(topic, blogContent);
+    console.log('Generated blog image URL:', generatedImageUrl);
+    
+    // Save the generated image in the database
+    const saveResponse = await saveBlogImage(blogId, generatedImageUrl);
+    console.log(saveResponse, 'saveResponse handleBlogImage');
+    return saveResponse.data.imagePath;
+    
   } catch (error) {
-    console.error('Error generating blog and image:', error)
+    console.error('Error in handling blog image:', error)
     throw error
   }
 }
+
+// const temp = await generateImage("The Importance of Animation Studios in Visual Content Creation" , "Animation studios play a crucial role in the creation of visual content for various industries. In today digital age, where attention spans are shorter and competition is fierce, incorporating animation into marketing strategies has become essential. In this blog post, we will explore the significance of animation studios in visual content creation and how they contribute to engaging audiences and driving business growth.");
+// console.log(temp , "temp")

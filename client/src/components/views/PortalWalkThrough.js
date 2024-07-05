@@ -108,7 +108,7 @@ You have extensive expertise in crafting web content and optimizing it for searc
 Based on this information, please provide the following outputs in the specified order:
 
 1. About Business
-   - Write a detailed introduction and description of all products and services offered by ${websiteName} in 2000 words in HTML format. Ensure the background color is white.
+   - Write a detailed introduction and description of all products and services offered by ${websiteName} in 2000 words in HTML format.
 
 2. Keywords
    - Provide the maximum number of business keywords based on the products, services, ${cleanContent}, and the location of the business. Save this content without HTML format.

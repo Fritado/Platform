@@ -7,7 +7,8 @@ const {
   deleteSingleLocationItem,
   getLocation,
   createSingleLocation,
-} = require('../controllers/BusinessProfile/Location')
+} = require('../controllers/BusinessProfile/Location');
+
 const {
   saveProductsAndServices,
   updateProductAndService,
@@ -37,8 +38,10 @@ router.post('/create-businessProfile', auth, saveBusinessProfile)
 router.put('/update-businessProfile', auth, updateBusinessProfile)
 router.get('/get-businessProfile', auth, getBusinessProfile)
 
+
 router.post('/save-businessinfo', auth, saveCompanyAndIndustry)
 router.put('/update-businessinfo', auth, updateCompanyAndIndustry)
+
 
 router.post('/create-location', auth, saveLocation)
 router.put('/update-location-name', auth, updateSingleLocation)
@@ -46,12 +49,15 @@ router.get('/get-location', auth, getLocation)
 router.delete('/delete/location-item' , auth ,deleteSingleLocationItem)
 router.post('/create/new-location', auth ,  createSingleLocation);
 
+
 router.post('/create-product&services', auth, saveProductsAndServices)
 router.post('/create-single-product&services', auth, createSingleService)
 router.put('/update-product-service', auth, updateProductAndService)
 router.get('/get-product-service', auth, getProductsAndServices)
 router.delete('/delete-product-service', auth, deleteProductAndServices)
 router.put('/update-single-product-service', auth, updateSingleProductAndService)
+
+
 
 router.post('/save-keywords', auth, saveKeyword)
 router.post('/create-single-keywords', auth, createSingleKeyword)
