@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_BASE_URL, BLOG_API_ROUTES } from '../services/APIURL/Apis'
 import { fetchPromptDetails } from '../services/PromptService/PromptService'
+import { getDomianName } from '../services/BusinessDomain/domain'
 
 export const fetchingAboutBusiness = async (e) => {
   const fetchingURL = `${BLOG_API_ROUTES.GET_BUSINESS_PROFILE}`
@@ -106,6 +107,69 @@ export const saveBlogTopic = async (topics) => {
   }
 }
 
+export const addNewBlogTopic = async (topic) => {
+  const addNewTopicUrl = `${BLOG_API_ROUTES.ADD_NEW_TOPIC}`
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    const newTopicAdded = await axios.post(addNewTopicUrl, { topic }, config)
+    return newTopicAdded
+  } catch (error) {
+    console.log('Error while adding new topics in database', error)
+    throw error
+  }
+}
+
+export const uploadBlogTopics = async (file) => {
+  const uploadTopicUrl = `${BLOG_API_ROUTES.UPLOAD_BLOG_TOPICS}`
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await axios.post(uploadTopicUrl, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    // console.log('Upload success:', response.data);
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error uploading image')
+  }
+}
+
+export const downloadBlogTopicsExcel = async () => {
+  const downloadUrl = `${BLOG_API_ROUTES.DOWNLOAD_BLOG_TOPICS}`
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const downloadedResponse = await axios.get(downloadUrl, {
+      responseType: 'blob',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return downloadedResponse.data
+  } catch (error) {
+    console.error('Error downloading Excel file:', error)
+    throw error
+  }
+}
+
 export const gettingBlogTopics = async () => {
   const getUrl = `${BLOG_API_ROUTES.FETCH_BLOG_TOPICS}`
 
@@ -121,7 +185,7 @@ export const gettingBlogTopics = async () => {
     }
     const blogTopicResponse = await axios.get(getUrl, config)
     const resBgTpc = blogTopicResponse.data.data.topics
-    // console.log("blogTopicResponse" , blogTopicResponse.data.data.topics);
+    //  console.log("blogTopicResponse" , blogTopicResponse.data.data.topics);
     return resBgTpc
   } catch (error) {
     console.log('Error while fetching Blog Topics data', error)
@@ -309,10 +373,9 @@ export const getBlogStatusByTopic = async (topic) => {
   const statusUrl = `${BLOG_API_ROUTES.GET_BLOG_STATUS}/${encodeURIComponent(topic)}`
   try {
     const statusResponse = await axios.get(statusUrl)
-    //console.log(statusResponse.data);
     return statusResponse.data
   } catch (error) {
-    console.log('Error while fetching blogs status by topic', error)
+    //console.log('Error while fetching blogs status by topic', error)
     throw error
   }
 }
@@ -386,20 +449,53 @@ export const getPostScheduledTime = async () => {
   }
 }
 
-//check blogImage present or not
-export const checkBlogImageByBlogId = async (blogId) => {
-  const checkUrl = `${BLOG_API_ROUTES.CHECK_BLOG_IMAGE}`
+//upload blog image
+export const uploadBlogImage = async (blogId, file) => {
+  const uploadUrl = `${BLOG_API_ROUTES.UPLOAD_IMAGE}/${blogId}/upload-image`
   try {
-    const findBlogImage = await axios.get(checkUrl,blogId)
-    return findBlogImage
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const formData = new FormData()
+    formData.append('imageFiles', file)
+
+    const response = await axios.post(uploadUrl, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
   } catch (error) {
-    console.log('Error while checking blog image in db', error)
+    throw new Error(error.response?.data?.message || 'Error uploading image')
+  }
+}
+
+//select blog image
+export const selectBlogImageById = async (blogId, imagePath) => {
+  const selectImageUrl = `${BLOG_API_ROUTES.SELECT_IMAGE}`
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token not found')
+    }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
+    const selectedBlogImage = await axios.put(selectImageUrl, { blogId, imagePath }, config)
+    console.log(selectedBlogImage, 'selectedBlogImage')
+  } catch (error) {
+    console.log('Error while updating selected blog image in db', error)
     throw error
   }
 }
 //check and save blogImage in db
 export const saveBlogImage = async (blogId, blogImage = null) => {
-  const saveImageUrl = `${BLOG_API_ROUTES.SAVE_CHECK_BLOGIMAGE}`
+  const saveImageUrl = `${BLOG_API_ROUTES.SAVE_BLOG_IMAGE}`
   try {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -423,7 +519,7 @@ export const saveBlogImage = async (blogId, blogImage = null) => {
 //image generate using open ai
 export const generateImage = async (topic, blogContent) => {
   const openAISecretKey = process.env.OPENAI_SECRET_KEY
-    const prompt = `{
+  const prompt = `{
       "prompt": "Image Generation Prompt for Blog:
       "Create a professional image that aligns with the blog's content and topic. Use the following details for guidance:
       Blog Title:${topic}    
@@ -436,7 +532,7 @@ export const generateImage = async (topic, blogContent) => {
       Typography and Text: If including text, ensure it is legible and enhances the visual appeal without overpowering the main elements.
       Ensure the final image is visually appealing, relevant, and professional, enhancing the overall reader experience."
     }`
-  
+
   const data = {
     model: 'dall-e-3',
     prompt: prompt,
@@ -465,26 +561,13 @@ export const generateImage = async (topic, blogContent) => {
 // function to handle image generation and saving
 export const handleBlogImage = async (blogId, topic, blogContent) => {
   try {
-    // Check if the blog image exists
-    const checkResponse = await checkBlogImageByBlogId(blogId);
-    console.log(checkResponse, 'checkResponse handleBlogImage');
+    const generatedImageUrl = await generateImage(topic, blogContent)
+    console.log('Generated blog image URL:', generatedImageUrl)
 
-    if (checkResponse.success && checkResponse.data.blogImage) {
-      console.log(
-        'Blog image already exists, no need to generate a new one.',
-        checkResponse.data.blogImage
-      );
-      return checkResponse.data.blogImage;
-    }
-
-    const generatedImageUrl = await generateImage(topic, blogContent);
-    console.log('Generated blog image URL:', generatedImageUrl);
-    
     // Save the generated image in the database
-    const saveResponse = await saveBlogImage(blogId, generatedImageUrl);
-    console.log(saveResponse, 'saveResponse handleBlogImage');
-    return saveResponse.data.imagePath;
-    
+    const saveResponse = await saveBlogImage(blogId, generatedImageUrl)
+    console.log(saveResponse, 'saveResponse handleBlogImage')
+    return saveResponse.data.imagePath
   } catch (error) {
     console.error('Error in handling blog image:', error)
     throw error
@@ -493,3 +576,38 @@ export const handleBlogImage = async (blogId, topic, blogContent) => {
 
 // const temp = await generateImage("The Importance of Animation Studios in Visual Content Creation" , "Animation studios play a crucial role in the creation of visual content for various industries. In today digital age, where attention spans are shorter and competition is fierce, incorporating animation into marketing strategies has become essential. In this blog post, we will explore the significance of animation studios in visual content creation and how they contribute to engaging audiences and driving business growth.");
 // console.log(temp , "temp")
+
+// force post blog on wordress website
+export const publishBlogtoWordpress = async (blogId) => {
+  const publish_url = `${BLOG_API_ROUTES.PUBLISH_BLOG}`
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Token not found');
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const websiteName = await getDomianName(token)
+    const { fullUrl } = websiteName
+
+    const publishBlogResponse = await axios.post(publish_url, {
+      blogId: blogId,
+      wordpressUrl: `${fullUrl}/wp-admin/admin-post.php?action=fritadoai_submit_article`,
+    })
+    if (publishBlogResponse.status === 200) {
+      console.log(publishBlogResponse.data.message, 'publishBlogResponse');
+      return publishBlogResponse.data.message;
+    } else {
+      console.error('Error publishing blog:', publishBlogResponse.data.message);
+      throw new Error(publishBlogResponse.data.message);
+    }
+  
+  } catch (error) {
+    console.error('Error publishing blog:', error)
+    throw new Error('Failed to publish blog')
+  }
+}

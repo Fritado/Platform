@@ -3,11 +3,12 @@ import { PiPlugsConnectedDuotone } from 'react-icons/pi'
 import { BsFileEarmarkCodeFill } from 'react-icons/bs'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
-
+import { useNavigate } from 'react-router-dom'
 
 const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
   const [buttonStatus, setButtonStatus] = useState('inactive')
-  //const { webType, tech } = websiteData
+  const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -18,6 +19,7 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
       }
     }
   }, [])
+
   const checkWebhookUrlStatus = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -33,51 +35,61 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
         `/api/check-webhook?url=${encodeURIComponent(webhookUrl)}`,
         { headers: { Authorization: `Bearer ${token}` } },
       )
-      //console.log('Webhook check response:', response)
+      // console.log('Webhook check response:', response)
 
       if (response.status === 200 && response.data === '') {
         setButtonStatus('active')
         localStorage.setItem(`buttonStatus-${token}`, 'active')
-        toast.success("Connection succesfull.")
+        toast.success('Connection succesfulll.')
         return 'active'
       } else {
         setButtonStatus('inactive')
         localStorage.setItem(`buttonStatus-${token}`, 'inactive')
-        toast.error("We're experiencing some technical difficulties. Please try again later.")
+        setErrorMessage('Connection failed. Please try again later.')
+
         return 'inactive'
       }
     } catch (error) {
-      console.error('Error while checking webhook status', error)
+      //console.error('Error while checking webhook status', error)
       setButtonStatus('inactive')
-      toast.error("We're experiencing some technical difficulties. Please try again later.")
+      setErrorMessage('Connection failed. Please try again later.')
+
       throw error
     }
   }
 
   const handleButtonClick = async () => {
+    setButtonStatus('connecting')
+    setErrorMessage('')
+
     const status = await checkWebhookUrlStatus()
+    const { webType, tech } = websiteData
+
     if (status === 'active') {
-      const { webType, tech } = websiteData
-      //console.log('Saving website data:', { websiteType: webType, technology: tech })
-      const savedData = await saveWebsiteType({ websiteType: webType, technology: tech })
-      //console.log('Website type saved successfully', savedData)
+      await saveWebsiteType({ websiteType: webType, technology: tech })
+      navigate('/website-connect')
+    } else {
+      setButtonStatus('inactive')
     }
   }
 
   const renderButton = () => {
     let buttonClass = 'mt-1 fs-6 border rounded px-3 py-2 '
-    let buttonText = 'Connect'
+    let buttonText = ''
 
     switch (buttonStatus) {
+      case 'connecting':
+        buttonClass += 'btn-secondary'
+        buttonText = 'Connecting...'
+        break
       case 'active':
         buttonClass += 'btn-success'
         buttonText = 'Connected'
         break
       case 'inactive':
-        buttonClass += ''
-        buttonText = 'Connect'
-        break
       default:
+        buttonClass += 'btn-primary'
+        buttonText = 'Connect'
         break
     }
 
@@ -85,7 +97,7 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
       <button
         className={buttonClass}
         onClick={handleButtonClick}
-         disabled={buttonStatus === 'active'}
+        disabled={buttonStatus === 'active' || buttonStatus === 'connecting'}
       >
         <span className="pe-2">
           <PiPlugsConnectedDuotone size={20} />
@@ -98,7 +110,7 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
     { label: 'Create a folder named "fritado" in the root directory.' },
     { label: 'Upload the downloaded file into the "fritado" directory.' },
     { label: 'Do not modify the "webhook.php" file. ' },
-    { label: 'Access the sample URL at https://yourdomain.com/fritado/webhook.php. ' },
+    { label: `Access the sample URL at ${webhookUrl}. ` },
     {
       label:
         'After creating the folder and uploading the downloaded "webhook.php" file, click the verify button to integrate your website with Fritado AI.',
@@ -134,6 +146,9 @@ const PhpIntegration = ({ webhookUrl, websiteData, saveWebsiteType }) => {
                 <h4 className="mt-3">Webhook.php</h4>
               </div>
               <div className="d-flex mx-auto justify-content-center">{renderButton()}</div>
+              {buttonStatus === 'inactive' && errorMessage && (
+                <h6 className="text-danger text-center mt-3">{errorMessage}</h6>
+              )}
             </div>
           </div>
         </div>

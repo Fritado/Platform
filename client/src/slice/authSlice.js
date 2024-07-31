@@ -4,6 +4,7 @@ const initialState = {
   isAuthenticated: !!localStorage.getItem('token'),
   user: null,
   token: localStorage.getItem('token') || null,
+  
 }
 
 const authSlice = createSlice({
@@ -33,9 +34,10 @@ const authSlice = createSlice({
       localStorage.removeItem('token')
       localStorage.removeItem('user')
     },
+    
   },
 })
 
-export const { loginUser, userToken, logoutUser, signUpdata } = authSlice.actions
+export const { loginUser, userToken, logoutUser, signUpdata  } = authSlice.actions
 
 export default authSlice.reducer

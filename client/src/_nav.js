@@ -2,20 +2,15 @@ import React from 'react'
 import { GrConnect, GrBlog } from 'react-icons/gr'
 import { BsSendArrowUp } from 'react-icons/bs'
 import CIcon from '@coreui/icons-react'
-import {
-  cilCursor,
-  cilDescription,
-  cilNotes,
-  cilPuzzle,
-  cilSpeedometer,
-  cilStar,
-} from '@coreui/icons'
+import { cilSpeedometer } from '@coreui/icons'
 import { IoMdContacts } from 'react-icons/io'
 import { IoHelpBuoyOutline } from 'react-icons/io5'
 import { MdOutlineAttachEmail } from 'react-icons/md'
 import { LiaFileCode } from 'react-icons/lia'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 import { FaSackDollar } from 'react-icons/fa6'
+import { CgProfile } from 'react-icons/cg';
+import { IoMdSettings } from "react-icons/io";
 
 const _nav = [
   {
@@ -29,7 +24,7 @@ const _nav = [
     name: 'Integration',
   },
   {
-    component:CNavItem,
+    component: CNavItem,
     name: 'Connect',
     to: '/website-connect',
     icon: (
@@ -53,11 +48,7 @@ const _nav = [
         name: 'Business Profile',
         to: '/business-profile',
       },
-      {
-        component: CNavItem,
-        name: 'Competetors',
-        to: '/competetor',
-      },
+
       {
         component: CNavItem,
         name: 'Keywords',
@@ -83,7 +74,7 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Content Marketing',
+    name: 'Content Automation',
     icon: (
       <span className="pe-2">
         <GrBlog />
@@ -106,7 +97,7 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Contact',
-    to: '/fritado.com',
+    to: '/contact',
     icon: (
       <span className="pe-2 ">
         <IoMdContacts />
@@ -116,12 +107,18 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Email Automation',
-    to: '/fritado.com',
+    to: '/email-automation',
     icon: (
       <span className="pe-2">
         <MdOutlineAttachEmail />
       </span>
     ),
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  {
+    component: CNavTitle,
+    name: 'Administration',
   },
   {
     component: CNavItem,
@@ -135,6 +132,27 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Profile',
+    to: '/profile',
+    icon: (
+      <span className="pe-2">
+        <CgProfile />
+      </span>
+    ),
+  },
+  {
+    component: CNavItem,
+    name: 'Settings',
+    to: '/settings',
+    icon: (
+      <span className="pe-2">
+        <IoMdSettings />
+      </span>
+    ),
+  },
+
+  {
+    component: CNavTitle,
     name: 'Help Center',
     to: '/help-center-page',
     icon: (

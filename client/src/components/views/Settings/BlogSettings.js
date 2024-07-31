@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import BlogAutomation from './BlogAutomation'
 import { schedulePostTime, getPostScheduledTime } from '../../services/BlogTopicApi'
 
 const BlogSettings = () => {
@@ -41,7 +40,7 @@ const BlogSettings = () => {
   }
   return (
     <div>
-      <BlogAutomation />
+      
       <div className="d-flex flex-column mx-4">
         <div className="bg-white px-4 py-3">
           <div className="">

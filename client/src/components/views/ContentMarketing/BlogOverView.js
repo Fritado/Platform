@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import BlogAutomation from './BlogAutomation'
-import { IoMdArrowRoundForward, IoMdArrowRoundBack } from 'react-icons/io'
+import { IoMdArrowRoundForward } from 'react-icons/io'
 import { GoDotFill } from 'react-icons/go'
-import { FiKey } from 'react-icons/fi'
+import { FiUpload } from 'react-icons/fi'
 import {
   getRecentBlog,
   getBlogStatusByTopic,
   fetchBlogsByTopic,
   handleBlogImage,
+  uploadBlogImage,
+  selectBlogImageById,
 } from '../../services/BlogTopicApi'
-import { useNavigate } from 'react-router-dom'
+import { formatDate } from '../../services/formatDate'
+import parse from 'html-react-parser'
+import { useNavigate, Link } from 'react-router-dom'
 import { FiDownload } from 'react-icons/fi'
 import DefaultBlogImage from '../../../assets/images/default-blog-image.png.jpg'
-import axios from 'axios'
+import { IoChevronForwardSharp } from 'react-icons/io5'
+import { IoIosArrowBack } from 'react-icons/io'
+import { GiArtificialIntelligence } from 'react-icons/gi'
 
 const BlogOverView = () => {
   const navigate = useNavigate()
@@ -21,13 +27,32 @@ const BlogOverView = () => {
   const [blogStatus, setBlogStatus] = useState({})
   const [currentIndex, setCurrentIndex] = useState(0)
   const [imageGenerated, setImageGenerated] = useState(false)
-  const [uploadError, setUploadError] = useState(null)
- 
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [uploadStatus, setUploadStatus] = useState('')
+  const [imageIndex, setImageIndex] = useState(0)
+  const [selectedImage, setSelectedImage] = useState()
+  const [selectedImageIndex, setSelectedImageIndex] = useState(-1)
 
-  const handleItemClick = (id) => {
-    setSelectedItemId(id)
+  const handleFileChange = async (event) => {
+    const selectImage = event.target.files[0];
+   // console.log(selectImage ," selectImage")
+    if (selectImage) {
+      setSelectedFile(selectImage)
+    }
+    try {
+      const blogId = recentBlog._id
+      const response = await uploadBlogImage(blogId, selectImage)
+      fetchRecentBlog()
+      console.log('Upload Image success:', response)
+    } catch (error) {
+      console.error('Upload error:', error)
+    }
   }
-  
+
+  useEffect(() => {
+    fetchRecentBlog()
+  }, [])
+
   const fetchRecentBlog = async () => {
     try {
       const Blogresponse = await getRecentBlog()
@@ -35,11 +60,18 @@ const BlogOverView = () => {
       const upcomingBlogData = Blogresponse.data.data.upcomingBlogs
       const blogTopic = recentBlogData.topic
       const blogStatusByTopic = await getBlogStatusByTopic(blogTopic)
-
       setRecentBlog(recentBlogData)
       setUpcomingBlogs(upcomingBlogData)
       setBlogStatus(blogStatusByTopic.data)
-      setImageGenerated(!!recentBlogData.blogImage)
+      setImageGenerated(recentBlogData.blogImage && recentBlogData.blogImage.length > 0)
+
+      setSelectedImage(
+        recentBlogData.selectedImage
+          ? `http://localhost:4000/blog-images/${extractImagePath(recentBlogData.selectedImage)}`
+          : recentBlogData.blogImage && recentBlogData.blogImage.length > 0
+            ? `http://localhost:4000/blog-images/${extractImagePath(recentBlogData.blogImage[0])}`
+            : DefaultBlogImage,
+      )
     } catch (error) {
       console.error('Error fetching recent blog:', error)
     }
@@ -61,7 +93,7 @@ const BlogOverView = () => {
       console.error('Error fetching blog details:', error)
     }
   }
-
+  //check this functrion
   const handleDownloadImage = async () => {
     try {
       if (recentBlog) {
@@ -74,38 +106,6 @@ const BlogOverView = () => {
     }
   }
 
-  // const handleFileUpload = async (event) => {
-  //   const file = event.target.files[0]
-  //   if (!file) return
-
-  //   try {
-  //     const formData = new FormData()
-  //     formData.append('imageFile', file)
-
-  //     // Replace with your API endpoint to upload image
-  //     const res = await axios.post(
-  //       `http://localhost:4000/api/openAi/blog/${recentBlog._id}/upload-image`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //       },
-  //     )
-  //     console.log(res, 'upload res')
-
-  //     if (res.status === 200) {
-  //       console.log('Image uploaded successfully!')
-  //       setUploadError(null)
-  //       fetchRecentBlog()
-  //     } else {
-  //       console.error('Failed to upload image:', res.data.message)
-  //     }
-  //   } catch (error) {
-  //     console.error('Error uploading image:', error)
-  //   }
-  // }
-
   const prevBlog = () => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? upComingBlogs.length - 1 : prevIndex - 1))
   }
@@ -113,18 +113,41 @@ const BlogOverView = () => {
   const nextBlog = () => {
     setCurrentIndex((prevIndex) => (prevIndex === upComingBlogs.length - 1 ? 0 : prevIndex + 1))
   }
-  useEffect(() => {
-    fetchRecentBlog()
-  }, [])
 
   const dotColor = blogStatus.status === 'approved' ? 'green' : 'red'
 
   const extractImagePath = (path) => {
     if (typeof path === 'string') {
       const basePath = 'F:\\Fritado - WEBSITE\\Portal-platform\\server\\controllers\\BlogImage\\'
-      return path.replace(basePath, '').replace(/\\/g, '/')
+      const extractedPath = path.replace(basePath, '').replace(/\\/g, '/')
+      return extractedPath
     }
     return ''
+  }
+
+  const prevBlogImage = () => {
+    setImageIndex((prevIndex) =>
+      prevIndex === 0 ? recentBlog.blogImage.length - 1 : prevIndex - 1,
+    )
+    setSelectedImageIndex(-1)
+  }
+
+  const nextBlogImage = () => {
+    setImageIndex((prevIndex) => (prevIndex === recentBlog.blogImage - 1 ? 0 : prevIndex + 1))
+    setSelectedImageIndex(-1)
+  }
+  const handleImageSelect = async (imagePath, index) => {
+    try {
+      await selectBlogImageById(recentBlog._id, imagePath)
+      setSelectedImage(`http://localhost:4000/blog-images/${extractImagePath(imagePath)}`)
+      setSelectedImageIndex(index)
+    } catch (error) {
+      console.error('Error selecting blog image:', error)
+    }
+  }
+  const stripHtmlTags = (html) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+    return doc.body.textContent || ''
   }
 
   return (
@@ -153,13 +176,9 @@ const BlogOverView = () => {
               <div className="mx-4 my-3 blog-card border rounded">
                 <div className="position-relative">
                   <img
-                    src={
-                      recentBlog.blogImage
-                        ? `https://server.fritado.com/blog-images/${extractImagePath(recentBlog.blogImage)}`
-                        : DefaultBlogImage
-                    }
-                    alt={recentBlog.blogImage ? 'Blog-post-image' : 'Default Blog Image'}
-                    className="w-100 mb-3"
+                    src={selectedImage || DefaultBlogImage}
+                    alt="Blog-post-image"
+                    className="w-100  mb-3"
                   />
                   {!imageGenerated && (
                     <div
@@ -171,31 +190,62 @@ const BlogOverView = () => {
                       <FiDownload size={24} color="black" />
                     </div>
                   )}
-                  <div className="p-2 d-flex flex-row gap-3">
-                    <div className="border rounded px-4 py-2">Image</div>
-                   
-                      <input
-                        type="file"
-                       // onChange={handleFileUpload}
-                        style={{ opacity: '',  }}
-                        className="fs-6 border-0 rounded py-2 px-4"
-                      />
-                    
-                      {/* <button className="position-absolute fs-6 border-0 rounded py-2 px-4 overflow-hidden">Upload</button> */}
-                   
+                </div>
+                <div className="p-2 d-flex flex-row gap-3  align-items-center">
+                  {recentBlog.blogImage && recentBlog.blogImage.length > 2 && (
+                    <span className="border-0" onClick={prevBlogImage}>
+                      <IoIosArrowBack size={30} color="#0a3a4c7a" />
+                    </span>
+                  )}
+                  <div className=" d-flex flex-row">
+                    {recentBlog.blogImage &&
+                      recentBlog.blogImage
+                        .slice(imageIndex, imageIndex + 2)
+                        .map((imagePath, index) => (
+                          <div
+                            key={index}
+                            onClick={() => handleImageSelect(imagePath, index)}
+                            className={`${selectedImageIndex === index ? 'border border-primary' : ''}`}
+                          >
+                            <img
+                              src={`http://localhost:4000/blog-images/${extractImagePath(imagePath)}`}
+                              alt={`Blog Image ${index + 1}`}
+                              className="img-thumbnail me-2"
+                              style={{ maxWidth: '100px', cursor: 'pointer' }}
+                            />
+                          </div>
+                        ))}
+                  </div>
+                  {recentBlog.blogImage && recentBlog.blogImage.length > 2 && (
+                    <span className="border-0" onClick={nextBlogImage}>
+                      <IoChevronForwardSharp size={30} color="#0a3a4c7a" />
+                    </span>
+                  )}
+                  <div className="custom-file-upload position-relative" style={{ left: '80px' }}>
+                    <label htmlFor="file-upload" className="" style={{ cursor: 'pointer' }}>
+                      <FiUpload size={34} color="#004a65" />
+                    </label>
+                    <input
+                      type="file"
+                      id="file-upload"
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                    />
                   </div>
                 </div>
 
                 <div className="p-2">
                   <div className="">
-                    <h3>{recentBlog.topic}</h3>
-                    <p>{recentBlog.blogDescription.substring(0, 200)}...</p>
+                    <h3 onClick={handleGoToBlogDetails} style={{ cursor: 'pointer' }}>
+                      {recentBlog.topic}
+                    </h3>
+                    <p>{parse(stripHtmlTags(recentBlog.blogDescription).substring(0, 100))}...</p>
                   </div>
 
                   <div className="d-flex flex-column">
-                    <div className="d-flex flex-row my-3">
-                      <span className="pe-2">
-                        <FiKey size={20} />
+                    <div className="d-flex flex-row my-3 fs-6 fw-semibold">
+                      <span className="pe-1">
+                        <GiArtificialIntelligence size={20} />
                       </span>
                       Fritado AI
                     </div>
@@ -228,31 +278,40 @@ const BlogOverView = () => {
               <h3>Upcoming blog posts</h3>
             </div>
 
-            <div className="d-flex flex-column flex-md-row">
-              <div className="d-flex align-items-center justify-content-center">
-                <span className="me-3" onClick={prevBlog}>
-                  <IoMdArrowRoundBack size={24} color="black" />
-                </span>
-              </div>
-              <div className="row">
+            <div className="d-flex flex-column flex-md-row align-items-center justify-content-center">
+              <span
+                className="me-3"
+                onClick={prevBlog}
+                disabled={upComingBlogs && upComingBlogs.length <= 1}
+              >
+                <IoIosArrowBack size={34} color="black" />
+              </span>
+
+              <div className="row  flex-nowrap overflow-auto">
                 {upComingBlogs &&
                   upComingBlogs.slice(currentIndex, currentIndex + 2).map((blog, index) => (
                     <div key={index} className="col-md-6">
                       <div className="border rounded p-3 mb-3">
-                        <h5>{blog.topic}</h5>
+                        <Link to="/upcoming-blogs">
+                          <h6 className="truncated-topic">
+                            {blog.topic.substring(0, 35)}...
+                            <span className="full-topic">{blog.topic}</span>
+                          </h6>
+                        </Link>
+
                         <div className="d-flex flex-column">
                           <div className="d-flex flex-row my-2 px-2">
-                            <span className="pr-2">
-                              <FiKey size={24} />
+                            <span className="pe-1">
+                              <GiArtificialIntelligence size={20} />
                             </span>
-                            Financial Fritado ai
+                            Fritado AI
                           </div>
                           <div className="my-2 d-flex flex-row ">
                             <button className="border-0 rounded py-2 px-3">
                               <span className="pr-1">
                                 <GoDotFill size={24} />
                               </span>
-                              Available {blogStatus.publishDate}
+                              Published on {formatDate(blog.PublishDate)}
                             </button>
                           </div>
                         </div>
@@ -261,8 +320,8 @@ const BlogOverView = () => {
                   ))}
               </div>
               <div className="d-flex align-items-center ms-3 justify-content-center">
-                <span onClick={nextBlog}>
-                  <IoMdArrowRoundForward size={24} color="black" />
+                <span onClick={nextBlog} disabled={upComingBlogs && upComingBlogs.length <= 1}>
+                  <IoChevronForwardSharp size={34} color="black" />
                 </span>
               </div>
             </div>

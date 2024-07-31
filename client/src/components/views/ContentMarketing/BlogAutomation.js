@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { IoArrowUpCircleOutline } from 'react-icons/io5'
-import BlogOverView from './BlogOverView'
+import { IoArrowUpCircleOutline} from 'react-icons/io5'
 import MenuHeader from '../common/MenuHeader'
 
 const BlogtabsName = [
   { id: '1', title: 'Overview', path: '/blog-automation' },
   { id: '2', title: 'Upcoming Blog Posts', path: '/upcoming-blogs' },
-  { id: '3', title: 'History', path: '/blog-history' },
-  { id: '4', title: 'Settings', path: '/blog-settings' },
+  
 ]
 const BlogAutomation = () => {
   const [showButton, setShowButton] = useState(false)

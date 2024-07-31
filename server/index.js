@@ -16,25 +16,38 @@ const WebsiteRoute = require("./routes/connectWebsiteRoute");
 const UserManagerRouter = require("./routes/superAdminRoute/userManagerRoute");
 const auth = require("./middlewares/auth");
 const articleRoutes = require("./routes/dummyRoute");
+const facebookRoute = require("./routes/SocialMedia/facebookRoutes")
+const GoogleAnalyticsRoutes = require("./routes/SocialMedia/GoogleAnalytics")
 
 const cors = require("cors");
+const bodyParser = require('body-parser')
 const cookieParser = require("cookie-parser");
-const fileupload = require("express-fileupload");
+
+const session = require("express-session");
+const passport = require("passport");
 
 require("dotenv").config();
-const PORT = process.env.PORT || 30002;
+const PORT = process.env.PORT || 4000;
 
-//databse connect
+
 database.connect();
 
-//middleware
-app.use(fileupload());
-app.use(express.urlencoded({ extended: true }));
+/////////////
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+///////////
+app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://platform.fritado.com",
+    origin: "http://localhost:30001",
     credentials: true,
   })
 );
@@ -43,6 +56,7 @@ app.use(
     extended: true,
   })
 );
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/blog-images', express.static(path.join(__dirname, 'controllers', 'BlogImage')));
 
@@ -59,7 +73,8 @@ app.use("/api/super-admin/package", PackageManagerRoute);
 app.use("/api/super-admin/user-package", UserManagerRouter);
 app.use("/api/article", articleRoutes);
 app.use("/api/connect", WebsiteRoute);
-
+app.use("/api/social-connect" ,facebookRoute)
+app.use("/api" , GoogleAnalyticsRoutes )
 //default routes
 app.get("/", (req, res) => {
   return res.json({
@@ -83,7 +98,7 @@ app.head("/api/check-webhook", async (req, res) => {
       return res.status(200).json({ status: "inactive" });
     }
   } catch (error) {
-    // console.error('Error checking webhook status:', error.message);
+     console.error('Error checking webhook status:', error.message);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

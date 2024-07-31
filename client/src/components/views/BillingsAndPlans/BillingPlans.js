@@ -32,8 +32,12 @@ const BillingPlans = () => {
   }
   return (
     <div className="mx-4">
-      <div className="d-sm-flex page-header" style={{ marginLeft: '0px', marginBottom: '10px' }}>
-        <h1 className="text-dark fw-semibold">Billing & Plan</h1>
+      <div className="d-sm-flex " style={{ marginLeft: '0px', marginBottom: '10px' }}>
+        {/* <h1 className="text-dark fw-semibold">Billing & Plan</h1> */}
+        <div className="d-flex flex-row">
+          {/* <span className="pe-2"><MdEmail size={26}/></span> */}
+          <h2 className="text-dark fw-normal pe-3">Billing & Plan</h2>
+        </div>
       </div>
       <MenuHeader tabsName={BillingPlansabsName} />
       {showButton && (

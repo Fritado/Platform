@@ -20,6 +20,11 @@ const websiteTypeSchema = new Schema({
     type:String,
     required: true,
   },
+  websiteConnection :{
+    type:String,
+    enum: ["Active", "Inactive"],
+    default: "Inactive",
+  }
 });
 
 // Create the model from the schema

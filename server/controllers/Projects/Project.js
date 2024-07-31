@@ -3,7 +3,7 @@ const User = require("../../models/User");
 
 // Function to generate a unique webhook URL for each user
 const generateWebhookUrl = (domain) => {
-  return `${domain}/fritado/webhook.php`;
+  return `${domain}/fritado`;
 };
 
 exports.saveProjectUrl = async (req, res) => {
@@ -24,7 +24,7 @@ exports.saveProjectUrl = async (req, res) => {
     if (!projectUrl) {
       return res.status(400).json({ error: "Project URL is required." });
     }
-
+   
     // Check if a project already exists for the user
     const existingProject = await Project.findOne({ user: userId });
 
@@ -60,7 +60,7 @@ exports.saveProjectUrl = async (req, res) => {
   } catch (error) {
     console.log("Error while saving Project URL into database", error);
     console.error(error.message);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error in saving project url" });
   }
 };
 
@@ -110,5 +110,34 @@ exports.checkProjectUrlExist = async (req, res) => {
   } catch (error) {
     console.error("Error while checking projectUrl existence:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+exports.updateWebhookUrl = async (req, res) => {
+  try {
+    const { webhookUrl, domainName } = req.body;
+    const userId = req.user.id;
+
+    if (!webhookUrl || !domainName) {
+      return res.status(400).json({ error: "Webhook URL and domain name are required." });
+    }
+
+    const existingProject = await Project.findOne({ user: userId, domainUrl: domainName });
+
+    if (existingProject) {
+      existingProject.webhookUrl = webhookUrl;
+      await existingProject.save();
+      return res.status(200).json({
+        success: true,
+        message: "Webhook URL updated successfully.",
+        webhookUrl,
+      });
+    } else {
+      return res.status(404).json({ error: "Project not found for the user and domain name." });
+    }
+  } catch (error) {
+    console.error("Error while updating Webhook URL in the database", error);
+    return res.status(500).json({ error: "Internal Server Error in updating webhook URL." });
   }
 };

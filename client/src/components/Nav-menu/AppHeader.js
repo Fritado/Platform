@@ -29,9 +29,13 @@ import { getDomianName } from '../services/BusinessDomain/domain'
 
 const AppHeader = ({ setSidebarShow }) => {
   const headerRef = useRef()
-  const [domainName, setDomainName] = useState({ fullUrl: null, domainName: null , webhookUrl: null,})
+  const [domainName, setDomainName] = useState({
+    fullUrl: null,
+    domainName: null,
+    webhookUrl: null,
+  })
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
- // const [sidebarShow, setSidebarShow] = useState(true)
+  // const [sidebarShow, setSidebarShow] = useState(true)
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -48,9 +52,8 @@ const AppHeader = ({ setSidebarShow }) => {
         throw new Error('Token not found')
       }
 
-      const domain = await getDomianName(token);
-      console.log(domain)
-      setDomainName(domain || { fullUrl: null, domainName: '', webhookUrl: null });
+      const domain = await getDomianName(token)
+      setDomainName(domain || { fullUrl: null, domainName: '', webhookUrl: null })
       //setDomainName(domain)
     } catch (error) {
       console.error('Error while fetching domain name', error)
@@ -61,7 +64,7 @@ const AppHeader = ({ setSidebarShow }) => {
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
       <CContainer className="px-4" fluid>
         <CHeaderToggler
-          onClick={() => setSidebarShow(prev => !prev)}
+          onClick={() => setSidebarShow((prev) => !prev)}
           style={{ marginInlineStart: '-14px' }}
         >
           <CIcon icon={cilMenu} size="lg" />
@@ -69,7 +72,7 @@ const AppHeader = ({ setSidebarShow }) => {
         <CHeaderNav className="d-none d-md-flex">
           <CDropdown className="pe-2">
             <CDropdownToggle color="white" className="text-dark fw-semibold fs-5">
-            <span>{domainName.domainName || ''}</span>
+              <span>{domainName.domainName || ''}</span>
               {/* <span className="">{domainName.domainName ? domainName.domainName : 'Fritado'}</span>*/}
             </CDropdownToggle>
             <CDropdownMenu>

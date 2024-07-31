@@ -34,6 +34,7 @@ export const savingDomainUrl = async (modifiedUrlInput, token) => {
   }
 }
 
+
 export const fetchPageSpeedData = async (modifiedUrlInput, apiKey) => {
   const apiUrl = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
   const dynamicEndpoint = `${apiUrl}?url=${encodeURIComponent(modifiedUrlInput)}&key=${apiKey}`

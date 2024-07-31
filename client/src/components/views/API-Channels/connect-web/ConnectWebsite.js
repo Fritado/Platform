@@ -19,15 +19,7 @@ const ConnectWebsite = () => {
     fetchData()
   }, [])
 
-  const dataForPage1 = [
-    {
-      id: 1,
-      name: 'Xerone IT',
-      appId: '1443447836154206',
-      appSecret: 'XXXXXXXXXXX',
-      status: 'Active',
-    },
-  ]
+ 
   const headersForPage1 = ['#', 'App domain', 'Type', 'Technology', 'Status', 'Action']
   return (
     <div>
@@ -40,7 +32,8 @@ const ConnectWebsite = () => {
             id: index + 1,
             domain: item.projectName,         
             type: item.websiteType,
-            technology: item.technology
+            technology: item.technology,
+            Status:item.websiteConnection,
           }))}
           headers={headersForPage1}
           appSettingRoute={'/add-website'}

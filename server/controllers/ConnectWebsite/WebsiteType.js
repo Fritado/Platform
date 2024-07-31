@@ -2,12 +2,23 @@ const User = require("../../models/User");
 const Project = require("../../models/Projects");
 const WebsiteType = require("../../models/ConnectWebsite/WebsiteType");
 
+const generateWebhookUrl = (websiteType, technology, domainUrl) => {
+  if (websiteType === "Custom website" && technology === "PHP") {
+    return `${domainUrl}/fritado/webhook.php`;
+  } else if (
+    websiteType === "Content management system" &&
+    technology === "Wordpress"
+  ) {
+    return `${domainUrl}/fritado`;
+  }
+  return null;
+};
 exports.saveWebsiteType = async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
     const project = await Project.findOne({ user: userId });
-    const {websiteType, technology } = req.body;
+    const { websiteType, technology } = req.body;
 
     if (!user) {
       return res.json({
@@ -37,7 +48,7 @@ exports.saveWebsiteType = async (req, res) => {
       update,
       options
     );
-    
+
     return res.status(201).json({
       success: true,
       message: "Website type saved successfully",
@@ -45,7 +56,7 @@ exports.saveWebsiteType = async (req, res) => {
     });
   } catch (error) {
     console.error(
-      "Errow while saving user's website type in backend side",
+      "Error while saving user's website type in backend side",
       error
     );
     return res.status(500).json({
@@ -81,6 +92,7 @@ exports.getWebsiteDetails = async (req, res) => {
   }
 };
 
+//work on this
 exports.deleteWebsiteData = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -110,5 +122,27 @@ exports.deleteWebsiteData = async (req, res) => {
       success: false,
       message: "Internal server error",
     });
+  }
+};
+
+exports.updateWebsiteConnectionStatus = async (req, res) => {
+  const { websiteId, connectionStatus } = req.body;
+
+  try {
+    const website = await WebsiteType.findById(websiteId);
+
+    if (!website) {
+      return res.status(404).json({ message: "Website not found" });
+    }
+
+    website.websiteConnection = connectionStatus;
+    await website.save();
+
+    return res
+      .status(200)
+      .json({ message: "Website connection status updated successfully" });
+  } catch (error) {
+    console.error("Error updating website connection status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

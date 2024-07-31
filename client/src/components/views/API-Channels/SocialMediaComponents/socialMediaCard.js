@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { FaFacebook, FaLinkedin } from 'react-icons/fa'
-import { FaReddit, FaMedium, FaPlug } from 'react-icons/fa6'
+import { FaFacebook, FaLinkedin } from 'react-icons/fa';
+import { FcGoogle } from "react-icons/fc";
+import { FaReddit, FaMedium, FaPlug  } from 'react-icons/fa6'
 import { MdCloudDownload } from 'react-icons/md'
 import { Link } from 'react-router-dom'
 
@@ -58,6 +59,21 @@ const IconArray = [
         {' '}
         <FaPlug size={18} color="#0D8BF1" />{' '}
       </Link>
+    ),
+    elem2: (
+      <Link to="">
+        <MdCloudDownload size={20} color="ffc107" />
+      </Link>
+    ),
+  },
+  {
+    id: 5,
+    icon: <FcGoogle size={95} />,
+    elem1: (
+      <a href="http://localhost:4000/api/auth/google" target="_blank" rel="noopener noreferrer">
+        {' '}
+        <FaPlug size={18} color="#0D8BF1" />{' '}
+      </a>
     ),
     elem2: (
       <Link to="">

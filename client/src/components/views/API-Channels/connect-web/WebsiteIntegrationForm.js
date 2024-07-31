@@ -2,14 +2,15 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { FaRegIdCard, FaKey } from 'react-icons/fa'
 import { FcCustomerSupport } from 'react-icons/fc'
-import { RxCross2 } from 'react-icons/rx'
-import { VscDebugBreakpointUnsupported } from 'react-icons/vsc'
 import { websiteTypeData } from '../../data/ProviderList'
 import PhpIntegration from './PHP/PhpIntegration'
-import NodeIntegration from './NodeJs/NodejsIntegration'
 import { saveWebsiteType } from '../../../services/ConnectWebsite/WebsiteSelection'
+import { updateWebhookUrl } from '../../../services/ConnectWebsite/WebsiteSelection'
+import WordPressIntegration from './WordPress/WordPressIntegration'
 
-const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
+const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl ,setWebhookUrl}) => {
+  const domainName = appDetails[1].value;
+  const [currentWebhookUrl, setCurrentWebhookUrl] = useState(webhookUrl);
   const [formData, setFormData] = useState({
     webType: 'Content management system',
     tech: '',
@@ -18,18 +19,27 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
     <div className="my-3 bg-white">
       <div className="p-4 my-5 text-center">
         <h4>Currently working on integration</h4>
-      </div> 
+      </div>
     </div>
   )
-  
+
   const handleWebsiteTypeChange = (event) => {
     const selectedWebType = event.target.value
     setFormData({ ...formData, webType: selectedWebType, tech: '' })
   }
 
-  const handleWebsiteTypeTechChange = (event) => {
+  const handleWebsiteTypeTechChange = async (event) => {
     const selectedTech = event.target.value
     setFormData({ ...formData, tech: selectedTech })
+    try {
+      const { webType } = formData;
+    //  console.log(webType, selectedTech, domainName, "Payload to updateWebhookUrl");
+      const updatedWebhookUrl = await updateWebhookUrl(webType, selectedTech, domainName);
+      setCurrentWebhookUrl(updatedWebhookUrl);
+      setWebhookUrl(updatedWebhookUrl)
+    } catch (error) {
+      console.error('Error updating webhook URL:', error);
+    }
   }
 
   // const handleSave = async () => {
@@ -61,7 +71,7 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
                 </div>
               ))}
             </div>
-            {/* Valid oauth redirect uri */}
+            {/* Valid oauth redirect url */}
             <div className="col-lg-6 bg-white p-3">
               <p className="fs-6">
                 <strong>Looking for assistance? Reach out to our dedicated support team!</strong>
@@ -73,16 +83,10 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
           </div>
 
           {/* Your existing UI code */}
-          <div className="my-3 bg-white">
-            <div className="p-4">
-              <span>
-                <VscDebugBreakpointUnsupported size={30} />
-              </span>{' '}
-              <strong>Step 1</strong>
-            </div>
+          <div className="my-3 bg-white"> 
             <form className="p-3">
               <div className="row mb-3">
-                <p>Choose your website technology</p>
+                <h6 className='fw-semibold pt-2'>Choose your website technology</h6>
                 <div className="col">
                   <label htmlFor="appId" className="form-label pe-2">
                     <FaRegIdCard /> Website Type
@@ -127,19 +131,20 @@ const WebsiteIntegrationForm = ({ title, appDetails, webhookUrl }) => {
           {/* Pass websiteData to PhpIntegration or NodeIntegration */}
           {formData.tech === 'PHP' && (
             <PhpIntegration
-              webhookUrl={webhookUrl}
+              webhookUrl={currentWebhookUrl}
               websiteData={formData}
               saveWebsiteType={saveWebsiteType}
             />
           )}
-            {formData.tech && formData.tech !== 'PHP' && <DefaultIntegration />}
-          {/* {formData.tech === 'Node.js' && (
-            <NodeIntegration
-              webhookUrl={webhookUrl}
+         
+          {formData.tech === 'Wordpress' && (
+            <WordPressIntegration
+             webhookUrl={currentWebhookUrl}
               websiteData={formData}
               saveWebsiteType={saveWebsiteType}
             />
-          )} */}
+          )}
+           {formData.tech && formData.tech !== 'PHP' && formData.tech !== 'Wordpress'  && <DefaultIntegration />}
           {/* <button className="btn btn-primary" onClick={handleSave}>
             Save Website Type
           </button> */}
@@ -161,6 +166,7 @@ WebsiteIntegrationForm.propTypes = {
     }),
   ).isRequired,
   webhookUrl: PropTypes.string.isRequired,
+  
 }
 
 export default WebsiteIntegrationForm

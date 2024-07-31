@@ -1,4 +1,6 @@
 import React, { lazy } from 'react'
+import analyticsInfo from './components/views/API-Channels/SocialMediaPages/googleAnalytics/analyticsInfo'
+import Settings from './components/views/Settings/Settings'
 
 const BillingAndPlans = lazy(() => import('./components/views/BillingsAndPlans/BillingAndPlans'))
 const ConnectOverview = lazy(() => import('./components/views/API-Channels/ConnectOverview'))
@@ -30,7 +32,7 @@ const RedditAppSetting = lazy(
 )
 const ConnectWeb = lazy(() => import('./components/views/API-Channels/ConnectWeb'))
 
-const BlogSettings = lazy(() => import('./components/views/ContentMarketing/BlogSettings'))
+const BlogSettings = lazy(() => import('./components/views/Settings/BlogSettings'))
 const ConnectWebsiteOther = lazy(
   () => import('./components/views/API-Channels/connect-web/ConnectWebsiteOther'),
 )
@@ -47,20 +49,23 @@ const Dashboard = lazy(() => import('./components/views/dashboard/Dashboard'))
 const SocialMedia = lazy(() => import('./components/views/API-Channels/SocialMedia'))
 const BusinessProfile = lazy(() => import('./components/views/on-boarding-menu/BusinessProfile'))
 const keywords = lazy(() => import('./components/views/on-boarding-menu/Keywords'))
-const Competetors = lazy(() => import('./components/views/on-boarding-menu/Competetors'))
 const AddKeyword = lazy(() => import('./components/views/on-boarding-menu/AddKeyword'))
 const BillingPlans = lazy(() => import('./components/views/BillingsAndPlans/BillingPlans'))
 const OnSiteOverview = lazy(() => import('./components/views/onSite/OnSiteOverview'))
 const BlogOverView = lazy(() => import('./components/views/ContentMarketing/BlogOverView'))
-const BlogHistory = lazy(() => import('./components/views/ContentMarketing/BlogHistory'))
+
 const UpcomingBlogs = lazy(() => import('./components/views/ContentMarketing/UpcomingBlogs'))
 const Profile = lazy(() => import('./components/views/Profile/Profile'))
 const PhpIntegration = lazy(
   () => import('./components/views/API-Channels/connect-web/PHP/PhpIntegration'),
 )
-const NodeIntegration = lazy(
-  () => import('./components/views/API-Channels/connect-web/NodeJs/NodejsIntegration'),
+const WordPressIntegration = lazy(
+  () => import('./components/views/API-Channels/connect-web/WordPress/WordPressIntegration'),
 )
+const Contact = lazy(()=> import ('./components/views/Contact/Contact'));
+const EmailAutomation = lazy(()=> import ('./components/views/Email-automation/EmailAutomation'))
+
+
 
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
@@ -82,23 +87,36 @@ const routes = [
   { path: '/connect-web', name: 'ConnectWeb', element: ConnectWeb },
   // Website integration route
   { path: '/php-integration', name: 'PhpIntegration', element: PhpIntegration },
-  { path: '/node-integration', name: 'NodeIntegration ', element: NodeIntegration  },
+  { path: '/wordpress-integration', name: 'WordPressIntegration ', element: WordPressIntegration  },
+
+  //******************google analytics -> analytics Info********************* */
+  { path: '/analyticsInfo', name: 'analyticsInfo', element: analyticsInfo},
 
   ///////////////////////////////////
   { path: '/add-website', name: 'ConnectAddWebsite', element: ConnectAddWebsite },
 
+
+  //Onboarding
   { path: '/business-profile', name: 'BusinessProfile', element: BusinessProfile },
   { path: '/keywords', name: 'keywords', element: keywords },
-  { path: '/competetor', name: 'Competetors', element: Competetors },
   { path: '/add-keyword', name: 'AddKeyword', element: AddKeyword },
+
   { path: '/onsite-code', name: 'OnSiteOverview', element: OnSiteOverview },
+
+  //Blogs
   { path: '/blog-automation', name: 'BlogOverView', element: BlogOverView },
-  { path: '/blog-history', name: 'BlogHistory', element: BlogHistory },
   { path: '/upcoming-blogs', name: 'UpcomingBlogs', element: UpcomingBlogs },
   { path: '/blog-settings', name: 'BlogSettings', element: BlogSettings },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/billing-plan', name: 'BillingPlans', element: BillingPlans },
   { path: '/billing-and-plan', name: 'BillingAndPlans', element: BillingAndPlans },
+
+  //contact
+  { path: '/contact', name: 'Contact', element: Contact },
+  { path: '/email-automation', name: 'EmailAutomation', element: EmailAutomation },
+
+  //settings
+  { path: '/settings', name: 'Settings', element: Settings },
 ]
 
 export default routes

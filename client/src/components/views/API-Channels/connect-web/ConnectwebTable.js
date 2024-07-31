@@ -9,7 +9,6 @@ const ConnectwebTable = ({ data, headers, appSettingRoute, icon, heading }) => {
   const [perPage] = useState(5)
   const totalItems = data.length
   const totalPages = Math.ceil(totalItems / perPage)
-
   const nextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
   }
@@ -84,7 +83,7 @@ const ConnectwebTable = ({ data, headers, appSettingRoute, icon, heading }) => {
                           <span className="pe-1 mb-1">
                             <GrStatusGood color="green" />
                           </span>
-                          {item.status}
+                          {item.Status}
                         </div>
                       </td>
                     </tr>

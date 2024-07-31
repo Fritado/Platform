@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { RiProfileLine } from 'react-icons/ri'
 import WebsiteIntegrationForm from './WebsiteIntegrationForm'
 import { getDomianName } from '../../../services/BusinessDomain/domain'
-import axios from 'axios'
+
 
 const ConnectAddWebsite = () => {
   const [domainData, setDomainData] = useState({
@@ -12,6 +12,7 @@ const ConnectAddWebsite = () => {
   })
 
   const [loading, setLoading] = useState(true)
+  const [webhookUrl, setWebhookUrl] = useState('')
 
   useEffect(() => {
     fetchDomainName()
@@ -25,6 +26,7 @@ const ConnectAddWebsite = () => {
       }
       const domainInfo = await getDomianName(token)
       setDomainData(domainInfo)
+      setWebhookUrl(domainInfo.webhookUrl)
     } catch (error) {
       console.error('Error while fetching domain name', error)
       setLoading(false)
@@ -39,7 +41,7 @@ const ConnectAddWebsite = () => {
   const appDetails1 = [
     { label: 'App domain', value: domainData.domainName || 'Loading...' },
     { label: 'Site url', value: domainData.fullUrl || 'Loading...' },
-    { label: 'Webhook callback url ', value: domainData.webhookUrl || 'Loading...' },
+    { label: 'Webhook callback url ', value: webhookUrl || 'Loading...' },
   ]
 
   return (
@@ -48,6 +50,7 @@ const ConnectAddWebsite = () => {
         title={title1}
         appDetails={appDetails1}
         webhookUrl={domainData.webhookUrl}
+        setWebhookUrl={setWebhookUrl}
       />
     </div>
   )

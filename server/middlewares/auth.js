@@ -15,7 +15,7 @@ exports.auth = async (req, res, next) => {
       req.header("Authorization")?.replace("Bearer ", "");
 
     //const token = req.cookies.token;
-    /// console.log("AFTER ToKEN EXTRACTION");
+    //console.log("AFTER ToKEN EXTRACTION");
 
     //if token missing, then return response
     if (!token) {
@@ -28,8 +28,8 @@ exports.auth = async (req, res, next) => {
     //verify the token
     try {
       const decode = jwt.verify(token, process.env.JWT_SECRET);
-      //console.log(decode);
       req.user = decode;
+      
     } catch (err) {
       //verification - issue
       return res.status(401).json({
@@ -68,7 +68,7 @@ exports.checkPaymentAndRedirect = async (req, res, next) => {
     // If payment is completed, redirect to dashboard
     return res.redirect("/dashboard");
 
-   // next();
+    // next();
   } catch (error) {
     console.error("Error while checking payment status", error);
     return res.status(500).send("Internal Server Error");

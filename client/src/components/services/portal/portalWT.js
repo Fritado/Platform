@@ -30,7 +30,7 @@ export const analyzeContent = async (cleanContent) => {
       I have copied this ${cleanContent} content from a service/business website. I want you to analyse this content and provide me below information.
       1. Write about business in 500 words? Store the answer in Business variable.
       2. Give me the list of services and product it offers. Store the answer in Service variable.
-      3. Give me 100 short tail and long tail local keywords based on my business location .
+      3. Give me 100 short tail and long tail local keywords based on my business location in list view .
       that will help me optimize the website for Search Engine to attract targeted business.
       Store the answer in Keywords variable.
       `

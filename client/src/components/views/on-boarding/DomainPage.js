@@ -87,7 +87,7 @@ const DomainPage = () => {
                   business's SEO. Just share your URL, and I'll handle automatic weekly SEO
                   optimization. Ready to expand your customer reach? Let's begin!
                 </h6>
-                <form className="pt-3">
+                <form className="pt-3" onSubmit={fetchData}>
                   <div className="form-group d-flex flex-row">
                     <div className="d-flex align-items-center px-2 text-center">
                       <span className="fs-5">https://</span>

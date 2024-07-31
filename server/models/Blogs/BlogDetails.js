@@ -11,7 +11,12 @@ const blogDetailsSchema = new mongoose.Schema(
       required: true,
     },
     blogImage: {
-      type: String,
+      type: [String],
+      default: [],
+    },
+    selectedImage: {
+      type: String, 
+      default: "", 
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -35,6 +40,11 @@ const blogDetailsSchema = new mongoose.Schema(
       type:Date
       
     },
+    blogPostingStatus:{
+      type: String,
+      enum: ["Pending", "Published"],
+      default: "Pending",
+    }
   },
   { timestamps: true }
 );

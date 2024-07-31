@@ -11,6 +11,7 @@ import {
   getBlogStatusByTopic,
   handleBlogImage,
   generateImage
+ 
 } from '../../../services/BlogTopicApi'
 import { useParams } from 'react-router-dom'
 import parse from 'html-react-parser'
@@ -31,6 +32,7 @@ const BlogDetails = () => {
   const [blogId, setBlogId] = useState('')
   const [imageGenerated, setImageGenerated] = useState(false)
   const [blogDetails, setBlogDetails] = useState(null)
+  const [selectedImage, setSelectedImage] = useState()
 
   useEffect(() => {
     fetchBlogDetails(decodedTopic)
@@ -55,7 +57,17 @@ const BlogDetails = () => {
         setBlogId(response.blogId)
         setBlogDescription(response.data)
         extractParagraphs(response.data)
-        setImageGenerated(!!response.image)
+        setImageGenerated(response.image && response.image.length > 0)
+        if (response.image && response.image.length > 0) {
+          setSelectedImage(response.image[0]) 
+          // setSelectedImage(
+          //   response.selectedImage
+          //     ? `http://localhost:4000/blog-images/${extractImagePath(response.selectedImage)}`
+          //     : response.image && response.image.length > 0
+          //       ? `http://localhost:4000/blog-images/${extractImagePath(response.image[0])}`
+          //       : DefaultBlogImage,
+          // )
+        }
       } else {
         console.error('Failed to fetch blog details:', response.message)
       }
@@ -63,18 +75,25 @@ const BlogDetails = () => {
       console.error('Error fetching blog details:', error)
     }
   }
-
+  //check this function to generate blog bu AI
   const handleDownloadImage = async () => {
     try {
-      if (blogDetails) {
-        const { blogId, data } = blogDetails
-        await handleBlogImage(blogId, decodedTopic, data)
-        fetchBlogDetails() // Refresh the recent blog data to reflect the updated image
+      if (!imageGenerated) {
+        const generatedImageUrl = await generateImage(decodedTopic, blogDescription); // Generate image here
+        console.log('Generated Image URL:', generatedImageUrl);
+        
+        // Update state and UI to reflect that image has been generated
+        setImageGenerated(true);
+        setUploadMessage('Image generated successfully.');
+        
+        // Save the generated image URL to the database
+        const saveResponse = await saveBlogImage(blogId, generatedImageUrl);
+        console.log('Save Response:', saveResponse);
       }
     } catch (error) {
-      console.error('Error handling blog image:', error)
+      console.error('Error handling blog image:', error);
     }
-  }
+  };
 
   const extractParagraphs = (description) => {
     const words = description.split(' ')
@@ -202,10 +221,12 @@ const BlogDetails = () => {
                     </p>
                     <div className="px-4 py-1 position-relative d-flex justify-content-center">
                       <img
-                        src={
-                          blogDetails?.image
-                            ? `https://server.fritado.com/blog-images/${extractImagePath(blogDetails?.image)}`
-                            : DefaultBlogImage
+                         src={
+                          selectedImage
+                            ? `https://server.fritado.com/blog-images/${extractImagePath(selectedImage)}`
+                            : (blogDetails && blogDetails.image && blogDetails.image.length > 0)
+                              ? `https://server.fritado.com/blog-images/${extractImagePath(blogDetails.image[0])}`
+                              : DefaultBlogImage
                         }
                         alt="blog-post-picture"
                         className="w-100 mb-3"
